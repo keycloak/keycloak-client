@@ -1,0 +1,8 @@
+src/main/java/org/keycloak/common/util/Base64.java
+src/main/java/org/keycloak/common/util/CollectionUtil.java
+src/main/java/org/keycloak/common/util/MultivaluedHashMap.java
+src/main/java/org/keycloak/common/util/MultivaluedMap.java
+src/main/java/org/keycloak/common/util/ObjectUtil.java
+src/main/java/org/keycloak/common/util/StringPropertyReplacer.java
+src/main/java/org/keycloak/common/util/SystemEnvProperties.java
+src/main/java/org/keycloak/common/util/Time.java

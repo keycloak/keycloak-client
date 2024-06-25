@@ -1,0 +1,12 @@
+src/main/java/org/keycloak/crypto/KeyUse.java
+src/main/java/org/keycloak/json/*.java
+src/main/java/org/keycloak/representations/adapters/action/GlobalRequestResult.java
+src/main/java/org/keycloak/representations/idm/*
+src/main/java/org/keycloak/representations/info/*.java
+src/main/java/org/keycloak/representations/userprofile/config/*.java
+src/main/java/org/keycloak/representations/AccessToken.java
+src/main/java/org/keycloak/representations/AccessTokenResponse.java
+src/main/java/org/keycloak/representations/AddressClaimSet.java
+src/main/java/org/keycloak/representations/IDToken.java
+src/main/java/org/keycloak/representations/JsonWebToken.java
+src/main/java/org/keycloak/representations/KeyStoreConfig.java

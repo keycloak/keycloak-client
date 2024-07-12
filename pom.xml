@@ -131,7 +131,7 @@
     <modules>
         <module>admin-client</module>
         <module>admin-client-jee</module>
-        <module>client</module>
+        <module>authz-client</module>
         <module>policy-enforcer</module>
     </modules>
 

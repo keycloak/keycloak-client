@@ -70,8 +70,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.keycloak</groupId>
-                                    <!-- TODO: artifactId needs to be different than the one copied over from upstream Keycloak -->
-                                    <artifactId>keycloak-policy-enforcer</artifactId>
+                                    <artifactId>keycloak-policy-enforcer-tests</artifactId>
                                     <version>${keycloak.version}</version>
                                     <type>jar</type>
                                     <classifier>sources</classifier>
@@ -83,8 +82,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.keycloak</groupId>
-                                    <!-- TODO: artifactId needs to be different than the one copied over from upstream Keycloak -->
-                                    <artifactId>keycloak-policy-enforcer</artifactId>
+                                    <artifactId>keycloak-policy-enforcer-tests</artifactId>
                                     <version>${keycloak.version}</version>
                                     <type>jar</type>
                                     <classifier>sources</classifier>

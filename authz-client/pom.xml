@@ -82,8 +82,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.keycloak</groupId>
-                                    <!-- TODO: artifactId needs to be different than the one copied over from upstream Keycloak -->
-                                    <artifactId>keycloak-authz-client</artifactId>
+                                    <artifactId>keycloak-authz-client-tests</artifactId>
                                     <version>${keycloak.version}</version>
                                     <type>jar</type>
                                     <classifier>sources</classifier>

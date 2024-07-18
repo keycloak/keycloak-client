@@ -71,6 +71,11 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${project.build.directory}/unpacked-resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -139,6 +144,18 @@
                                         org/keycloak/AuthorizationContext.java,
                                         org/keycloak/constants/ServiceUrlConstants.java,
 
+                                    </includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.keycloak</groupId>
+                                    <artifactId>keycloak-core</artifactId>
+                                    <version>${keycloak.version}</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/unpacked-resources</outputDirectory>
+                                    <includes>
+                                        META-INF/services/**/*
                                     </includes>
                                 </artifactItem>
                                 <artifactItem>

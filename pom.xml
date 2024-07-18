@@ -163,6 +163,11 @@
                 <version>${com.fasterxml.jackson.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${com.fasterxml.jackson.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jboss.logging</groupId>
                 <artifactId>commons-logging-jboss-logging</artifactId>
                 <version>${commons-logging-jboss-logging.version}</version>

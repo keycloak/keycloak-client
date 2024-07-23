@@ -1,0 +1,21 @@
+name: Keycloak Quickstarts CI
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          check-latest: true
+          cache: maven
+
+      - name: Build with Keycloak Nightly
+        run: mvn -B package -Pnightly

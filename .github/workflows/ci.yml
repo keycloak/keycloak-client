@@ -1,4 +1,4 @@
-name: Keycloak Quickstarts CI
+name: Keycloak Client CI
 on:
   push:
   pull_request:

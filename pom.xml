@@ -50,9 +50,9 @@
         <jakarta.activation-api.version>2.1.2</jakarta.activation-api.version>
 
         <jboss.repo.nexusUrl>https://s01.oss.sonatype.org/</jboss.repo.nexusUrl>
-        <jboss.releases.repo.id>jboss-releases-repository</jboss.releases.repo.id>
+        <jboss.releases.repo.id>ossrh</jboss.releases.repo.id>
         <jboss.releases.repo.url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
-        <jboss.snapshots.repo.id>jboss-snapshots-repository</jboss.snapshots.repo.id>
+        <jboss.snapshots.repo.id>ossrh</jboss.snapshots.repo.id>
         <jboss.snapshots.repo.url>https://s01.oss.sonatype.org/content/repositories/snapshots/</jboss.snapshots.repo.url>
 
         <project.build-time>${timestamp}</project.build-time>
@@ -101,7 +101,7 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/keycloak/keycloak.git</connection>
+        <connection>scm:git:git://github.com/keycloak/keycloak-client.git</connection>
         <developerConnection>scm:git:git@github.com:keycloak/keycloak-client-libs.git</developerConnection>
         <url>https://github.com/keycloak/keycloak-client-libs/tree/master/</url>
     </scm>
@@ -109,14 +109,17 @@
     <distributionManagement>
         <repository>
             <id>${jboss.releases.repo.id}</id>
-            <name>JBoss Releases Repository</name>
             <url>${jboss.releases.repo.url}</url>
         </repository>
+        <snapshotRepository>
+            <id>${jboss.snapshots.repo.id}</id>
+            <url>${jboss.snapshots.repo.url}</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <issueManagement>
         <system>JIRA</system>
-        <url>https://github.com/keycloak/keycloak/issues</url>
+        <url>https://github.com/keycloak/keycloak-client/issues</url>
     </issueManagement>
 
     <developers>

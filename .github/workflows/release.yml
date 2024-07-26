@@ -29,4 +29,4 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MVN_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          mvn -nsu -B -Pgpg,jboss-release -DskipTests -DretryFailedDeploymentCount=10 -DautoReleaseAfterClose=false deploy
+          mvn -nsu -B -Pgpg,jboss-release -DskipTests -DretryFailedDeploymentCount=10 -DautoReleaseAfterClose=true deploy

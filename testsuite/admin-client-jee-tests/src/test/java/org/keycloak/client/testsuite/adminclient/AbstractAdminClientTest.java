@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.client.testsuite.KeycloakContainersTestsuiteContext;
 import org.keycloak.client.testsuite.RemoteTestsuiteContext;
+import org.keycloak.client.testsuite.TestConstants;
 import org.keycloak.client.testsuite.TestsuiteContext;
 
 /**
@@ -17,7 +18,7 @@ public abstract class AbstractAdminClientTest {
 
     @BeforeAll
     public static void beforeAll() {
-        String keycloakLifecycle = System.getProperty("keycloak.lifecycle");
+        String keycloakLifecycle = System.getProperty(TestConstants.PROPERTY_KEYCLOAK_LIFECYCLE);
         testsuiteContext = "remote".equalsIgnoreCase(keycloakLifecycle) ? new RemoteTestsuiteContext() : new KeycloakContainersTestsuiteContext();
 
         testsuiteContext.startKeycloakServer();

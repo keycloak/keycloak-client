@@ -3,6 +3,7 @@ package org.keycloak.client.testsuite;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.jboss.logging.Logger;
 import org.keycloak.admin.client.Keycloak;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 
 /**
  * Providing Keycloak server based on testcontainers
@@ -14,7 +15,6 @@ import org.keycloak.admin.client.Keycloak;
 public class KeycloakContainersTestsuiteContext implements TestsuiteContext {
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
-    private static final String KEYCLOAK_VERSION = "nightly"; // "25.0"; // TODO: Retrive from the configuration to be able to test with more Keycloak versions
 
     private volatile KeycloakContainer keycloakContainer;
     private Keycloak adminClient;
@@ -27,10 +27,18 @@ public class KeycloakContainersTestsuiteContext implements TestsuiteContext {
         if (keycloakContainer == null) {
             synchronized (this) {
                 if (keycloakContainer == null) {
-                    String dockerImage = KEYCLOAK_IMAGE + ":" + KEYCLOAK_VERSION;
-                    logger.infof("Starting Keycloak server based on testcontainers. Docker image %s", dockerImage);
+                    String keycloakVersion = System.getProperty(TestConstants.PROPERTY_KEYCLOAK_VERSION, TestConstants.KEYCLOAK_VERSION_DEFAULT);
+                    String dockerImage = KEYCLOAK_IMAGE + ":" + keycloakVersion;
+                    logger.infof("Starting Keycloak server based on testcontainers. Docker image: %s", dockerImage);
 
                     keycloakContainer = new KeycloakContainer(dockerImage).useTls();
+
+                    if (keycloakVersion.startsWith("24.0")) {
+                        // Health probe like https://localhost:37267/health/started reset connections by default on Keycloak 24. So fallback to use the log message
+                        keycloakContainer.waitingFor(new LogMessageWaitStrategy()
+                                .withRegEx(".*Profile dev activated.*\\s"));
+                    }
+
                     keycloakContainer.start();
                     logger.infof("Started Keycloak server on URL %s", keycloakContainer.getAuthServerUrl());
 
@@ -42,13 +50,14 @@ public class KeycloakContainersTestsuiteContext implements TestsuiteContext {
 
     @Override
     public void stopKeycloakServer() {
-        if (keycloakContainer == null) {
-            throw new IllegalStateException("Incorrect usage. Calling stopKeycloakServer before Keycloak server started.");
+        if (adminClient != null) {
+            adminClient.close();
         }
-        logger.info("Going to stop Keycloak server");
-        adminClient.close();
-        keycloakContainer.stop();
-        logger.info("Stopped Keycloak server");
+        if (keycloakContainer != null) {
+            logger.info("Going to stop Keycloak server");
+            keycloakContainer.stop();
+            logger.info("Stopped Keycloak server");
+        }
     }
 
     @Override

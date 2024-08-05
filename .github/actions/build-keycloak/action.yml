@@ -1,0 +1,44 @@
+name: Build Keycloak Client
+description: Builds Keycloak client providing Maven repository with all artifacts
+
+inputs:
+  upload-m2-repo:
+    description: Upload Maven repository for org.keycloak artifacts
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - id: setup-java
+      name: Setup Java
+      uses: ./.github/actions/java-setup
+
+    - id: maven-cache
+      name: Maven cache
+      uses: ./.github/actions/maven-cache
+      with:
+        create-cache-if-it-doesnt-exist: true
+
+    - id: build-keycloak-client
+      name: Build Keycloak Client libraries
+      shell: bash
+      run: mvn -B clean install dependency:resolve -Pnightly -DskipTests=true
+
+    - id: compress-keycloak-maven-repository
+      name: Compress Keycloak Maven artifacts
+      if: inputs.upload-m2-repo == 'true'
+      shell: bash
+      run: |
+        tar -C ~/ --use-compress-program zstd -cf m2-keycloak.tzts \
+        --exclude '*.tar.gz' \
+        .m2/repository/org/keycloak
+
+    - id: upload-keycloak-maven-repository
+      name: Upload Keycloak Maven artifacts
+      if: inputs.upload-m2-repo == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: m2-keycloak.tzts
+        path: m2-keycloak.tzts
+        retention-days: 1

@@ -25,3 +25,9 @@ mvn clean install -Dkeycloak.lifecycle=remote
 
 The testsuite won't start the Keycloak server, but instead tests will try to use Keycloak server, which is already started on this laptop where testsuite is running.
 
+It is also possible to use different version of Keycloak server. By default, it uses `nightly` docker image, but can be overriden by the parameter like this:
+
+```
+mvn clean install -Dkeycloak.version.docker.image=24.0
+```
+

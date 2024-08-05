@@ -23,6 +23,10 @@ public class RemoteTestsuiteContext implements TestsuiteContext {
     @Override
     public void stopKeycloakServer() {
         logger.infof("Ignored stop of Keycloak server as it is externally managed");
+        if (adminClient != null) {
+            logger.infof("Closing adminClient");
+            adminClient.close();
+        }
     }
 
     @Override

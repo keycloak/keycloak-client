@@ -1,4 +1,4 @@
-package org.keycloak.client.testsuite.adminclient;
+package org.keycloak.client.testsuite;
 
 import java.lang.reflect.Field;
 
@@ -10,11 +10,9 @@ import org.testcontainers.shaded.org.hamcrest.MatcherAssert;
 import static org.testcontainers.shaded.org.hamcrest.Matchers.equalTo;
 
 /**
- * Test that I have correct versions of admin-client (admin-client VS admin-client-jee) and corresponding libraries on classpath
- *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class ClasspathTest {
+public class ClasspathJEETest {
 
     @Test
     public void testCorrectResteasyClient() throws Exception {
@@ -30,7 +28,6 @@ public class ClasspathTest {
     }
 
     protected String getExpectedClientFieldClass() {
-        return "jakarta.ws.rs.client.Client";
+        return "javax.ws.rs.client.Client";
     }
-
 }

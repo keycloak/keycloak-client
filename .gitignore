@@ -81,9 +81,7 @@ quarkus/data/*.db
 
 # Jakarta transformed sources #
 ###############################
-/integration/admin-client/src/
-/adapters/saml/jakarta-servlet-filter/src/
-/adapters/oidc/jakarta-servlet-filter/src/
+/testsuite/admin-client-tests/src/test/java/org/keycloak/client/testsuite/adminclient/
 /.metadata/
 
 # Git ephemeral files

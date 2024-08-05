@@ -1,0 +1,27 @@
+name: Setup unit test
+description: Download Maven caches needed for unit tests
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Java
+      uses: ./.github/actions/java-setup
+
+    - id: maven-cache
+      name: Maven cache
+      uses: ./.github/actions/maven-cache
+
+    - id: download-keycloak
+      name: Download Keycloak Maven artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: m2-keycloak.tzts
+
+    - id: extract-maven-artifacts
+      name: Extract Keycloak Maven artifacts
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          choco install zstandard
+        fi
+        tar -C ~/ --use-compress-program="zstd -d" -xf m2-keycloak.tzts

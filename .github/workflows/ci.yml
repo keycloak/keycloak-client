@@ -5,17 +5,31 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          check-latest: true
-          cache: maven
+      - name: Build Keycloak Client Libs
+        uses: ./.github/actions/build-keycloak
 
-      - name: Build with Keycloak Nightly
-        run: mvn -B package -Pnightly
+  admin-client-tests:
+    name: Admin client tests (Jakarta, JEE)
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        keycloak_server_version: [ "24.0", "25.0", "nightly" ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: test-setup
+        name: Test setup
+        uses: ./.github/actions/test-setup
+
+      - name: Run unit tests
+        run: |
+          mvn -B -f testsuite/admin-client-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
+          mvn -B -f testsuite/admin-client-jee-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
+

@@ -1,26 +1,23 @@
-package org.keycloak.client.testsuite;
+package org.keycloak.client.testsuite.server;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.jboss.logging.Logger;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.client.testsuite.TestConstants;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 
 /**
  * Providing Keycloak server based on testcontainers
  *
- * For now, starting server before each test-class and stop after each test-class TODO: Improve...
- *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class KeycloakContainersTestsuiteContext implements TestsuiteContext {
+public class KeycloakContainersServerProvider implements KeycloakServerProvider {
 
     private static final String KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak";
 
     private volatile KeycloakContainer keycloakContainer;
-    private Keycloak adminClient;
 
-
-    private static final Logger logger = Logger.getLogger(KeycloakContainersTestsuiteContext.class);
+    private static final Logger logger = Logger.getLogger(KeycloakContainersServerProvider.class);
 
     @Override
     public void startKeycloakServer() {
@@ -41,8 +38,6 @@ public class KeycloakContainersTestsuiteContext implements TestsuiteContext {
 
                     keycloakContainer.start();
                     logger.infof("Started Keycloak server on URL %s", keycloakContainer.getAuthServerUrl());
-
-                    adminClient = keycloakContainer.getKeycloakAdminClient();
                 }
             }
         }
@@ -50,9 +45,6 @@ public class KeycloakContainersTestsuiteContext implements TestsuiteContext {
 
     @Override
     public void stopKeycloakServer() {
-        if (adminClient != null) {
-            adminClient.close();
-        }
         if (keycloakContainer != null) {
             logger.info("Going to stop Keycloak server");
             keycloakContainer.stop();
@@ -69,10 +61,7 @@ public class KeycloakContainersTestsuiteContext implements TestsuiteContext {
     }
 
     @Override
-    public Keycloak getKeycloakAdminClient() {
-        if (adminClient == null) {
-            throw new IllegalStateException("Incorrect usage. Calling getKeycloakAdminClient before Keycloak server started.");
-        }
-        return adminClient;
+    public Keycloak createAdminClient() {
+        return keycloakContainer.getKeycloakAdminClient();
     }
 }

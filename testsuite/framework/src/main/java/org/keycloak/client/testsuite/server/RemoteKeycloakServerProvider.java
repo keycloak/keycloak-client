@@ -1,7 +1,8 @@
-package org.keycloak.client.testsuite;
+package org.keycloak.client.testsuite.server;
 
 import org.jboss.logging.Logger;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.client.testsuite.TestConstants;
 
 /**
  * This class can be used when Keycloak server is already started on current laptop and hence start/stop of the Keycloak
@@ -9,11 +10,9 @@ import org.keycloak.admin.client.Keycloak;
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class RemoteTestsuiteContext implements TestsuiteContext {
+public class RemoteKeycloakServerProvider implements KeycloakServerProvider {
 
-    private static final Logger logger = Logger.getLogger(RemoteTestsuiteContext.class);
-
-    private volatile Keycloak adminClient;
+    private static final Logger logger = Logger.getLogger(RemoteKeycloakServerProvider.class);
 
     @Override
     public void startKeycloakServer() {
@@ -23,10 +22,6 @@ public class RemoteTestsuiteContext implements TestsuiteContext {
     @Override
     public void stopKeycloakServer() {
         logger.infof("Ignored stop of Keycloak server as it is externally managed");
-        if (adminClient != null) {
-            logger.infof("Closing adminClient");
-            adminClient.close();
-        }
     }
 
     @Override
@@ -36,19 +31,11 @@ public class RemoteTestsuiteContext implements TestsuiteContext {
     }
 
     @Override
-    public Keycloak getKeycloakAdminClient() {
+    public Keycloak createAdminClient() {
 //        if (useTls) {
 //            return Keycloak.getInstance(keycloakContainer.getAuthServerUrl(), MASTER_REALM, keycloakContainer.getAdminUsername(),
 //                    keycloakContainer.getAdminPassword(), ADMIN_CLI_CLIENT, keycloakContainer.buildSslContext());
 //        }
-
-        if (adminClient == null) {
-            synchronized (this) {
-                if (adminClient == null) {
-                    adminClient = Keycloak.getInstance(getAuthServerUrl(), TestConstants.MASTER_REALM, "admin", "admin", TestConstants.ADMIN_CLI_CLIENT);
-                }
-            }
-        }
-        return adminClient;
+        return Keycloak.getInstance(getAuthServerUrl(), TestConstants.MASTER_REALM, "admin", "admin", TestConstants.ADMIN_CLI_CLIENT);
     }
 }

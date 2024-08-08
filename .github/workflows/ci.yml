@@ -13,14 +13,14 @@ jobs:
       - name: Build Keycloak Client Libs
         uses: ./.github/actions/build-keycloak
 
-  admin-client-tests:
-    name: Admin client tests (Jakarta, JEE)
+  client-tests:
+    name: Client tests (Jakarta, JEE)
     runs-on: ubuntu-latest
     needs: build
     timeout-minutes: 30
     strategy:
       matrix:
-        keycloak_server_version: [ "24.0", "25.0", "nightly" ]
+        keycloak_server_version: [ "25.0", "nightly" ]
     steps:
       - uses: actions/checkout@v4
 
@@ -28,8 +28,9 @@ jobs:
         name: Test setup
         uses: ./.github/actions/test-setup
 
-      - name: Run unit tests
+      - name: Run client tests
         run: |
           mvn -B -f testsuite/admin-client-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
           mvn -B -f testsuite/admin-client-jee-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
+          mvn -B -f testsuite/authz-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
 

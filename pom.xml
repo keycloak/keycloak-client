@@ -60,10 +60,6 @@
         <log4j.version>1.2.17</log4j.version>
         <wildfly-elytron.version>2.2.3.Final</wildfly-elytron.version>
 
-        <!-- Test -->
-        <jmeter.version>2.10</jmeter.version>
-        <junit.version>4.13.2</junit.version>
-
         <!-- Needs to be aligned with Quarkus, see e.g. https://github.com/quarkusio/quarkus-quickstarts/blob/2.13.5.Final/getting-started-async/pom.xml#L14 -->
         <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
 
@@ -74,8 +70,6 @@
         <maven.compiler.release>17</maven.compiler.release>
         <maven.plugins.version>3.11.0</maven.plugins.version>
         <replacer.plugin.version>1.4.1</replacer.plugin.version>
-        <jmeter.plugin.version>1.9.0</jmeter.plugin.version>
-        <jmeter.analysis.plugin.version>1.0.4</jmeter.analysis.plugin.version>
         <nexus.staging.plugin.version>1.6.13</nexus.staging.plugin.version>
         <verifier.plugin.version>1.1</verifier.plugin.version>
         <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
@@ -257,12 +251,6 @@
                 <artifactId>log4j</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
 
             <dependency>
                 <groupId>org.wildfly.security</groupId>
@@ -328,16 +316,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
-                </plugin>
-                <plugin>
-                    <groupId>com.lazerycode.jmeter</groupId>
-                    <artifactId>jmeter-maven-plugin</artifactId>
-                    <version>${jmeter.plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>com.lazerycode.jmeter</groupId>
-                    <artifactId>jmeter-analysis-maven-plugin</artifactId>
-                    <version>${jmeter.analysis.plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

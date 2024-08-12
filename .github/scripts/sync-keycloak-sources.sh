@@ -21,6 +21,11 @@ function syncFiles() {
   MODULE=$1;
   echo_header "Syncing files in the module $MODULE";
   cd $MODULE
+
+  # Remove the existing files before sync
+  rm -rf src/main/java/*
+  rm -rf src/main/resources/*
+
   mvn clean install -Psync
   mv target/unpacked/* src/main/java/
 

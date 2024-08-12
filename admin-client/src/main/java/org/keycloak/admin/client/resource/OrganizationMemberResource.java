@@ -17,19 +17,28 @@
 
 package org.keycloak.admin.client.resource;
 
+import java.util.List;
+
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.MemberRepresentation;
+import org.keycloak.representations.idm.OrganizationRepresentation;
 
 public interface OrganizationMemberResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    UserRepresentation toRepresentation();
+    MemberRepresentation toRepresentation();
 
     @DELETE
     Response delete();
+
+    @Path("organizations")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    List<OrganizationRepresentation> getOrganizations();
 }

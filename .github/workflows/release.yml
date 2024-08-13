@@ -1,32 +1,65 @@
-name: Keycloak Client Nightly Release
+name: Release
 
 on:
-  schedule:
-    - cron: '0 2 * * *'
   workflow_dispatch:
+    inputs:
+      branch:
+        description: Release branch (needed for major and minor releases)
+        required: true
+      version:
+        description: Release version
+        required: true
+      deploy-skip:
+        description: Set to true to prevent maven deploy plugin to actually deploy the artifacts.
+        required: true
+        default: false
+
+concurrency: rel-${{ github.ref }}
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  release:
+
+  show-inputs:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - run: |
+          echo "Version: ${{ inputs.version }}  " >> $GITHUB_STEP_SUMMARY
+          echo "Release branch: ${{ inputs.branch }}  " >> $GITHUB_STEP_SUMMARY
+          echo "Workflow branch: ${{ github.ref_name }}  " >> $GITHUB_STEP_SUMMARY
+          echo "Dry run: ${{ inputs.dry-run }}  " >> $GITHUB_STEP_SUMMARY
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-          server-id: ossrh
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+  env:
+    uses: ./.github/workflows/x-env.yml
 
-      - name: Deploy to Maven
-        env:
-          MAVEN_USERNAME: ${{ secrets.MVN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MVN_TOKEN }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          mvn -nsu -B -Pgpg,jboss-release -DskipTests -DretryFailedDeploymentCount=10 -DautoReleaseAfterClose=true deploy
+  create-tags:
+    name: Create tags
+    needs: [env]
+    uses: ./.github/workflows/x-create-tags.yml
+    with:
+      gh-org: ${{ needs.env.outputs.gh-org }}
+      tag: ${{ github.event.inputs.version }}
+      branch: ${{ github.event.inputs.branch }}
+      set-versions: true
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  keycloak-client:
+    name: Keycloak Client
+    needs: [env, create-tags]
+    uses: ./.github/workflows/x-keycloak-client.yml
+    with:
+      gh-org: ${{ needs.env.outputs.gh-org }}
+      mvn-url: ${{ needs.env.outputs.mvn-releases-url }}
+      version: ${{ github.event.inputs.version }}
+      tag: ${{ github.event.inputs.version }}
+      deploy-skip: ${{ needs.env.outputs.deploy-skip }}
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MVN_USERNAME: ${{ secrets.MVN_USERNAME }}
+      MVN_TOKEN: ${{ secrets.MVN_TOKEN }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+

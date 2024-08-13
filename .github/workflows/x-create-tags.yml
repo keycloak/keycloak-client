@@ -1,0 +1,69 @@
+
+name: X Create tags
+
+on:
+  workflow_call:
+    inputs:
+      gh-org:
+        required: true
+        type: string
+      tag:
+        required: true
+        type: string
+      branch:
+        required: false
+        type: string
+        default: main
+      set-versions:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      GH_TOKEN:
+        required: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  create-tags:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repository:
+          - keycloak-client
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: "${{ inputs.gh-org }}/${{ matrix.repository }}"
+          token: ${{ secrets.GH_TOKEN }}
+          path: ${{ matrix.repository }}
+          ref: ${{ inputs.branch }}
+
+      - name: Create version commit
+        if: inputs.set-versions
+        working-directory: ${{ matrix.repository }}
+        run: |
+          ./set-version.sh ${{ inputs.tag }}
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git commit -a -m "Set version to ${{ inputs.tag }}"
+
+      - name: Tag commit
+        working-directory: ${{ matrix.repository }}
+        run: git tag --force ${{ inputs.tag }}
+
+      - name: Push changes
+        working-directory: ${{ matrix.repository }}
+        run: git push --force origin refs/tags/${{ inputs.tag }}
+
+  show-tags:
+    name: Show Git tags
+    runs-on: ubuntu-latest
+    needs: [create-tags]
+    steps:
+      - run: |
+          echo "https://github.com/${{ inputs.gh-org }}/keycloak-client/tree/${{ inputs.tag }}  " >> $GITHUB_STEP_SUMMARY

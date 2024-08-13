@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.RealmRepresentation;
+import org.keycloak.representations.idm.RequiredActionProviderRepresentation;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
@@ -32,6 +33,20 @@ public class RealmImporter {
 
             importedRealmNames = realmsToImport.stream().map(realm -> {
                 adminClient.realms().create(realm);
+
+                if (realmsProvider.removeVerifyProfileAtImport()) {
+                    try {
+                        RequiredActionProviderRepresentation vpModel = adminClient.realm(realm.getRealm()).flows()
+                                .getRequiredAction("VERIFY_PROFILE");
+                        vpModel.setEnabled(false);
+                        vpModel.setDefaultAction(false);
+                        adminClient.realm(realm.getRealm()).flows().updateRequiredAction(
+                                "VERIFY_PROFILE", vpModel);
+                    } catch (Exception ignore) {
+                        logger.debugf("Exception %s when trying to disable verify profile action of realm %s. Ignoring it", ignore.getClass(), realm.getRealm());
+                    }
+                }
+
                 return realm.getRealm();
             }).collect(Collectors.toList());
 

@@ -30,6 +30,7 @@ jobs:
 
       - name: Run client tests
         run: |
+          mvn -B -f testsuite/providers/pom.xml package -DskipTests=true
           mvn -B -f testsuite/admin-client-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
           mvn -B -f testsuite/admin-client-jee-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
           mvn -B -f testsuite/authz-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}

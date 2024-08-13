@@ -14,6 +14,8 @@ import org.jboss.logging.Logger;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.client.testsuite.common.AdminClientFactory;
 import org.keycloak.client.testsuite.common.HttpClientFactory;
+import org.keycloak.client.testsuite.common.OAuthClient;
+import org.keycloak.client.testsuite.common.OAuthClientFactory;
 import org.keycloak.client.testsuite.server.KeycloakServerProvider;
 import org.keycloak.client.testsuite.server.KeycloakServerProviderFactory;
 import org.keycloak.client.testsuite.common.RealmImporter;
@@ -30,7 +32,7 @@ public class TestRegistry {
 
     private final Map<Class<?>, Object> instances = new ConcurrentHashMap<>();
 
-    // Sorted by last added classes being first, so we can cleanup in correct order
+    // Sorted by last added classes being last, so we can cleanup in correct order
     private final List<Class<?>> currentInstanceClasses = new CopyOnWriteArrayList<>();
 
     public static TestRegistry INSTANCE = new TestRegistry();
@@ -40,6 +42,7 @@ public class TestRegistry {
         factories.put(KeycloakServerProvider.class, new KeycloakServerProviderFactory());
         factories.put(Keycloak.class, new AdminClientFactory());
         factories.put(CloseableHttpClient.class, new HttpClientFactory());
+        factories.put(OAuthClient.class, new OAuthClientFactory());
         factories.put(RealmImporter.class, new RealmImporterFactory());
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::afterAllTestClasses));

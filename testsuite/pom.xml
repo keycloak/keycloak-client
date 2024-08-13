@@ -13,6 +13,7 @@
     <artifactId>keycloak-client-testsuite-parent</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>providers</module>
         <module>framework</module>
         <module>admin-client-jee-tests</module>
         <module>admin-client-tests</module>

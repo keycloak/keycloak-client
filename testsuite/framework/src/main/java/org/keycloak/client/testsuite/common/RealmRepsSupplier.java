@@ -17,4 +17,11 @@ public interface RealmRepsSupplier {
      * @return realms, which will be imported
      */
     List<RealmRepresentation> getRealmsForImport();
+
+    /**
+     * Should be "Verify profile" action disabled after import of the realms?
+     *
+     * @return true if should be disabled, false otherwise
+     */
+    boolean removeVerifyProfileAtImport();
 }

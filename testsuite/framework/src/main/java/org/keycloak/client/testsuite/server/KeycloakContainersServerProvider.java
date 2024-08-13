@@ -1,9 +1,13 @@
 package org.keycloak.client.testsuite.server;
 
+import java.io.File;
+import java.util.Collections;
+
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.jboss.logging.Logger;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.client.testsuite.TestConstants;
+import org.keycloak.client.testsuite.common.TestEnvironment;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 
 /**
@@ -35,6 +39,14 @@ public class KeycloakContainersServerProvider implements KeycloakServerProvider 
                         keycloakContainer.waitingFor(new LogMessageWaitStrategy()
                                 .withRegEx(".*Profile dev activated.*\\s"));
                     }
+
+                    String testProvidersFile = TestEnvironment.getTestProvidersFile();
+                    logger.infof("Deploying providers from file %s to Keycloak server", testProvidersFile);
+                    File providersFile = new File(testProvidersFile);
+                    if (!providersFile.exists()) {
+                        throw new IllegalStateException("Providers file " + testProvidersFile + " does not exists");
+                    }
+                    keycloakContainer.withProviderLibsFrom(Collections.singletonList(providersFile));
 
                     keycloakContainer.start();
                     logger.infof("Started Keycloak server on URL %s", keycloakContainer.getAuthServerUrl());

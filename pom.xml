@@ -37,6 +37,7 @@
     <properties>
         <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
         <asciidoctor.plugin.version>1.5.8</asciidoctor.plugin.version>
+        <freemarker.version>2.3.32</freemarker.version>
 
         <!-- Quarkus aligned versions -->
         <resteasy.version>6.2.7.Final</resteasy.version>
@@ -128,6 +129,7 @@
         <module>admin-client</module>
         <module>authz-client</module>
         <module>policy-enforcer</module>
+        <module>docs</module>
         <module>testsuite</module>
     </modules>
 
@@ -261,6 +263,13 @@
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-authz-client</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <!-- freemarker for guides -->
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

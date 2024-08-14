@@ -1,0 +1,41 @@
+<#import "/templates/guide.adoc" as tmpl>
+<#import "/templates/links.adoc" as links>
+
+<@tmpl.guide
+title="{project_name} admin client"
+priority=500
+summary="Using the {project_name} admin client to access the {project_name} Admin REST API">
+
+The {project_name} admin client is a Java library that facilitates the access and usage of the {project_name} Admin REST API. To use it from your application add a dependency on the
+`keycloak-admin-client` library. For example using Maven:
+
+[source,xml,subs="attributes+"]
+----
+<dependency>
+    <groupId>org.keycloak</groupId>
+    <artifactId>keycloak-admin-client</artifactId>
+    <version>${client_version}</version>
+</dependency>
+----
+
+The following example shows how to use the Java client library to get the details of the master realm:
+
+[source,java,subs="attributes+"]
+----
+
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.RealmRepresentation;
+...
+
+Keycloak keycloak = Keycloak.getInstance(
+    "http://localhost:8080",
+    "master",
+    "admin",
+    "password",
+    "admin-cli");
+RealmRepresentation realm = keycloak.realm("master").toRepresentation();
+----
+
+Complete Javadoc for the admin client is available at {apidocs_link}[{apidocs_name}].
+
+</@tmpl.guide>

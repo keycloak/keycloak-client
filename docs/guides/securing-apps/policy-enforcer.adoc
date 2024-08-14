@@ -1,0 +1,19 @@
+<#import "/templates/guide.adoc" as tmpl>
+<#import "/templates/links.adoc" as links>
+
+<@tmpl.guide
+title="{project_name} policy enforcer"
+priority=530
+summary="Using the {project_name} policy enforcer in Java applications">
+
+<#include "partials/policy-enforcer/enforcer-overview.adoc" />
+
+include::partials/policy-enforcer/enforcer-configuration.adoc[]
+
+include::partials/policy-enforcer/enforcer-claim-information-point.adoc[]
+
+<#include "partials/policy-enforcer/enforcer-authorization-context.adoc" />
+
+include::partials/policy-enforcer/enforcer-https.adoc[]
+
+</@tmpl.guide>

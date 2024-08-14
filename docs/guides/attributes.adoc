@@ -1,0 +1,9 @@
+:project_name: Keycloak
+:project_doc_base_url: https://www.keycloak.org/docs/latest
+:apidocs_name: API Documentation
+:apidocs_link: https://www.keycloak.org/docs/latest/api_documentation/
+:authorizationguide_name: Authorization Services Guide
+:authorizationguide_name_short: Authorization Services
+:authorizationguide_link: {project_doc_base_url}/authorization_services/
+:section: guide
+:sections: guides

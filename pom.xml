@@ -37,7 +37,6 @@
     <properties>
         <keycloak.version>999.0.0-SNAPSHOT</keycloak.version>
         <asciidoctor.plugin.version>1.5.8</asciidoctor.plugin.version>
-        <resteasy-legacy.version>4.7.7.Final</resteasy-legacy.version>
 
         <!-- Quarkus aligned versions -->
         <resteasy.version>6.2.7.Final</resteasy.version>
@@ -127,7 +126,6 @@
 
     <modules>
         <module>admin-client</module>
-        <module>admin-client-jee</module>
         <module>authz-client</module>
         <module>policy-enforcer</module>
         <module>testsuite</module>

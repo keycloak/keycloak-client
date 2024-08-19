@@ -41,6 +41,5 @@ if [[ ! $PWD == *keycloak-client ]]; then
 fi;
 
 syncFiles admin-client
-syncFiles admin-client-jee
 syncFiles authz-client
 syncFiles policy-enforcer

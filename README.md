@@ -5,7 +5,6 @@ Keycloak-client java modules
 The files in the modules:
 
 * [admin-client](admin-client)
-* [admin-client-jee](admin-client-jee)
 * [authz-client](authz-client)
 * [policy-enforcer](policy-enforcer)
 

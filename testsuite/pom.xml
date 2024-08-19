@@ -15,7 +15,6 @@
     <modules>
         <module>providers</module>
         <module>framework</module>
-        <module>admin-client-jee-tests</module>
         <module>admin-client-tests</module>
         <module>authz-tests</module>
     </modules>

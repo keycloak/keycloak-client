@@ -29,7 +29,11 @@ jobs:
           echo "Version: ${{ inputs.version }}  " >> $GITHUB_STEP_SUMMARY
           echo "Release branch: ${{ inputs.branch }}  " >> $GITHUB_STEP_SUMMARY
           echo "Workflow branch: ${{ github.ref_name }}  " >> $GITHUB_STEP_SUMMARY
-          echo "Dry run: ${{ inputs.dry-run }}  " >> $GITHUB_STEP_SUMMARY
+          echo "Deploy skip: ${{ inputs.deploy-skip }}  " >> $GITHUB_STEP_SUMMARY
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
 
   env:
     uses: ./.github/workflows/x-env.yml
@@ -39,7 +43,6 @@ jobs:
     needs: [env]
     uses: ./.github/workflows/x-create-tags.yml
     with:
-      gh-org: ${{ needs.env.outputs.gh-org }}
       tag: ${{ github.event.inputs.version }}
       branch: ${{ github.event.inputs.branch }}
       set-versions: true
@@ -51,9 +54,7 @@ jobs:
     needs: [env, create-tags]
     uses: ./.github/workflows/x-keycloak-client.yml
     with:
-      gh-org: ${{ needs.env.outputs.gh-org }}
       mvn-url: ${{ needs.env.outputs.mvn-releases-url }}
-      version: ${{ github.event.inputs.version }}
       tag: ${{ github.event.inputs.version }}
       deploy-skip: ${{ needs.env.outputs.deploy-skip }}
     secrets:

@@ -3,22 +3,24 @@ name: X Keycloak Client
 on:
   workflow_call:
     inputs:
-      gh-org:
-        required: true
-        type: string
       mvn-url:
-        required: true
-        type: string
-      version:
+        description: "Maven repository URL"
         required: true
         type: string
       tag:
+        description: "Final tag for the release"
         required: true
         type: string
       deploy-skip:
+        description: "To skip deploy to the maven repository set to 'true'"
         required: false
         type: string
         default: false
+      path-final:
+        description: "Patch where the final tag will be checked out"
+        required: false
+        type: string
+        default: keycloak-client-final
     secrets:
       GH_TOKEN:
         required: true
@@ -41,21 +43,21 @@ jobs:
 
     steps:
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
           server-id: kc-rel-repository
+          server-username: MAVEN_USERNAME
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Checkout Repository
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v4
         with:
-          repository: '${{ inputs.gh-org }}/keycloak-client'
-          token: ${{ secrets.GH_TOKEN }}
+          path: ${{ inputs.path-final }}
           ref: ${{ inputs.tag }}
 
       - name: Deploy to Maven
@@ -67,8 +69,10 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           MVN_HTTP_CONFIG="-Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.class=standard -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=120"
+          cd ${{ inputs.path-final }}
           mvn -s ./.github/mvn-rel-settings.xml -nsu -B -Pgpg,jboss-release,all -Djboss.releases.repo.id=$MAVEN_ID -Dmaven.deploy.skip=${{ inputs.deploy-skip }} -Djboss.releases.repo.url=${{ inputs.mvn-url }} -Djboss.snapshots.repo.id=$MAVEN_ID -Djboss.snapshots.repo.url=${{ inputs.mvn-url }} -DskipTests -DskipTestsuite -DretryFailedDeploymentCount=10 -DautoReleaseAfterClose=true $MVN_HTTP_CONFIG clean deploy | tee deploy.log
 
       - name: Show Maven artifacts
         run: |
+          cd ${{ inputs.path-final }}
           cat deploy.log | grep "Uploaded to" | grep -o "https://[^ ]*" | grep -v '.xml$' | grep -v '.asc$' | grep -v '.pom$' | grep -v 'javadoc.jar$' | grep -v 'sources.jar$' | xargs -I {} echo "{}  " >> $GITHUB_STEP_SUMMARY

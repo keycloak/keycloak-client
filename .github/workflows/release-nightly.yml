@@ -1,0 +1,32 @@
+name: Keycloak Client Nightly Release
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Deploy to Maven
+        env:
+          MAVEN_USERNAME: ${{ secrets.MVN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MVN_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          mvn -nsu -B -Pgpg,jboss-release -DskipTests -DretryFailedDeploymentCount=10 -DautoReleaseAfterClose=true deploy

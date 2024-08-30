@@ -21,4 +21,16 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip> <!-- prevent to deploy the artifact anytime -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

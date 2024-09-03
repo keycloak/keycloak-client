@@ -17,13 +17,11 @@ on:
         type: string
         default: false
       path-final:
-        description: "Patch where the final tag will be checked out"
+        description: "Path where the final tag will be checked out"
         required: false
         type: string
         default: keycloak-client-final
     secrets:
-      GH_TOKEN:
-        required: true
       MVN_USERNAME:
         required: true
       MVN_TOKEN:
@@ -48,7 +46,6 @@ jobs:
           distribution: temurin
           java-version: 17
           server-id: kc-rel-repository
-          server-username: MAVEN_USERNAME
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}

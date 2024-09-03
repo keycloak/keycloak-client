@@ -10,9 +10,10 @@ on:
         description: Release version
         required: true
       deploy-skip:
-        description: Set to true to prevent maven deploy plugin to actually deploy the artifacts.
+        description: Skip artifacts maven repository deployment (maven.deploy.skip)
         required: true
         default: false
+        type: boolean
 
 concurrency: rel-${{ github.ref }}
 
@@ -22,45 +23,41 @@ defaults:
 
 jobs:
 
-  show-inputs:
+  repo-prep:
+    name: Prepare repository
     runs-on: ubuntu-latest
     steps:
-      - run: |
+      - name: Show-inputs
+        run: |
           echo "Version: ${{ inputs.version }}  " >> $GITHUB_STEP_SUMMARY
           echo "Release branch: ${{ inputs.branch }}  " >> $GITHUB_STEP_SUMMARY
           echo "Workflow branch: ${{ github.ref_name }}  " >> $GITHUB_STEP_SUMMARY
           echo "Deploy skip: ${{ inputs.deploy-skip }}  " >> $GITHUB_STEP_SUMMARY
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.branch }}
-
-  env:
-    uses: ./.github/workflows/x-env.yml
-
-  create-tags:
-    name: Create tags
-    needs: [env]
-    uses: ./.github/workflows/x-create-tags.yml
-    with:
-      tag: ${{ github.event.inputs.version }}
-      branch: ${{ github.event.inputs.branch }}
-      set-versions: true
-    secrets:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create version change commit
+        run: |
+          ./set-version.sh ${{ inputs.version }}
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git commit -a -m "Set version to ${{ inputs.version }}"
+      - name: Create tag commit
+        run: git tag --force ${{ inputs.version }}
+      - name: Push tag with version changes
+        run: git push --force origin refs/tags/${{ inputs.version }}
 
   keycloak-client:
     name: Keycloak Client
-    needs: [env, create-tags]
+    needs: repo-prep
     uses: ./.github/workflows/x-keycloak-client.yml
     with:
-      mvn-url: ${{ needs.env.outputs.mvn-releases-url }}
-      tag: ${{ github.event.inputs.version }}
-      deploy-skip: ${{ needs.env.outputs.deploy-skip }}
+      mvn-url: https://s01.oss.sonatype.org/service/local/repositories/releases/content/
+      tag: ${{ inputs.version }}
+      deploy-skip: ${{ inputs.deploy-skip }}
     secrets:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       MVN_USERNAME: ${{ secrets.MVN_USERNAME }}
       MVN_TOKEN: ${{ secrets.MVN_TOKEN }}
       GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-

@@ -6,7 +6,6 @@ The files in the modules:
 
 * [admin-client](admin-client)
 * [authz-client](authz-client)
-* [policy-enforcer](policy-enforcer)
 
 are not "owned" by this repository and hence the Java files should ideally not be directly updated. Those files are "owned" by the [main Keycloak server repository](https://github.com/keycloak/keycloak)
 and hence are supposed to be updated there (whenever needed) and synced into this repository by the bash script [sync-keycloak-sources.sh](.github/scripts/sync-keycloak-sources.sh)

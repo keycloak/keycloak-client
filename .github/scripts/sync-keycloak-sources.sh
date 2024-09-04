@@ -42,4 +42,3 @@ fi;
 
 syncFiles admin-client
 syncFiles authz-client
-syncFiles policy-enforcer

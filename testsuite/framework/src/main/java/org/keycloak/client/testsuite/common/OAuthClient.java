@@ -37,9 +37,9 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Stan Silvert ssilvert@redhat.com (C) 2016 Red Hat Inc.
  */
 public class OAuthClient {
-
     private String realm;
     private String clientId;
+    private String redirectUri;
     private boolean openid = true;
     private String scope = "";
 
@@ -56,6 +56,20 @@ public class OAuthClient {
 
     public OAuthClient clientId(String clientId) {
         this.clientId = clientId;
+        return this;
+    }
+
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+
+    public OAuthClient redirectUri(String redirectUri) {
+        this.redirectUri = redirectUri;
+        return this;
+    }
+
+    public OAuthClient scope(String scope) {
+        this.scope = scope;
         return this;
     }
 
@@ -359,14 +373,6 @@ public class OAuthClient {
             }
             return this;
         }
-
-//        @Deprecated // Use only in backwards compatibility tests
-//        public LogoutUrlBuilder redirectUri(String redirectUri) {
-//            if (redirectUri != null) {
-//                b.queryParam(OAuth2Constants.REDIRECT_URI, redirectUri);
-//            }
-//            return this;
-//        }
 
         public LogoutUrlBuilder state(String state) {
             if (state != null) {

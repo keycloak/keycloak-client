@@ -96,14 +96,14 @@ public class RealmBuilder {
         return this;
     }
 
-//    public RealmBuilder testMail() {
-//        Map<String, String> config = new HashMap<>();
-//        config.put("from", MailServerConfiguration.FROM);
-//        config.put("host", MailServerConfiguration.HOST);
-//        config.put("port", MailServerConfiguration.PORT);
-//        rep.setSmtpServer(config);
-//        return this;
-//    }
+    public RealmBuilder testMail() {
+        Map<String, String> config = new HashMap<>();
+        config.put("from", MailServerConfiguration.FROM);
+        config.put("host", MailServerConfiguration.HOST);
+        config.put("port", MailServerConfiguration.PORT);
+        rep.setSmtpServer(config);
+        return this;
+    }
 
 //    public RealmBuilder testEventListener() {
 //        if (rep.getEventsListeners() == null) {

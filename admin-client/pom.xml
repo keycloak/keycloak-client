@@ -132,7 +132,6 @@
                                                 org/keycloak/util/EnumWithStableIndex.java,
                                                 org/keycloak/util/JsonSerialization.java,
                                                 org/keycloak/util/SystemPropertiesJsonParserFactory.java,
-                                                org/keycloak/util/Time.java,
                                             </includes>
                                         </artifactItem>
                                         <artifactItem>
@@ -166,20 +165,6 @@
                                             <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
                                             <includes>
                                                 org/keycloak/utils/StringUtil.java,
-                                            </includes>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.keycloak</groupId>
-                                            <artifactId>keycloak-server-spi-private</artifactId>
-                                            <version>${keycloak.version}</version>
-                                            <type>jar</type>
-                                            <classifier>sources</classifier>
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
-                                            <includes>
-                                                org/keycloak/models/Constants.java,
-                                                org/keycloak/models/AccountRoles.java,
-                                                org/keycloak/events/EventType.java,
                                             </includes>
                                         </artifactItem>
                                     </artifactItems>

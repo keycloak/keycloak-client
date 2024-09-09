@@ -17,16 +17,21 @@
 
 package org.keycloak.testsuite.util;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.jboss.resteasy.client.jaxrs.ClientHttpEngine;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ClientHttpEngineBuilder43;
+import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.keycloak.OAuth2Constants;
-import org.keycloak.models.Constants;
-import org.keycloak.testsuite.client.Keycloak;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.client.testsuite.models.Constants;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -36,7 +41,6 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-
 import static org.keycloak.testsuite.util.ServerURLs.getAuthServerContextRoot;
 
 
@@ -65,7 +69,18 @@ public class AdminClientUtil {
     }
 
     public static Keycloak createAdminClientWithClientCredentials(String realmName, String clientId, String clientSecret, String scope) {
-        return Keycloak.getInstance(getAuthServerContextRoot(), realmName, null, null, OAuth2Constants.CLIENT_CREDENTIALS, clientId, clientSecret, buildSslContext(), null, false, null, scope);
+
+        boolean ignoreUnknownProperties = false;
+        ResteasyClient resteasyClient = createResteasyClient(ignoreUnknownProperties, null);
+
+        return KeycloakBuilder.builder()
+                .serverUrl(getAuthServerContextRoot())
+                .realm(realmName)
+                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .resteasyClient(resteasyClient)
+                .scope(scope).build();
     }
 
     public static Keycloak createAdminClient() throws Exception {
@@ -74,6 +89,38 @@ public class AdminClientUtil {
 
     public static Keycloak createAdminClient(boolean ignoreUnknownProperties) throws Exception {
         return createAdminClient(ignoreUnknownProperties, getAuthServerContextRoot());
+    }
+
+    public static ResteasyClient createResteasyClient() {
+        try {
+            return createResteasyClient(false, null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static ResteasyClient createResteasyClient(boolean ignoreUnknownProperties, Boolean followRedirects) {
+        ResteasyClientBuilder resteasyClientBuilder = (ResteasyClientBuilder) ResteasyClientBuilder.newBuilder();
+        resteasyClientBuilder.sslContext(buildSslContext());
+
+        // We need to ignore unknown JSON properties e.g. in the adapter configuration representation
+        // during adapter backward compatibility testing
+        if (ignoreUnknownProperties) {
+            // We need to use anonymous class to avoid the following error from RESTEasy:
+            // Provider class org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider is already registered.  2nd registration is being ignored.
+            ResteasyJackson2Provider jacksonProvider = new ResteasyJackson2Provider() {};
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            jacksonProvider.setMapper(objectMapper);
+            resteasyClientBuilder.register(jacksonProvider, 100);
+        }
+
+        resteasyClientBuilder
+                .hostnameVerification(ResteasyClientBuilder.HostnameVerificationPolicy.WILDCARD)
+                .connectionPoolSize(NUMBER_OF_CONNECTIONS)
+                .httpEngine(getCustomClientHttpEngine(resteasyClientBuilder, 1, followRedirects));
+
+        return resteasyClientBuilder.build();
     }
 
     private static SSLContext buildSslContext() {

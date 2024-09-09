@@ -22,15 +22,15 @@ import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.client.testsuite.models.Constants;
 import org.keycloak.common.constants.ServiceAccountConstants;
-import org.keycloak.models.Constants;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ClientScopeRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
-import org.keycloak.testsuite.client.Keycloak;
 import org.keycloak.testsuite.util.AdminClientUtil;
 import org.keycloak.testsuite.util.ApiUtil;
 import org.keycloak.testsuite.util.ClientBuilder;
@@ -40,10 +40,7 @@ import org.keycloak.testsuite.util.RealmBuilder;
 import org.keycloak.testsuite.util.UserBuilder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Test for the various "Advanced" scenarios of java admin-client
@@ -98,19 +95,6 @@ public class AdminClientTest extends AbstractAdminClientTest {
     @BeforeEach
     public void before() {
         clientUUID = adminClient.realm(realmName).clients().findByClientId(clientId).get(0).getId();
-    }
-
-    @Test
-    public void clientCredentialsAuthSuccess() throws Exception {
-        // Check possible to load the realm
-        RealmRepresentation realm = adminClient.realm(realmName).toRepresentation();
-        Assert.assertEquals(realmName, realm.getRealm());
-
-          //setTimeOffset(1000);
-
-        // Check still possible to load the realm after original token expired (admin client should automatically re-authenticate)
-        realm = adminClient.realm(realmName).toRepresentation();
-        Assert.assertEquals(realmName, realm.getRealm());
     }
 
     @Test

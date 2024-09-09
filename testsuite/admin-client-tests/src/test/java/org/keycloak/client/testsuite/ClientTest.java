@@ -27,10 +27,9 @@ import org.keycloak.admin.client.resource.ProtocolMappersResource;
 import org.keycloak.admin.client.resource.RoleMappingResource;
 import org.keycloak.client.testsuite.common.OAuthClient;
 import org.keycloak.client.testsuite.framework.KeycloakVersion;
+import org.keycloak.client.testsuite.models.AccountRoles;
+import org.keycloak.client.testsuite.models.Constants;
 import org.keycloak.common.util.Time;
-import org.keycloak.models.AccountRoles;
-import org.keycloak.models.Constants;
-import org.keycloak.representations.adapters.action.GlobalRequestResult;
 
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.OAuth2ErrorRepresentation;

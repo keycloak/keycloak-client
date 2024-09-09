@@ -17,7 +17,7 @@
  *
  */
 
-package org.keycloak.client.testsuite.model;
+package org.keycloak.client.testsuite.models;
 
 import java.io.Serializable;
 

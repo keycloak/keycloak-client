@@ -23,21 +23,21 @@ import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.client.testsuite.common.Creator;
 import org.keycloak.client.testsuite.framework.KeycloakVersion;
-import org.keycloak.events.EventType;
-import org.keycloak.client.testsuite.model.CibaConfig;
-import org.keycloak.models.Constants;
-import org.keycloak.client.testsuite.model.OAuth2DeviceConfig;
-import org.keycloak.client.testsuite.model.ParConfig;
-import org.keycloak.client.testsuite.model.RealmAttributes;
+import org.keycloak.client.testsuite.events.EventType;
+import org.keycloak.client.testsuite.models.CibaConfig;
+import org.keycloak.client.testsuite.models.Constants;
+import org.keycloak.client.testsuite.models.OAuth2DeviceConfig;
+import org.keycloak.client.testsuite.models.ParConfig;
+import org.keycloak.client.testsuite.models.RealmAttributes;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ComponentRepresentation;
 import org.keycloak.representations.idm.RealmEventsConfigRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.testsuite.client.Keycloak;
 import org.keycloak.testsuite.util.AdminClientUtil;
 import org.keycloak.testsuite.util.RealmBuilder;
 import org.keycloak.testsuite.util.UserBuilder;
@@ -571,7 +571,6 @@ public class RealmTest extends AbstractAdminClientTest {
     }
 
     @Test
-    @KeycloakVersion(min = "26.0.0")
     public void updateRealm() {
         // first change
         RealmRepresentation rep = realm.toRepresentation();
@@ -620,18 +619,24 @@ public class RealmTest extends AbstractAdminClientTest {
         assertEquals(Boolean.FALSE, rep.isRegistrationEmailAsUsername());
         assertEquals(Boolean.FALSE, rep.isEditUsernameAllowed());
         assertEquals(Boolean.FALSE, rep.isUserManagedAccessAllowed());
+    }
 
+    @Test
+    @KeycloakVersion(min = "26.0.0")
+    public void updateRealmWithIncorrectTimeoutValues() {
+        // first change
+        RealmRepresentation rep = realm.toRepresentation();
         rep.setAccessCodeLifespanLogin(0);
         rep.setAccessCodeLifespanUserAction(0);
-
         try {
             realm.update(rep);
-            fail("Not expected to successfully update the realm");
+            Assert.fail("Not expected to successfully update the realm");
         } catch (Exception expected) {
             // Expected exception
             assertEquals("HTTP 400 Bad Request", expected.getMessage());
         }
     }
+
     @Test
     public void updateRealmWithNewRepresentation() {
         // first change

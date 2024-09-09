@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.keycloak.models;
+package org.keycloak.client.testsuite.models;
 
 /**
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>

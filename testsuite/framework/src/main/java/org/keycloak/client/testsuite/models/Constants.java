@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.keycloak.models;
+package org.keycloak.client.testsuite.models;
 
 import org.keycloak.OAuth2Constants;
 import org.keycloak.crypto.Algorithm;

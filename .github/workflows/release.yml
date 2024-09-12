@@ -23,8 +23,8 @@ defaults:
 
 jobs:
 
-  repo-prep:
-    name: Prepare repository
+  release:
+    name: Release keycloak-client
     runs-on: ubuntu-latest
     steps:
       - name: Show-inputs
@@ -33,10 +33,23 @@ jobs:
           echo "Release branch: ${{ inputs.branch }}  " >> $GITHUB_STEP_SUMMARY
           echo "Workflow branch: ${{ github.ref_name }}  " >> $GITHUB_STEP_SUMMARY
           echo "Deploy skip: ${{ inputs.deploy-skip }}  " >> $GITHUB_STEP_SUMMARY
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.branch }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          server-id: kc-rel-repository
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
       - name: Create version change commit
         run: |
           ./set-version.sh ${{ inputs.version }}
@@ -48,16 +61,18 @@ jobs:
       - name: Push tag with version changes
         run: git push --force origin refs/tags/${{ inputs.version }}
 
-  keycloak-client:
-    name: Keycloak Client
-    needs: repo-prep
-    uses: ./.github/workflows/x-keycloak-client.yml
-    with:
-      mvn-url: https://s01.oss.sonatype.org/service/local/repositories/releases/content/
-      tag: ${{ inputs.version }}
-      deploy-skip: ${{ inputs.deploy-skip }}
-    secrets:
-      MVN_USERNAME: ${{ secrets.MVN_USERNAME }}
-      MVN_TOKEN: ${{ secrets.MVN_TOKEN }}
-      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      - name: Deploy to Maven
+        env:
+          MAVEN_ID: kc-rel-repository
+          MAVEN_URL: https://s01.oss.sonatype.org/service/local/repositories/releases/content/
+          MAVEN_USERNAME: ${{ secrets.MVN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MVN_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          MVN_HTTP_CONFIG="-Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.class=standard -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=120"
+          mvn -s ./.github/mvn-rel-settings.xml -nsu -B -Pgpg,jboss-release -Djboss.releases.repo.id=$MAVEN_ID -Dmaven.deploy.skip=${{ inputs.deploy-skip }} -Djboss.releases.repo.url=$MAVEN_URL -Djboss.snapshots.repo.id=$MAVEN_ID -Djboss.snapshots.repo.url=$MAVEN_URL -DskipTests -DskipTestsuite -DretryFailedDeploymentCount=10 -DautoReleaseAfterClose=true $MVN_HTTP_CONFIG clean deploy | tee deploy.log
+
+      - name: Show Maven artifacts
+        run: |
+          cat deploy.log | grep "Uploaded to" | grep -o "https://[^ ]*" | grep -v '.xml$' | grep -v '.asc$' | grep -v '.pom$' | grep -v 'javadoc.jar$' | grep -v 'sources.jar$' | xargs -I {} echo "{}  " >> $GITHUB_STEP_SUMMARY
+

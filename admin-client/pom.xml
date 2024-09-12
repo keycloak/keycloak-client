@@ -33,6 +33,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-client-common-synced</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
@@ -99,73 +103,10 @@
                                             <classifier>sources</classifier>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
-                                            <includes>**/*</includes>
-                                            <excludes>META-INF/**/*</excludes>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.keycloak</groupId>
-                                            <artifactId>keycloak-core</artifactId>
-                                            <version>${keycloak.version}</version>
-                                            <type>jar</type>
-                                            <classifier>sources</classifier>
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
                                             <includes>
-                                                org/keycloak/OAuth2Constants.java,
-                                                org/keycloak/TokenCategory.java,
-                                                org/keycloak/Token.java,
-                                                org/keycloak/TokenIdGenerator.java,
-                                                org/keycloak/crypto/KeyUse.java,
-                                                org/keycloak/crypto/Algorithm.java,
-                                                org/keycloak/json/*.java,
-                                                org/keycloak/representations/adapters/action/GlobalRequestResult.java,
-                                                org/keycloak/representations/idm/**/*.java,
-                                                org/keycloak/representations/info/*.java,
-                                                org/keycloak/representations/userprofile/config/*.java,
-                                                org/keycloak/representations/AccessToken.java,
-                                                org/keycloak/representations/AccessTokenResponse.java,
-                                                org/keycloak/representations/AddressClaimSet.java,
-                                                org/keycloak/representations/IDToken.java,
-                                                org/keycloak/representations/JsonWebToken.java,
-                                                org/keycloak/representations/KeyStoreConfig.java,
-                                                org/keycloak/util/BasicAuthHelper.java,
-                                                org/keycloak/util/EnumWithStableIndex.java,
-                                                org/keycloak/util/JsonSerialization.java,
-                                                org/keycloak/util/SystemPropertiesJsonParserFactory.java,
-                                            </includes>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.keycloak</groupId>
-                                            <artifactId>keycloak-common</artifactId>
-                                            <version>${keycloak.version}</version>
-                                            <type>jar</type>
-                                            <classifier>sources</classifier>
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
-                                            <includes>
-                                                org/keycloak/common/util/Base64.java,
-                                                org/keycloak/common/util/CollectionUtil.java,
-                                                org/keycloak/common/util/MultivaluedHashMap.java,
-                                                org/keycloak/common/util/MultivaluedMap.java,
-                                                org/keycloak/common/util/ObjectUtil.java,
-                                                org/keycloak/common/util/StringPropertyReplacer.java,
-                                                org/keycloak/common/util/SystemEnvProperties.java,
-                                                org/keycloak/common/util/Time.java,
-                                                org/keycloak/common/crypto/CryptoConstants.java,
-                                                org/keycloak/common/constants/ServiceAccountConstants.java,
-                                            </includes>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.keycloak</groupId>
-                                            <artifactId>keycloak-server-spi</artifactId>
-                                            <version>${keycloak.version}</version>
-                                            <type>jar</type>
-                                            <classifier>sources</classifier>
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
-                                            <includes>
-                                                org/keycloak/utils/StringUtil.java,
-                                            </includes>
+                                                org/**/*,
+                                                META-INF/services/*
+                                            </includes>  <!-- unpack just source code and potential services -->
                                         </artifactItem>
                                     </artifactItems>
                                     <overWriteReleases>false</overWriteReleases>

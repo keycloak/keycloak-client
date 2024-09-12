@@ -4,11 +4,15 @@ Keycloak-client java modules
 
 The files in the modules:
 
+* [client-common-synced](client-common-synced)
 * [admin-client](admin-client)
 * [authz-client](authz-client)
 
 are not "owned" by this repository and hence the Java files should ideally not be directly updated. Those files are "owned" by the [main Keycloak server repository](https://github.com/keycloak/keycloak)
 and hence are supposed to be updated there (whenever needed) and synced into this repository by the bash script [sync-keycloak-sources.sh](.github/scripts/sync-keycloak-sources.sh)
+
+> [!NOTE] 
+> **client-common-synced** module will be synced from Keycloak Main repository for the future and is a dependency of rest of the modules in this repository. Modules **admin-client** and **authz-client** may move to this repository in the future, therefore they are separated.
 
 ## Syncing the files from Keycloak repository
 

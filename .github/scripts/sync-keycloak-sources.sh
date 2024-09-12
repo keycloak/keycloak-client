@@ -40,5 +40,6 @@ if [[ ! $PWD == *keycloak-client ]]; then
   error "The script is supposed to be executed in the root of 'keycloak-client' repository";
 fi;
 
+syncFiles client-common-synced
 syncFiles admin-client
 syncFiles authz-client

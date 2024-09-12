@@ -126,6 +126,7 @@
     <contributors></contributors>
 
     <modules>
+        <module>client-common-synced</module>
         <module>admin-client</module>
         <module>authz-client</module>
         <module>policy-enforcer</module>
@@ -135,6 +136,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-client-common-synced</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.jboss.logging</groupId>
                 <artifactId>jboss-logging</artifactId>

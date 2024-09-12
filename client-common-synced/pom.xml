@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-client-parent</artifactId>
+        <version>999.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>keycloak-client-common-synced</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Keycloak Client Common Synced</name>
+    <description>Keycloak Client Common Synced</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>commons-logging-jboss-logging</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.microprofile.openapi</groupId>
+            <artifactId>microprofile-openapi-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>sync</id>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>${project.build.directory}/unpacked-resources</directory>
+                    </resource>
+                </resources>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-keycloak-sources</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.keycloak</groupId>
+                                            <artifactId>keycloak-core</artifactId>
+                                            <version>${keycloak.version}</version>
+                                            <type>jar</type>
+                                            <classifier>sources</classifier>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
+                                            <includes>
+                                                org/keycloak/OAuth2Constants.java,
+                                                org/keycloak/TokenCategory.java,
+                                                org/keycloak/Token.java,
+                                                org/keycloak/TokenIdGenerator.java,
+                                                org/keycloak/AuthorizationContext.java,
+
+                                                org/keycloak/json/*.java,
+
+                                                org/keycloak/representations/adapters/action/GlobalRequestResult.java,
+                                                org/keycloak/representations/idm/**/*.java,
+                                                org/keycloak/representations/info/*.java,
+                                                org/keycloak/representations/userprofile/config/*.java,
+                                                org/keycloak/representations/AccessToken.java,
+                                                org/keycloak/representations/AccessTokenResponse.java,
+                                                org/keycloak/representations/AddressClaimSet.java,
+                                                org/keycloak/representations/IDToken.java,
+                                                org/keycloak/representations/JsonWebToken.java,
+                                                org/keycloak/representations/KeyStoreConfig.java,
+                                                org/keycloak/representations/adapters/config/*.java,
+                                                org/keycloak/representations/RefreshToken.java,
+
+                                                org/keycloak/util/BasicAuthHelper.java,
+                                                org/keycloak/util/EnumWithStableIndex.java,
+                                                org/keycloak/util/JsonSerialization.java,
+                                                org/keycloak/util/SystemPropertiesJsonParserFactory.java,
+                                                org/keycloak/util/TokenUtil.java,
+
+                                                org/keycloak/jose/JOSE.java,
+                                                org/keycloak/jose/JOSEHeader.java,
+                                                org/keycloak/jose/jwe/**/*.java,
+                                                org/keycloak/jose/jws/**/*.java,
+                                                org/keycloak/jose/jwk/**/*.java,
+
+                                                org/keycloak/crypto/**/*.java,
+
+                                                org/keycloak/protocol/oidc/client/authentication/*.java,
+
+                                                org/keycloak/constants/ServiceUrlConstants.java,
+
+                                            </includes>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.keycloak</groupId>
+                                            <artifactId>keycloak-core</artifactId>
+                                            <version>${keycloak.version}</version>
+                                            <type>jar</type>
+                                            <classifier>sources</classifier>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/unpacked-resources</outputDirectory>
+                                            <includes>
+                                                META-INF/services/**/*
+                                            </includes>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.keycloak</groupId>
+                                            <artifactId>keycloak-common</artifactId>
+                                            <version>${keycloak.version}</version>
+                                            <type>jar</type>
+                                            <classifier>sources</classifier>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
+                                            <includes>
+                                                org/keycloak/common/**/*.java
+                                            </includes>
+                                            <excludes>
+                                                org/keycloak/common/Version.java
+                                            </excludes>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.keycloak</groupId>
+                                            <artifactId>keycloak-server-spi</artifactId>
+                                            <version>${keycloak.version}</version>
+                                            <type>jar</type>
+                                            <classifier>sources</classifier>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
+                                            <includes>
+                                                org/keycloak/utils/StringUtil.java,
+                                            </includes>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>${project.build.directory}/unpacked</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

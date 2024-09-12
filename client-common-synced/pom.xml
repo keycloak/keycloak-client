@@ -133,6 +133,8 @@
 
                                                 org/keycloak/protocol/oidc/client/authentication/*.java,
 
+                                                org/keycloak/protocol/oidc/representations/**/*.java,
+
                                                 org/keycloak/constants/ServiceUrlConstants.java,
 
                                             </includes>

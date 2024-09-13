@@ -176,6 +176,7 @@
                                             <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
                                             <includes>
                                                 org/keycloak/utils/StringUtil.java,
+                                                org/keycloak/models/credential/dto/*.java,
                                             </includes>
                                         </artifactItem>
                                     </artifactItems>

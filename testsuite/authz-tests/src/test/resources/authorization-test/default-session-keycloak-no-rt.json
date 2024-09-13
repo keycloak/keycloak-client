@@ -1,0 +1,8 @@
+{
+    "realm": "authz-test-no-rt",
+    "auth-server-url" : "http://localhost:8180",
+    "resource" : "resource-server-test",
+    "credentials": {
+        "secret": "secret"
+    }
+}

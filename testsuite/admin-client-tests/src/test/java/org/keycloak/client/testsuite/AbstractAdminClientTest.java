@@ -162,6 +162,13 @@ public abstract class AbstractAdminClientTest implements RealmRepsSupplier {
         return user;
     }
 
+    public String createUser(String realm, String username, String password, String... requiredActions) {
+        UserRepresentation homer = createUserRepresentation(username, password);
+        homer.setRequiredActions(Arrays.asList(requiredActions));
+
+        return ApiUtil.createUserWithAdminClient(adminClient.realm(realm), homer);
+    }
+
     public String createUser(String realm, String username, String password, String firstName, String lastName, String email, Consumer<UserRepresentation> customizer) {
         UserRepresentation user = createUserRepresentation(username, email, firstName, lastName, true, password);
         customizer.accept(user);

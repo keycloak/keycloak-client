@@ -176,6 +176,17 @@
           "value" : "<password>" }
       ],
       "realmRoles": ["user", "offline_access"]
+    },
+    {
+      "username" : "direct-login",
+      "enabled": true,
+      "email" : "direct-login@localhost",
+      "firstName": "Direct",
+      "lastName": "Login",
+      "credentials" : [
+        { "type" : "password",
+          "value" : "password" }
+      ]
     }
   ],
   "scopeMappings": [
@@ -501,6 +512,18 @@
         "profile",
         "email"
       ]
+    },
+    {
+      "clientId" : "resource-owner",
+      "description" : "resource-owner",
+      "enabled": true,
+      "directAccessGrantsEnabled": true,
+      "baseUrl": "http://localhost:8180/auth/realms/master/app/auth",
+      "redirectUris": [
+        "http://localhost:8180/auth/realms/master/app/*",
+        "https://localhost:8543/auth/realms/master/app/*"
+      ],
+      "secret": "secret"
     }
   ],
   "roles" : {

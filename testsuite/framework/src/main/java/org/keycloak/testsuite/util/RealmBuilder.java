@@ -17,6 +17,7 @@
 
 package org.keycloak.testsuite.util;
 
+import org.keycloak.client.testsuite.events.EventType;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ClientScopeRepresentation;
 import org.keycloak.representations.idm.GroupRepresentation;
@@ -26,11 +27,13 @@ import org.keycloak.representations.idm.RolesRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>
@@ -83,8 +86,12 @@ public class RealmBuilder {
     }
 
     public RealmBuilder events() {
+        return events(new EventType[0]);
+    }
+
+    public RealmBuilder events(EventType... types) {
         rep.setEventsEnabled(true);
-        rep.setEnabledEventTypes(Collections.<String>emptyList()); // enables all types
+        rep.setEnabledEventTypes(Arrays.stream(types).map(EventType::name).collect(Collectors.toList()));
         return this;
     }
 

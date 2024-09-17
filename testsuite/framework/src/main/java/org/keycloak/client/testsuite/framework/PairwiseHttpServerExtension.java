@@ -40,7 +40,7 @@ import org.testcontainers.Testcontainers;
 public class PairwiseHttpServerExtension implements AfterAllCallback, BeforeAllCallback {
 
     public static final int HTTP_PORT = 8280;
-    public static final String PAIRWISE_RESPONSE = "[\"http://localhost/resource-server-test\"]";
+    public static final String PAIRWISE_RESPONSE = "[\"http://localhost/resource-server-test\",\"http://localhost/test-client\"]";
     public static final String HTTP_URL = "http://host.testcontainers.internal:" + HTTP_PORT;
 
     private HttpServer server;

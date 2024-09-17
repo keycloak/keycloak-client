@@ -62,6 +62,7 @@ public class RealmImporter {
         }
 
         logger.tracef("Deleted realms: %s after test class", importedRealmNames);
+        importedRealmNames = null;
     }
 
 }

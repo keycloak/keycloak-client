@@ -1,29 +1,30 @@
 package org.keycloak.client.testsuite.common;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.UriBuilder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.junit.jupiter.api.Assertions;
 import org.keycloak.OAuth2Constants;
-import org.keycloak.client.testsuite.framework.TestRegistry;
-import org.keycloak.client.testsuite.server.KeycloakServerProvider;
 import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.testsuite.util.ServerURLs;
 import org.keycloak.util.BasicAuthHelper;
@@ -204,6 +205,198 @@ public class OAuthClient {
         return client.execute(post);
     }
 
+    private static final Pattern ACTION_PATTERN = Pattern.compile(
+            "<form .*action=\"(" + Pattern.quote(ServerURLs.AUTH_SERVER_URL) + "[^\"]*)\".*>",
+            Pattern.CASE_INSENSITIVE);
+
+    // Just a simple regex to locate the action in the login html. Maybe we can
+    // do something better, using JSoup or similar to parse html.
+    private String locateLoginActionForm(String html) {
+        Matcher m = ACTION_PATTERN.matcher(html);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return null;
+    }
+
+    public AuthorizationEndpointResponse doLogin(String username, String password) throws IOException {
+        String url = getLoginUrlForCode();
+        HttpGet get = new HttpGet(url);
+        try (CloseableHttpResponse getRes = httpClient.execute(get)) {
+            Assertions.assertEquals(200, getRes.getStatusLine().getStatusCode(), "Invalid login page response");
+            String action = locateLoginActionForm(EntityUtils.toString(getRes.getEntity(), StandardCharsets.UTF_8));
+            Assertions.assertNotNull("No login form action in the html page", action);
+
+            HttpPost post = new HttpPost(action);
+            List<NameValuePair> parameters = new LinkedList<>();
+            parameters.add(new BasicNameValuePair("username", username));
+            parameters.add(new BasicNameValuePair("password", password));
+            UrlEncodedFormEntity data = new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8);
+            post.setEntity(data);
+
+            try (CloseableHttpResponse postRes = httpClient.execute(post)) {
+                Assertions.assertEquals(302, postRes.getStatusLine().getStatusCode(), "Login response is not a redirect");
+                Header location = postRes.getFirstHeader("Location");
+                Assertions.assertNotNull(location, "Location header not returned");
+                return new AuthorizationEndpointResponse(location.getValue());
+            }
+        }
+    }
+
+    public AccessTokenResponse doAccessTokenRequest(String code, String password) {
+        HttpPost post = new HttpPost(getResourceOwnerPasswordCredentialGrantUrl(realm));
+
+        List<NameValuePair> parameters = new LinkedList<>();
+        parameters.add(new BasicNameValuePair(OAuth2Constants.GRANT_TYPE, OAuth2Constants.AUTHORIZATION_CODE));
+
+        if (code != null) {
+            parameters.add(new BasicNameValuePair(OAuth2Constants.CODE, code));
+        }
+        if (redirectUri != null) {
+            parameters.add(new BasicNameValuePair(OAuth2Constants.REDIRECT_URI, redirectUri));
+        }
+        if (clientId != null && password != null) {
+            String authorization = BasicAuthHelper.createHeader(clientId, password);
+            post.setHeader("Authorization", authorization);
+        } else if (clientId != null) {
+            parameters.add(new BasicNameValuePair(OAuth2Constants.CLIENT_ID, clientId));
+        }
+
+        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8);
+        post.setEntity(formEntity);
+
+        try (CloseableHttpResponse res = httpClient.execute(post)) {
+            return new AccessTokenResponse(res);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve access token", e);
+        }
+    }
+
+    public AccessTokenResponse doRefreshTokenRequest(String refreshToken, String password) {
+        HttpPost post = new HttpPost(getResourceOwnerPasswordCredentialGrantUrl(realm));
+
+        List<NameValuePair> parameters = new LinkedList<>();
+        parameters.add(new BasicNameValuePair(OAuth2Constants.GRANT_TYPE, OAuth2Constants.REFRESH_TOKEN));
+
+        if (refreshToken != null) {
+            parameters.add(new BasicNameValuePair(OAuth2Constants.REFRESH_TOKEN, refreshToken));
+        }
+        if (scope != null) {
+            parameters.add(new BasicNameValuePair(OAuth2Constants.SCOPE, scope));
+        }
+        if (clientId != null && password != null) {
+            String authorization = BasicAuthHelper.createHeader(clientId, password);
+            post.setHeader("Authorization", authorization);
+        } else if (clientId != null) {
+            parameters.add(new BasicNameValuePair(OAuth2Constants.CLIENT_ID, clientId));
+        }
+
+        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8);
+        post.setEntity(formEntity);
+
+        try (CloseableHttpResponse res = httpClient.execute(post)) {
+            return new AccessTokenResponse(res);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve access token", e);
+        }
+    }
+
+    private String getLoginUrlForCode() {
+        KeycloakUriBuilder b = KeycloakUriBuilder.fromUri(ServerURLs.AUTH_SERVER_URL + "/realms/{realmName}/protocol/openid-connect/auth");
+        b.queryParam(OAuth2Constants.RESPONSE_TYPE, "code");
+        b.queryParam("response_mode", "query");
+        b.queryParam(OAuth2Constants.CLIENT_ID, clientId);
+        b.queryParam(OAuth2Constants.REDIRECT_URI, redirectUri);
+        b.queryParam(OAuth2Constants.SCOPE, scope);
+
+        return b.build(realm).toString();
+    }
+
+    public static class AuthorizationEndpointResponse {
+
+        private String code;
+        private String state;
+        private String error;
+        private String errorDescription;
+
+        private String sessionState;
+
+        // Just during OIDC implicit or hybrid flow
+        private String accessToken;
+        private String idToken;
+        private String tokenType;
+        private String expiresIn;
+
+        // Just during FAPI JARM response mode JWT
+        private String response;
+
+        private String issuer;
+
+        public AuthorizationEndpointResponse(String location) {
+            init(location);
+        }
+
+        private void init(String location) {
+            Map<String, String> params = URLEncodedUtils.parse(location, StandardCharsets.UTF_8)
+                    .stream().collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+
+            code = params.get(OAuth2Constants.CODE);
+            state = params.get(OAuth2Constants.STATE);
+            error = params.get(OAuth2Constants.ERROR);
+            errorDescription = params.get(OAuth2Constants.ERROR_DESCRIPTION);
+            sessionState = params.get(OAuth2Constants.SESSION_STATE);
+            accessToken = params.get(OAuth2Constants.ACCESS_TOKEN);
+            idToken = params.get(OAuth2Constants.ID_TOKEN);
+            tokenType = params.get(OAuth2Constants.TOKEN_TYPE);
+            expiresIn = params.get(OAuth2Constants.EXPIRES_IN);
+            response = params.get(OAuth2Constants.RESPONSE);
+            issuer = params.get(OAuth2Constants.ISSUER);
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getState() {
+            return state;
+        }
+
+        public String getError() {
+            return error;
+        }
+
+        public String getErrorDescription() {
+            return errorDescription;
+        }
+
+        public String getSessionState() {
+            return sessionState;
+        }
+
+        public String getAccessToken() {
+            return accessToken;
+        }
+
+        public String getIdToken() {
+            return idToken;
+        }
+
+        public String getTokenType() {
+            return tokenType;
+        }
+
+        public String getExpiresIn() {
+            return expiresIn;
+        }
+
+        public String getResponse() {
+            return response;
+        }
+
+        public String getIssuer() {
+            return issuer;
+        }
+    }
 
     public static class AccessTokenResponse {
         private int statusCode;

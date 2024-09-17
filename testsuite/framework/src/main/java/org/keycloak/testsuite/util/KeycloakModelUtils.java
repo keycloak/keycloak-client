@@ -45,4 +45,37 @@ public final class KeycloakModelUtils {
         return UUID.randomUUID().toString();
     }
 
+    public static String buildGroupPath(boolean escapeSlashes, String... names) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(GROUP_PATH_SEPARATOR);
+        for (int i = 0; i < names.length; i++) {
+            sb.append(escapeSlashes? escapeGroupNameForPath(names[i]) : names[i]);
+            if (i < names.length - 1) {
+                sb.append(GROUP_PATH_SEPARATOR);
+            }
+        }
+        return sb.toString();
+    }
+
+    public static String normalizeGroupPath(final String groupPath) {
+        if (groupPath == null) {
+            return null;
+        }
+
+        String normalized = groupPath;
+
+        if (!normalized.startsWith(GROUP_PATH_SEPARATOR)) {
+            normalized = GROUP_PATH_SEPARATOR +  normalized;
+        }
+        if (normalized.endsWith(GROUP_PATH_SEPARATOR)) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+
+        return normalized;
+    }
+
+    private static String escapeGroupNameForPath(String groupName) {
+        return groupName.replace(GROUP_PATH_SEPARATOR, GROUP_PATH_ESCAPE + GROUP_PATH_SEPARATOR);
+    }
+
 }

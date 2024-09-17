@@ -3,6 +3,7 @@ package org.keycloak.client.testsuite.common;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +26,18 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.Assertions;
 import org.keycloak.OAuth2Constants;
+import org.keycloak.TokenVerifier;
+import org.keycloak.common.VerificationException;
 import org.keycloak.common.util.KeycloakUriBuilder;
+import org.keycloak.crypto.Algorithm;
+import org.keycloak.crypto.AsymmetricSignatureVerifierContext;
+import org.keycloak.crypto.KeyUse;
+import org.keycloak.crypto.KeyWrapper;
+import org.keycloak.jose.jwk.JSONWebKeySet;
+import org.keycloak.jose.jwk.JWK;
+import org.keycloak.jose.jwk.JWKParser;
+import org.keycloak.jose.jwk.OKPPublicJWK;
+import org.keycloak.representations.JsonWebToken;
 import org.keycloak.testsuite.util.ServerURLs;
 import org.keycloak.util.BasicAuthHelper;
 import org.keycloak.util.JsonSerialization;
@@ -45,6 +57,8 @@ public class OAuthClient {
     private String scope = "";
 
     private final CloseableHttpClient httpClient;
+
+    private Map<String, JSONWebKeySet> publicKeys = new HashMap<>();
 
     public OAuthClient(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
@@ -541,6 +555,84 @@ public class OAuthClient {
         public Map<String, Object> getOtherClaims() {
             return otherClaims;
         }
+    }
+
+    public <T extends JsonWebToken> T verifyToken(String token, Class<T> clazz) {
+        try {
+            TokenVerifier<T> verifier = TokenVerifier.create(token, clazz);
+            String kid = verifier.getHeader().getKeyId();
+            String algorithm = verifier.getHeader().getAlgorithm().name();
+            KeyWrapper key = getRealmPublicKey(realm, algorithm, kid);
+            AsymmetricSignatureVerifierContext verifierContext;
+            switch (algorithm) {
+                case Algorithm.ES256:
+                case Algorithm.ES384:
+                default:
+                    verifierContext = new AsymmetricSignatureVerifierContext(key);
+            }
+            verifier.verifierContext(verifierContext);
+            verifier.verify();
+            return verifier.getToken();
+        } catch (VerificationException e) {
+            throw new RuntimeException("Failed to decode token", e);
+        }
+    }
+
+    private KeyWrapper getRealmPublicKey(String realm, String algorithm, String kid) {
+        boolean loadedKeysFromServer = false;
+        JSONWebKeySet jsonWebKeySet = publicKeys.get(realm);
+        if (jsonWebKeySet == null) {
+            jsonWebKeySet = getRealmKeys(realm);
+            publicKeys.put(realm, jsonWebKeySet);
+            loadedKeysFromServer = true;
+        }
+
+        KeyWrapper key = findKey(jsonWebKeySet, algorithm, kid);
+
+        if (key == null && !loadedKeysFromServer) {
+            jsonWebKeySet = getRealmKeys(realm);
+            publicKeys.put(realm, jsonWebKeySet);
+
+            key = findKey(jsonWebKeySet, algorithm, kid);
+        }
+
+        if (key == null) {
+            throw new RuntimeException("Public key for realm:" + realm + ", algorithm: " + algorithm + " not found");
+        }
+
+        return key;
+    }
+
+    private JSONWebKeySet getRealmKeys(String realm) {
+        String certUrl = ServerURLs.AUTH_SERVER_URL + "/realms/" + realm + "/protocol/openid-connect/certs";
+
+
+        HttpGet get = new HttpGet(certUrl);
+        try (CloseableHttpResponse response = httpClient.execute(get)) {
+            return JsonSerialization.readValue(response.getEntity().getContent(), JSONWebKeySet.class);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private KeyWrapper findKey(JSONWebKeySet jsonWebKeySet, String algorithm, String kid) {
+        for (JWK k : jsonWebKeySet.getKeys()) {
+            if (k.getKeyId().equals(kid) && k.getAlgorithm().equals(algorithm)) {
+                PublicKey publicKey = JWKParser.create(k).toPublicKey();
+
+                KeyWrapper key = new KeyWrapper();
+                key.setKid(k.getKeyId());
+                key.setAlgorithm(k.getAlgorithm());
+                if (k.getOtherClaims().get(OKPPublicJWK.CRV) != null) {
+                    key.setCurve((String) k.getOtherClaims().get(OKPPublicJWK.CRV));
+                }
+                key.setPublicKey(publicKey);
+                key.setUse(KeyUse.SIG);
+
+                return key;
+            }
+        }
+        return null;
     }
 
     public class LogoutUrlBuilder {

@@ -137,6 +137,10 @@
 
                                                 org/keycloak/constants/ServiceUrlConstants.java,
 
+                                                org/keycloak/exceptions/*.java,
+
+                                                org/keycloak/TokenVerifier.java,
+
                                             </includes>
                                         </artifactItem>
                                         <artifactItem>

@@ -1,4 +1,4 @@
-package org.keycloak.models.credential.dto;
+package org.keycloak.client.testsuite.models.credential.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

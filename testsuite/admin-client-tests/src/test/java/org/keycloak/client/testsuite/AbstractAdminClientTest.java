@@ -208,4 +208,8 @@ public abstract class AbstractAdminClientTest implements RealmRepsSupplier {
     protected RealmResource testRealm() {
         return adminClient.realm("test");
     }
+
+    public RealmResource testRealmResource() {
+        return adminClient.realm("test");
+    }
 }

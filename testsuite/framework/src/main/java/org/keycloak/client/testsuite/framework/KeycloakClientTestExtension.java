@@ -3,6 +3,7 @@ package org.keycloak.client.testsuite.framework;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import io.quarkus.runtime.util.StringUtil;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.keycloak.client.testsuite.TestConstants;
-import org.keycloak.utils.StringUtil;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
@@ -54,10 +54,10 @@ public class KeycloakClientTestExtension implements BeforeEachCallback, AfterEac
             String currentVersion = System.getProperty(TestConstants.PROPERTY_KEYCLOAK_VERSION, TestConstants.KEYCLOAK_VERSION_DEFAULT);
             String requiredMinVersion = annotation.min();
             String requiredMaxVersion = annotation.max();
-            if(StringUtil.isNotBlank(requiredMinVersion)) {
+            if(requiredMinVersion != null && !requiredMinVersion.isEmpty()) {
                 Assumptions.assumeTrue(compareVersions(currentVersion, requiredMinVersion) >= 0, "Test skipped because the current version: " + currentVersion + " is lower then required: " + requiredMinVersion);
             }
-            if(StringUtil.isNotBlank(requiredMaxVersion)) {
+            if(requiredMaxVersion != null && !requiredMaxVersion.isEmpty()) {
                 Assumptions.assumeTrue(compareVersions(currentVersion, requiredMaxVersion) <= 0, "Test skipped because the current version: " + currentVersion + " is higher then required: " + requiredMaxVersion);
             }
         }

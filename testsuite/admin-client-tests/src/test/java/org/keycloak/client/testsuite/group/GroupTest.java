@@ -1170,25 +1170,26 @@ public class GroupTest extends AbstractGroupTest {
 
     @Test
     public void removeAllGroupAttributes() {
-        final var realm = adminClient.realms().realm("test");
-        final var groupName = "remove-all-attributes-group";
+        final RealmResource realm = adminClient.realms().realm("test");
+        final String groupName = "remove-all-attributes-group";
 
-        final Map<String, List<String>> initialAttributes = Map.of("test-key", List.of("test-val"));
-        final var groupToCreate =
+        final Map<String, List<String>> initialAttributes = new HashMap<>();
+        initialAttributes.put("test-key", Arrays.asList("test-val"));
+        final GroupRepresentation groupToCreate =
                 GroupBuilder.create().name(groupName).attributes(initialAttributes).build();
-        final var groupsResource = realm.groups();
+        final GroupsResource groupsResource = realm.groups();
         try (final Response response = groupsResource.add(groupToCreate)) {
-            final var groupId = ApiUtil.getCreatedId(response);
+            final String groupId = ApiUtil.getCreatedId(response);
 
-            final var groupResource = groupsResource.group(groupId);
-            final var createdGroup = groupResource.toRepresentation();
+            final GroupResource groupResource = groupsResource.group(groupId);
+            final GroupRepresentation createdGroup = groupResource.toRepresentation();
             assertThat(createdGroup.getAttributes(), equalTo(initialAttributes));
 
-            final var groupToUpdate =
+            final GroupRepresentation groupToUpdate =
                     GroupBuilder.create().name(groupName).attributes(Collections.emptyMap()).build();
             groupResource.update(groupToUpdate);
 
-            final var updatedGroup = groupResource.toRepresentation();
+            final GroupRepresentation updatedGroup = groupResource.toRepresentation();
             assertThat(updatedGroup.getAttributes(), anEmptyMap());
         }
     }

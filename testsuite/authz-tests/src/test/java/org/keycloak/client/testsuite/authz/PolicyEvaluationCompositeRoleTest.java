@@ -17,6 +17,8 @@
 package org.keycloak.client.testsuite.authz;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
@@ -100,7 +102,7 @@ public class PolicyEvaluationCompositeRoleTest extends AbstractAuthzTest {
         permission.setName("mypermission");
         permission.addResource("myresource");
         permission.addPolicy("client-role1");
-        permission.setScopes(Set.of("myscope"));
+        permission.setScopes(new HashSet<>(Arrays.asList("myscope")));
 
         getClient().authorization().permissions().scope().create(permission).close();
     }

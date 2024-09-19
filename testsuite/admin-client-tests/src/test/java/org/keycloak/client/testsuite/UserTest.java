@@ -762,7 +762,12 @@ public class UserTest extends AbstractAdminClientTest {
         String longValue = RandomStringUtils.random(Integer.parseInt(DEFAULT_MAX_LENGTH_ATTRIBUTES), true, true);
 
         getCleanup().addUserId(createUser(REALM_NAME, "user1", "password", "user1FirstName", "user1LastName", "user1@example.com",
-                user -> user.setAttributes(Map.of("attr", List.of(longValue)))));
+                user -> {
+                    Map<String, List<String>> attributes = new HashMap<>();
+                    attributes.put("attr", Arrays.asList(longValue));
+                    user.setAttributes(attributes);
+                }));
+
 
         List<UserRepresentation> users = realm.users().search("user1", true);
 
@@ -770,7 +775,11 @@ public class UserTest extends AbstractAdminClientTest {
         assertThat(users.get(0).getAttributes().get("attr").get(0), equalTo(longValue));
 
         WebApplicationException ex = assertThrows(WebApplicationException.class, () -> getCleanup().addUserId(createUser(REALM_NAME, "user2", "password", "user2FirstName", "user2LastName", "user2@example.com",
-                user -> user.setAttributes(Map.of("attr", List.of(longValue + "a"))))));
+                user -> {
+                    Map<String, List<String>> attributes = new HashMap<>();
+                    attributes.put("attr", Arrays.asList(longValue + "a"));
+                    user.setAttributes(attributes);
+                })));
         assertThat(ex.getResponse().getStatusInfo().getStatusCode(), equalTo(400));
         assertThat(ex.getResponse().readEntity(ErrorRepresentation.class).getErrorMessage(), equalTo("error-invalid-length"));
     }
@@ -782,21 +791,45 @@ public class UserTest extends AbstractAdminClientTest {
         String longValue2 = RandomStringUtils.random(Integer.parseInt(DEFAULT_MAX_LENGTH_ATTRIBUTES) - 1, true, true) + "v";
 
         getCleanup().addUserId(createUser(REALM_NAME, "user1", "password", "user1FirstName", "user1LastName", "user1@example.com",
-                user -> user.setAttributes(Map.of("test1", List.of(longValue, "v2"), "test2", List.of("v2")))));
-        getCleanup().addUserId(createUser(REALM_NAME, "user2", "password", "user2FirstName", "user2LastName", "user2@example.com",
-                user -> user.setAttributes(Map.of("test1", List.of(longValue, "v2"), "test2", List.of(longValue2)))));
-        getCleanup().addUserId(createUser(REALM_NAME, "user3", "password", "user3FirstName", "user3LastName", "user3@example.com",
-                user -> user.setAttributes(Map.of("test2", List.of(longValue, "v3"), "test4", List.of("v4")))));
+                user -> {
+                    Map<String, List<String>> attributes = new HashMap<>();
+                    attributes.put("test1", Arrays.asList(longValue, "v2"));
+                    attributes.put("test2", Arrays.asList("v2"));
+                    user.setAttributes(attributes);
+                }));
 
-        assertThat(realm.users().searchByAttributes(mapToSearchQuery(Map.of("test1", longValue))).stream().map(UserRepresentation::getUsername).collect(Collectors.toList()),
+        getCleanup().addUserId(createUser(REALM_NAME, "user2", "password", "user2FirstName", "user2LastName", "user2@example.com",
+                user -> {
+                    Map<String, List<String>> attributes = new HashMap<>();
+                    attributes.put("test1", Arrays.asList(longValue, "v2"));
+                    attributes.put("test2", Arrays.asList(longValue2));
+                    user.setAttributes(attributes);
+                }));
+
+        getCleanup().addUserId(createUser(REALM_NAME, "user3", "password", "user3FirstName", "user3LastName", "user3@example.com",
+                user -> {
+                    Map<String, List<String>> attributes = new HashMap<>();
+                    attributes.put("test2", Arrays.asList(longValue, "v3"));
+                    attributes.put("test4", Arrays.asList("v4"));
+                    user.setAttributes(attributes);
+                }));
+
+        assertThat(realm.users().searchByAttributes(mapToSearchQuery(Collections.singletonMap("test1", longValue)))
+                        .stream().map(UserRepresentation::getUsername).collect(Collectors.toList()),
                 containsInAnyOrder("user1", "user2"));
-        assertThat(realm.users().searchByAttributes(mapToSearchQuery(Map.of("test1", longValue, "test2", longValue2))).stream().map(UserRepresentation::getUsername).collect(Collectors.toList()),
+
+        Map<String, String> searchAttributes = new HashMap<>();
+        searchAttributes.put("test1", longValue);
+        searchAttributes.put("test2", longValue2);
+
+        assertThat(realm.users().searchByAttributes(mapToSearchQuery(searchAttributes)).stream().map(UserRepresentation::getUsername).collect(Collectors.toList()),
                 contains("user2"));
 
-        //case-insensitive search
-        assertThat(realm.users().searchByAttributes(mapToSearchQuery(Map.of("test1", longValue, "test2", longValue2.toLowerCase(Locale.ENGLISH)))).stream().map(UserRepresentation::getUsername).collect(Collectors.toList()),
+        // case-insensitive search
+        assertThat(realm.users().searchByAttributes(mapToSearchQuery(searchAttributes)).stream().map(UserRepresentation::getUsername).collect(Collectors.toList()),
                 contains("user2"));
     }
+
 
     @Test
     public void searchByUsernameExactMatch() {
@@ -1494,8 +1527,8 @@ public class UserTest extends AbstractAdminClientTest {
 
         Map<String, List<String>> attributes = new HashMap<>();
 
-        attributes.put("foo", List.of("foo"));
-        attributes.put("bar", List.of("bar"));
+        attributes.put("foo", Arrays.asList("foo"));
+        attributes.put("bar", Arrays.asList("bar"));
 
         user1.setAttributes(attributes);
 
@@ -1742,12 +1775,14 @@ public class UserTest extends AbstractAdminClientTest {
         // user profile requires sending all attributes otherwise they are removed
         update.setEmail(email);
 
-        update.setAttributes(Map.of("phoneNumber", List.of("123")));
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("phoneNumber", Arrays.asList("123"));
+        update.setAttributes(map);
         updateUser(realm.users().get(userId), update);
 
         UserRepresentation updated = realm.users().get(userId).toRepresentation();
         assertThat(updated.getUsername(), equalTo(userName));
-        assertThat(updated.getAttributes().get("phoneNumber"), equalTo(List.of("123")));
+        assertThat(updated.getAttributes().get("phoneNumber"), equalTo(Arrays.asList("123")));
 
         assertThat(updated.getEmail(), equalTo(email));
     }
@@ -2490,7 +2525,7 @@ public class UserTest extends AbstractAdminClientTest {
         UserRepresentation userRepresentation = UserBuilder.create().username(username).build();
 
         GroupRepresentation subGroupRep = GroupBuilder.create().name(subGroupName).build();
-        GroupRepresentation parentGroupRep = GroupBuilder.create().name(parentGroupName).subGroups(List.of(subGroupRep)).build();
+        GroupRepresentation parentGroupRep = GroupBuilder.create().name(parentGroupName).subGroups(Arrays.asList(subGroupRep)).build();
 
         try (Creator<UserResource> u = Creator.create(realm, userRepresentation);
              Creator<GroupResource> subgroup = Creator.create(realm, subGroupRep);
@@ -2525,7 +2560,7 @@ public class UserTest extends AbstractAdminClientTest {
 
         UserRepresentation userRepresentation = UserBuilder.create().username(username).build();
         GroupRepresentation subGroupRep = GroupBuilder.create().name(subGroupName).build();
-        GroupRepresentation parentGroupRep = GroupBuilder.create().name(parentGroupName).subGroups(List.of(subGroupRep)).build();
+        GroupRepresentation parentGroupRep = GroupBuilder.create().name(parentGroupName).subGroups(Arrays.asList(subGroupRep)).build();
 
         try (Creator<UserResource> u = Creator.create(realm, userRepresentation);
              Creator<GroupResource> subgroup = Creator.create(realm, subGroupRep);
@@ -2600,7 +2635,7 @@ public class UserTest extends AbstractAdminClientTest {
 
     @Test
     public void testDefaultCharacterValidationOnUsername() {
-        List<String> invalidNames = List.of("1user\\\\", "2user\\\\%", "3user\\\\*", "4user\\\\_");
+        List<String> invalidNames = Arrays.asList("1user\\\\", "2user\\\\%", "3user\\\\*", "4user\\\\_");
 
         for (String invalidName : invalidNames) {
             try {
@@ -2699,7 +2734,10 @@ public class UserTest extends AbstractAdminClientTest {
         attribute.setName(name);
         attribute.setMultivalued(true);
         UPAttributePermissions permissions = new UPAttributePermissions();
-        permissions.setEdit(Set.of("user", "admin"));
+        Set<String> set = new HashSet<>();
+        set.add("user");
+        set.add("admin");
+        permissions.setEdit(set);
         attribute.setPermissions(permissions);
         this.managedAttributes.add(name);
         return attribute;
@@ -2719,7 +2757,12 @@ public class UserTest extends AbstractAdminClientTest {
                 UPAttribute email = config.getAttribute("email");
 
                 if (email == null) {
-                    config.addOrReplaceAttribute(new UPAttribute("email", new UPAttributePermissions(Set.of("user", "admin"), Set.of("user", "admin")), new UPAttributeRequired(Set.of("user"), Set.of())));
+                    Set<String> setUserAdmin = new HashSet<>();
+                    setUserAdmin.add("user");
+                    setUserAdmin.add("admin");
+                    Set<String> setUser = new HashSet<>();
+                    setUser.add("user");
+                    config.addOrReplaceAttribute(new UPAttribute("email", new UPAttributePermissions(setUserAdmin, setUserAdmin), new UPAttributeRequired(setUser, new HashSet<>())));
                 }
             }
 

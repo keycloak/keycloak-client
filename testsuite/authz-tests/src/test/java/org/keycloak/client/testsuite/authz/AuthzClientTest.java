@@ -31,21 +31,19 @@ public class AuthzClientTest {
     @Test
     public void testCreateWithEnvVars() {
         String configuration =
-                """
-                {
-                  "realm": "${env.%s}",
-                  "auth-server-url": "${env.%s}",
-                  "ssl-required": "external",
-                  "enable-cors": true,
-                  "resource": "my-server",
-                  "credentials": {
-                    "secret": "${env.KEYCLOAK_SECRET}"
-                  },
-                  "policy-enforcer": {
-                    "enforcement-mode": "ENFORCING"
-                  }
-                }
-                """;
+                "{\n" +
+                        "  \"realm\": \"${env.%s}\",\n" +
+                        "  \"auth-server-url\": \"${env.%s}\",\n" +
+                        "  \"ssl-required\": \"external\",\n" +
+                        "  \"enable-cors\": true,\n" +
+                        "  \"resource\": \"my-server\",\n" +
+                        "  \"credentials\": {\n" +
+                        "    \"secret\": \"${env.KEYCLOAK_SECRET}\"\n" +
+                        "  },\n" +
+                        "  \"policy-enforcer\": {\n" +
+                        "    \"enforcement-mode\": \"ENFORCING\"\n" +
+                        "  }\n" +
+                        "}";
 
         RuntimeException runtimeException = Assertions.assertThrows(RuntimeException.class, () -> {
             Map<String, String> env = System.getenv();

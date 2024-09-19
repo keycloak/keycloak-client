@@ -170,18 +170,6 @@
                                                 org/keycloak/common/Version.java
                                             </excludes>
                                         </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.keycloak</groupId>
-                                            <artifactId>keycloak-server-spi</artifactId>
-                                            <version>${keycloak.version}</version>
-                                            <type>jar</type>
-                                            <classifier>sources</classifier>
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
-                                            <includes>
-                                                org/keycloak/utils/StringUtil.java,
-                                            </includes>
-                                        </artifactItem>
                                     </artifactItems>
                                     <overWriteReleases>false</overWriteReleases>
                                     <overWriteSnapshots>true</overWriteSnapshots>

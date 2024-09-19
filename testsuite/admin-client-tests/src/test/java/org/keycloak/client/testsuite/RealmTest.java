@@ -170,7 +170,7 @@ public class RealmTest extends AbstractAdminClientTest {
     @Test
     @KeycloakVersion(min = "25.0.0")
     public void createRealmWithValidConsoleUris() throws Exception {
-        var realmNameWithSpaces = "new realm";
+        String realmNameWithSpaces = "new realm";
 
 
         RealmRepresentation rep = new RealmRepresentation();
@@ -189,7 +189,7 @@ public class RealmTest extends AbstractAdminClientTest {
 
         Assert.assertNames(adminClient.realms().findAll(), "master", REALM_NAME, "test" , realmNameWithSpaces);
 
-        final var urlPlaceHolders = ImmutableSet.of("${authBaseUrl}", "${authAdminUrl}");
+        final Set<String> urlPlaceHolders = ImmutableSet.of("${authBaseUrl}", "${authAdminUrl}");
 
         RealmResource newRealm = adminClient.realms().realm(realmNameWithSpaces);
         List<String> clientUris = newRealm.clients()

@@ -140,7 +140,7 @@ public class DummyCryptoProvider implements CryptoProvider {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            private static byte[] integerToBytes(BigInteger s, int qLength) {
+            private byte[] integerToBytes(BigInteger s, int qLength) {
                 byte[] bytes = s.toByteArray();
                 if (qLength < bytes.length) {
                     byte[] tmp = new byte[qLength];

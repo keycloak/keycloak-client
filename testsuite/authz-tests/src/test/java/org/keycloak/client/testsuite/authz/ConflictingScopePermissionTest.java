@@ -114,15 +114,17 @@ public class ConflictingScopePermissionTest extends AbstractAuthzTest {
             String resourceSetName = permission.getResourceName();
 
             switch (resourceSetName) {
-                case "Resource A" -> {
+                case "Resource A":
                     MatcherAssert.assertThat(permission.getScopes(), Matchers.containsInAnyOrder("execute", "write"));
                     permissions.remove(permission);
-                }
-                case "Resource C" -> {
+                    break;
+                case "Resource C":
                     MatcherAssert.assertThat(permission.getScopes(), Matchers.containsInAnyOrder("execute", "write", "read"));
                     permissions.remove(permission);
-                }
-                default -> Assertions.fail("Unexpected permission for resource [" + resourceSetName + "]");
+                    break;
+                default:
+                    Assertions.fail("Unexpected permission for resource [" + resourceSetName + "]");
+                    break;
             }
         }
 
@@ -155,15 +157,18 @@ public class ConflictingScopePermissionTest extends AbstractAuthzTest {
             String resourceSetName = permission.getResourceName();
 
             switch (resourceSetName) {
-                case "Resource A" -> {
+                case "Resource A":
                     MatcherAssert.assertThat(permission.getScopes(), Matchers.containsInAnyOrder("execute", "write", "read"));
                     permissions.remove(permission);
-                }
-                case "Resource C" -> {
+                    break;
+                case "Resource C":
                     MatcherAssert.assertThat(permission.getScopes(), Matchers.containsInAnyOrder("execute", "write", "read"));
                     permissions.remove(permission);
-                }
-                default -> Assertions.fail("Unexpected permission for resource [" + resourceSetName + "]");
+                    break;
+
+                default:
+                    Assertions.fail("Unexpected permission for resource [" + resourceSetName + "]");
+                    break;
             }
         }
 
@@ -189,19 +194,21 @@ public class ConflictingScopePermissionTest extends AbstractAuthzTest {
             String resourceSetName = permission.getResourceName();
 
             switch (resourceSetName) {
-                case "Resource A" -> {
+                case "Resource A":
                     MatcherAssert.assertThat(permission.getScopes(), Matchers.containsInAnyOrder("execute", "write"));
                     permissions.remove(permission);
-                }
-                case "Resource C" -> {
+                    break;
+                case "Resource C":
                     MatcherAssert.assertThat(permission.getScopes(), Matchers.containsInAnyOrder("execute", "write", "read"));
                     permissions.remove(permission);
-                }
-                case "Resource B" -> {
+                    break;
+                case "Resource B":
                     MatcherAssert.assertThat(permission.getScopes(), Matchers.containsInAnyOrder("execute", "write", "read"));
                     permissions.remove(permission);
-                }
-                default -> Assertions.fail("Unexpected permission for resource [" + resourceSetName + "]");
+                    break;
+                default:
+                    Assertions.fail("Unexpected permission for resource [" + resourceSetName + "]");
+                    break;
             }
         }
 
@@ -227,19 +234,21 @@ public class ConflictingScopePermissionTest extends AbstractAuthzTest {
             String resourceSetName = permission.getResourceName();
 
             switch (resourceSetName) {
-                case "Resource A" -> {
+                case "Resource A":
                     MatcherAssert.assertThat(permission.getScopes(), Matchers.containsInAnyOrder("execute", "write", "read"));
                     permissions.remove(permission);
-                }
-                case "Resource C" -> {
+                    break;
+                case "Resource C":
                     MatcherAssert.assertThat(permission.getScopes(), Matchers.containsInAnyOrder("execute", "write", "read"));
                     permissions.remove(permission);
-                }
-                case "Resource B" -> {
+                    break;
+                case "Resource B":
                     MatcherAssert.assertThat(permission.getScopes(), Matchers.containsInAnyOrder("execute", "write", "read"));
                     permissions.remove(permission);
-                }
-                default -> Assertions.fail("Unexpected permission for resource [" + resourceSetName + "]");
+                    break;
+                default:
+                    Assertions.fail("Unexpected permission for resource [" + resourceSetName + "]");
+                    break;
             }
         }
 
@@ -323,7 +332,7 @@ public class ConflictingScopePermissionTest extends AbstractAuthzTest {
 
         representation.setName(name);
         representation.addResource(resourceName);
-        representation.addPolicy(policies.toArray(String[]::new));
+        representation.addPolicy(policies.toArray(new String[0]));
 
         client.authorization().permissions().resource().create(representation).close();
     }
@@ -338,8 +347,8 @@ public class ConflictingScopePermissionTest extends AbstractAuthzTest {
             representation.addResource(resourceName);
         }
 
-        representation.addScope(scopes.toArray(String[]::new));
-        representation.addPolicy(policies.toArray(String[]::new));
+        representation.addScope(scopes.toArray(new String[0]));
+        representation.addPolicy(policies.toArray(new String[0]));
 
         authorization.permissions().scope().create(representation).close();
     }

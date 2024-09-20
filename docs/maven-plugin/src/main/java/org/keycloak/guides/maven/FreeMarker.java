@@ -6,8 +6,10 @@ import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -40,7 +42,7 @@ public class FreeMarker {
         HashMap<String, Object> attrs = new HashMap<>(attributes);
         attrs.put("id", template.split("/")[1].replace(".adoc", ""));
 
-        Writer w = new FileWriter(out, StandardCharsets.UTF_8);
+        Writer w = new OutputStreamWriter(new FileOutputStream(out), StandardCharsets.UTF_8);
         t.process(attrs, w);
     }
 

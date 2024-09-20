@@ -326,8 +326,8 @@ public class PolicyEvaluationTest extends AbstractAuthzTest {
         try {
             UserRepresentation jdoe = realm.users().search("jdoe").get(0);
             Map<String, List<String>> attrs = new HashMap<>();
-            attrs.put("a1", List.of("1", "2"));
-            attrs.put("a2", List.of("3"));
+            attrs.put("a1", Arrays.asList("1", "2"));
+            attrs.put("a2", Arrays.asList("3"));
             jdoe.setAttributes(attrs);
             realm.users().get(jdoe.getId()).update(jdoe);
 
@@ -352,8 +352,8 @@ public class PolicyEvaluationTest extends AbstractAuthzTest {
             // create a resource bur with the attributes list
             resource = new ResourceRepresentation("js-resource");
             Map<String, List<String>> attrs = new HashMap<>();
-            attrs.put("a1", List.of("1", "2"));
-            attrs.put("a2", List.of("3"));
+            attrs.put("a1", Arrays.asList("1", "2"));
+            attrs.put("a2", Arrays.asList("3"));
             resource.setAttributes(attrs);
             client.authorization().resources().create(resource).close();
             resource.setId(client.authorization().resources().findByName(resource.getName()).iterator().next().getId());

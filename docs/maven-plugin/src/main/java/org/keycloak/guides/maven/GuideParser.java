@@ -71,9 +71,15 @@ public class GuideParser {
         while (attributeMatcher.find()) {
             String key = attributeMatcher.group("key");
             switch (key) {
-                case "title" -> guide.setTitle(attributeMatcher.group("valueString"));
-                case "summary" -> guide.setSummary(attributeMatcher.group("valueString"));
-                case "priority" -> guide.setPriority(Integer.parseInt(attributeMatcher.group("valueInt")));
+                case "title":
+                    guide.setTitle(attributeMatcher.group("valueString"));
+                    break;
+                case "summary":
+                    guide.setSummary(attributeMatcher.group("valueString"));
+                    break;
+                case "priority":
+                    guide.setPriority(Integer.parseInt(attributeMatcher.group("valueInt")));
+                    break;
             }
         }
     }

@@ -165,9 +165,14 @@ class ASN1Decoder {
 
     byte[] read(int length) throws IOException {
         byte[] bytes = new byte[length];
-        int read = is.readNBytes(bytes, 0, length);
-        if (read != length) {
-            throw new IOException(String.format("EOF found reading %d bytes", length));
+        int totalBytesRead = 0;
+
+        while (totalBytesRead < length) {
+            int bytesRead = is.read(bytes, totalBytesRead, length - totalBytesRead);
+            if (bytesRead == -1) {
+                throw new IOException(String.format("EOF found reading %d bytes", length));
+            }
+            totalBytesRead += bytesRead;
         }
         count += length;
         return bytes;

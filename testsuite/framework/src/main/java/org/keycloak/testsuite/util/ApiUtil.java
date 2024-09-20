@@ -279,41 +279,41 @@ public class ApiUtil {
 
     public static void updateRequiredActionsOrderByAlias(final RealmResource realmResource,
             final List<String> requiredActionsInTargetOrder) {
-        final var realmName = realmResource.toRepresentation().getRealm();
-        final var initialRequiredActionsOrdered = realmResource.flows().getRequiredActions().stream()
+        final String realmName = realmResource.toRepresentation().getRealm();
+        final List<String> initialRequiredActionsOrdered = realmResource.flows().getRequiredActions().stream()
                 .map(RequiredActionProviderRepresentation::getAlias).collect(Collectors.toList());
         log.infof("initial required actions order for realm '%s': %s", realmName, initialRequiredActionsOrdered);
         log.infof("target order for realm '%s' (maybe partial): %s", realmName, requiredActionsInTargetOrder);
 
-        final var requiredActionsToConfigureWithLowerPrio = new ArrayList<>(requiredActionsInTargetOrder);
-        for (final var requiredActionAlias : requiredActionsInTargetOrder) {
-            var allRequiredActionsOrdered = realmResource.flows().getRequiredActions().stream()
+        final List<String> requiredActionsToConfigureWithLowerPrio = new ArrayList<>(requiredActionsInTargetOrder);
+        for (final String requiredActionAlias : requiredActionsInTargetOrder) {
+            List<String> allRequiredActionsOrdered = realmResource.flows().getRequiredActions().stream()
                     .map(RequiredActionProviderRepresentation::getAlias).collect(Collectors.toList());
 
             requiredActionsToConfigureWithLowerPrio.remove(requiredActionAlias);
 
-            final var currentIndex = allRequiredActionsOrdered.indexOf(requiredActionAlias);
+            final int currentIndex = allRequiredActionsOrdered.indexOf(requiredActionAlias);
             if (currentIndex == -1) {
                 throw new IllegalStateException("Required action not found: " + requiredActionAlias);
             }
 
-            final var aliasOfCurrentlyFirstActionWithLowerTargetPrioOpt = allRequiredActionsOrdered.stream()
+            final java.util.Optional<String> aliasOfCurrentlyFirstActionWithLowerTargetPrioOpt = allRequiredActionsOrdered.stream()
                     .filter(requiredActionsToConfigureWithLowerPrio::contains).findFirst();
             aliasOfCurrentlyFirstActionWithLowerTargetPrioOpt
                     .ifPresent(aliasOfCurrentlyFirstActionWithLowerTargetPrio -> {
-                        final var indexOfCurrentlyFirstActionWithLowerTargetPrio =
+                        final int indexOfCurrentlyFirstActionWithLowerTargetPrio =
                                 allRequiredActionsOrdered.indexOf(aliasOfCurrentlyFirstActionWithLowerTargetPrio);
-                        final var positionsToMoveCurrentActionUp =
+                        final int positionsToMoveCurrentActionUp =
                                 Math.max(currentIndex - indexOfCurrentlyFirstActionWithLowerTargetPrio, 0);
                         if (positionsToMoveCurrentActionUp > 0) {
-                            for (var i = 0; i < positionsToMoveCurrentActionUp; i++) {
+                            for (int i = 0; i < positionsToMoveCurrentActionUp; i++) {
                                 realmResource.flows().raiseRequiredActionPriority(requiredActionAlias);
                             }
                         }
                     });
         }
 
-        final var updatedRequiredActionsOrdered = realmResource.flows().getRequiredActions().stream()
+        final List<String> updatedRequiredActionsOrdered = realmResource.flows().getRequiredActions().stream()
                 .map(RequiredActionProviderRepresentation::getAlias).collect(Collectors.toList());
         log.infof("updated required actions order for realm '%s': %s", realmName, updatedRequiredActionsOrdered);
     }

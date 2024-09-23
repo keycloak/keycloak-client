@@ -315,6 +315,33 @@ public class OAuthClient {
         }
     }
 
+    public String introspectTokenWithClientCredential(String realm, String clientId, String clientSecret, String tokenType, String tokenToIntrospect) {
+        HttpPost post = new HttpPost(getTokenIntrospectionUrl(realm));
+
+        String authorization = BasicAuthHelper.createHeader(clientId, clientSecret);
+        post.setHeader("Authorization", authorization);
+
+        List<NameValuePair> parameters = new LinkedList<>();
+
+        parameters.add(new BasicNameValuePair("token", tokenToIntrospect));
+        parameters.add(new BasicNameValuePair("token_type_hint", tokenType));
+
+        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8);
+        post.setEntity(formEntity);
+
+        try (CloseableHttpResponse response = httpClient.execute(post)) {
+            return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve access token", e);
+        }
+    }
+
+    private String getTokenIntrospectionUrl(String realmName) {
+        return KeycloakUriBuilder.fromUri(ServerURLs.AUTH_SERVER_URL + "/realms/{realmName}/protocol/openid-connect/token/introspect")
+                .build(realmName)
+                .toString();
+    }
+
     private String getLoginUrlForCode() {
         KeycloakUriBuilder b = KeycloakUriBuilder.fromUri(ServerURLs.AUTH_SERVER_URL + "/realms/{realmName}/protocol/openid-connect/auth");
         b.queryParam(OAuth2Constants.RESPONSE_TYPE, "code");

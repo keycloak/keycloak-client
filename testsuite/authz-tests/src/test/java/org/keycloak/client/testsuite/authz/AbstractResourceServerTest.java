@@ -31,6 +31,7 @@ import org.keycloak.admin.client.resource.ClientsResource;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.authorization.client.resource.ProtectionResource;
+import org.keycloak.client.testsuite.events.EventType;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.authorization.AuthorizationRequest;
 import org.keycloak.representations.idm.authorization.AuthorizationRequest.Metadata;
@@ -56,6 +57,7 @@ public abstract class AbstractResourceServerTest extends AbstractAuthzTest {
     public List<RealmRepresentation> getRealmsForImport() {
         List<RealmRepresentation> testRealms = new ArrayList<>();
         testRealms.add(RealmBuilder.create().name(REALM_NAME)
+                .events(EventType.PERMISSION_TOKEN_ERROR, EventType.PERMISSION_TOKEN)
                 .roles(RolesBuilder.create()
                         .realmRole(RoleBuilder.create().name("uma_authorization").build())
                         .realmRole(RoleBuilder.create().name("uma_protection").build())

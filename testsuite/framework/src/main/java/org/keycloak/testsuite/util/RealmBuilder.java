@@ -85,6 +85,11 @@ public class RealmBuilder {
         return this;
     }
 
+    public RealmBuilder adminEvents() {
+        rep.setAdminEventsEnabled(true);
+        return this;
+    }
+
     public RealmBuilder events() {
         return events(new EventType[0]);
     }

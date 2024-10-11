@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.AuthorizationResource;
@@ -31,7 +30,6 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.authorization.client.resource.ProtectionResource;
 import org.keycloak.authorization.client.util.HttpResponseException;
-import org.keycloak.common.crypto.CryptoIntegration;
 import org.keycloak.common.util.Time;
 import org.keycloak.jose.jws.JWSInput;
 import org.keycloak.representations.AccessToken;
@@ -83,11 +81,6 @@ public class AuthzClientCredentialsTest extends AbstractAuthzTest {
         testRealms.add(configureRealm(RealmBuilder.create().name("authz-test-no-rt").accessTokenLifespan(1), ClientBuilder.create().secret("secret")
                 .attribute("client_credentials.use_refresh_token", "false")).build());
         return testRealms;
-    }
-
-    @BeforeAll
-    public static void initDummyCryptoProvider() {
-        CryptoIntegration.init(AuthzClientCredentialsTest.class.getClassLoader());
     }
 
     @BeforeEach

@@ -27,12 +27,12 @@ public class JWKParser extends AbstractJWKParser {
     private JWKParser() {
     }
 
-    public JWKParser(JWK jwk) {
-        this.jwk = jwk;
-    }
-
     public static JWKParser create() {
         return new JWKParser();
+    }
+
+    public JWKParser(JWK jwk) {
+        this.jwk = jwk;
     }
 
     public static JWKParser create(JWK jwk) {

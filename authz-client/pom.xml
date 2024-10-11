@@ -101,8 +101,19 @@
                                             <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
                                             <includes>
                                                 org/**/*,
-                                                META-INF/services/*
                                             </includes>  <!-- unpack just source code and potential services -->
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.keycloak</groupId>
+                                            <artifactId>keycloak-authz-client-tests</artifactId>
+                                            <version>${keycloak.version}</version>
+                                            <type>jar</type>
+                                            <classifier>sources</classifier>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/unpacked-resources</outputDirectory>
+                                            <includes>
+                                                META-INF/services/**/*
+                                            </includes>
                                         </artifactItem>
                                     </artifactItems>
                                     <overWriteReleases>false</overWriteReleases>

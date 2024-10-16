@@ -5,5 +5,8 @@
 :authorizationguide_name: Authorization Services Guide
 :authorizationguide_name_short: Authorization Services
 :authorizationguide_link: {project_doc_base_url}/authorization_services/
+:developerguide_name: Server Developer Guide
+:developerguide_name_short: Server Developer
+:developerguide_link: {project_doc_base_url}/server_development/
 :section: guide
 :sections: guides

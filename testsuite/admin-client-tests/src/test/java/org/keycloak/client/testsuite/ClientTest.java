@@ -520,23 +520,27 @@ public class ClientTest extends AbstractAdminClientTest {
         oauth.redirectUri(client.getRedirectUris().get(0));
         oauth.scope(OAuth2Constants.OFFLINE_ACCESS);
 
-        OAuthClient.AccessTokenResponse accessTokenResponse = oauth.doGrantAccessTokenRequest("secret", "testuser", "password");
-        assertEquals(200, accessTokenResponse.getStatusCode());
+        try {
+            OAuthClient.AccessTokenResponse accessTokenResponse = oauth.doGrantAccessTokenRequest("secret", "testuser", "password");
+            assertEquals(200, accessTokenResponse.getStatusCode());
 
 
-        offlineSessionCount = realm.clients().get(id).getOfflineSessionCount();
-        assertEquals(Long.valueOf(1), offlineSessionCount.get("count"));
+            offlineSessionCount = realm.clients().get(id).getOfflineSessionCount();
+            assertEquals(Long.valueOf(1), offlineSessionCount.get("count"));
 
-        List<UserSessionRepresentation> offlineUserSessions = realm.clients().get(id).getOfflineUserSessions(0, 100);
-        assertEquals(1, offlineUserSessions.size());
-        assertEquals("testuser", offlineUserSessions.get(0).getUsername());
-        assertThat(offlineUserSessions.get(0).getLastAccess(),
-            allOf(greaterThan(Time.currentTimeMillis() - 10000L), lessThan(Time.currentTimeMillis())));
+            List<UserSessionRepresentation> offlineUserSessions = realm.clients().get(id).getOfflineUserSessions(0, 100);
+            assertEquals(1, offlineUserSessions.size());
+            assertEquals("testuser", offlineUserSessions.get(0).getUsername());
+            assertThat(offlineUserSessions.get(0).getLastAccess(),
+                    allOf(greaterThan(Time.currentTimeMillis() - 10000L), lessThan(Time.currentTimeMillis())));
 
-        userSessions = realm.users().get(userId).getOfflineSessions(id);
-        assertEquals(1, userSessions.size(), "There should be one offline session");
-        assertOfflineSession(offlineUserSessions.get(0), userSessions.get(0));
-        realm.clients().get(id).remove();
+            userSessions = realm.users().get(userId).getOfflineSessions(id);
+            assertEquals(1, userSessions.size(), "There should be one offline session");
+            assertOfflineSession(offlineUserSessions.get(0), userSessions.get(0));
+            realm.clients().get(id).remove();
+        } finally {
+            oauth.scope(OAuthClient.DEFAULT_SCOPE);
+        }
     }
 
     private void assertOfflineSession(UserSessionRepresentation expected, UserSessionRepresentation actual) {

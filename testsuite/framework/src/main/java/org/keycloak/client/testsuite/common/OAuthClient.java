@@ -50,11 +50,14 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Stan Silvert ssilvert@redhat.com (C) 2016 Red Hat Inc.
  */
 public class OAuthClient {
+
+    public static final String DEFAULT_SCOPE = "";
+
     private String realm;
     private String clientId;
     private String redirectUri;
     private boolean openid = true;
-    private String scope = "";
+    private String scope = DEFAULT_SCOPE;
 
     private final CloseableHttpClient httpClient;
 

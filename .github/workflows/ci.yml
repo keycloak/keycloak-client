@@ -2,6 +2,7 @@ name: Keycloak Client CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest

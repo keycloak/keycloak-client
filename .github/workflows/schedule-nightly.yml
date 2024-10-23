@@ -1,0 +1,24 @@
+name: Scheduled nightly workflows
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+
+  run-ci:
+    name: Run nightly workflows
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' || github.repository == 'keycloak/keycloak-client'
+
+    strategy:
+      matrix:
+        workflow:
+          - ci.yml
+          - release-nightly.yml
+
+    steps:
+      - run: gh workflow run -R ${{ github.repository }} ${{ matrix.workflow }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

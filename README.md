@@ -16,7 +16,11 @@ and hence are supposed to be updated there (whenever needed) and synced into thi
 
 ## Syncing the files from Keycloak repository
 
-* Checkout [main Keycloak server repository](https://github.com/keycloak/keycloak) and build it on your laptop to make sure latest Keycloak stuff available in your local maven repository.
+* Fetch [main Keycloak server repository](https://github.com/keycloak/keycloak) and checkout the last `release/X.Y` branch (For example `git checkout release/26.0`). Note that we usually cannot
+sync from the server `main` branch as it is under development and there is still a chance that some things being developed here would be later updated/removed. Which could be an issue as for client, we
+want to preserve backwards compatibility.
+
+* build it on your laptop to make sure latest Keycloak stuff available in your local maven repository.
 
 * Run [sync-keycloak-sources.sh](.github/scripts/sync-keycloak-sources.sh)
 

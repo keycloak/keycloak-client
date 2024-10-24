@@ -29,6 +29,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ClientHttpEngineBuilder43;
 import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.keycloak.OAuth2Constants;
+import org.keycloak.admin.client.JacksonProvider;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.client.testsuite.models.Constants;
@@ -70,8 +71,8 @@ public class AdminClientUtil {
 
     public static Keycloak createAdminClientWithClientCredentials(String realmName, String clientId, String clientSecret, String scope) {
 
-        boolean ignoreUnknownProperties = false;
-        ResteasyClient resteasyClient = createResteasyClient(ignoreUnknownProperties, null);
+        boolean ignoreUnknownProperties = true;
+        ResteasyClient resteasyClient = createResteasyClient(null);
 
         return KeycloakBuilder.builder()
                 .serverUrl(getAuthServerContextRoot())
@@ -91,29 +92,14 @@ public class AdminClientUtil {
         return createAdminClient(ignoreUnknownProperties, getAuthServerContextRoot());
     }
 
-    public static ResteasyClient createResteasyClient() {
-        try {
-            return createResteasyClient(false, null);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static ResteasyClient createResteasyClient(boolean ignoreUnknownProperties, Boolean followRedirects) {
+    public static ResteasyClient createResteasyClient(Boolean followRedirects) {
         ResteasyClientBuilder resteasyClientBuilder = (ResteasyClientBuilder) ResteasyClientBuilder.newBuilder();
         resteasyClientBuilder.sslContext(buildSslContext());
 
-        // We need to ignore unknown JSON properties e.g. in the adapter configuration representation
-        // during adapter backward compatibility testing
-        if (ignoreUnknownProperties) {
-            // We need to use anonymous class to avoid the following error from RESTEasy:
-            // Provider class org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider is already registered.  2nd registration is being ignored.
-            ResteasyJackson2Provider jacksonProvider = new ResteasyJackson2Provider() {};
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            jacksonProvider.setMapper(objectMapper);
-            resteasyClientBuilder.register(jacksonProvider, 100);
-        }
+        // We need to use subclass (or anonymous class) to avoid the following error from RESTEasy:
+        // Provider class org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider is already registered.  2nd registration is being ignored.
+        ResteasyJackson2Provider jacksonProvider = new JacksonProvider();
+        resteasyClientBuilder.register(jacksonProvider, 100);
 
         resteasyClientBuilder
                 .hostnameVerification(ResteasyClientBuilder.HostnameVerificationPolicy.WILDCARD)

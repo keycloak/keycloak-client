@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Keycloak Client Libs
-        uses: ./.github/actions/build-keycloak
+        uses: ./.github/actions/build-keycloak-client
 
   client-tests:
     name: Client tests (Jakarta, JEE)

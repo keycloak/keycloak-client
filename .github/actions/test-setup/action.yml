@@ -15,7 +15,7 @@ runs:
       name: Download Keycloak Maven artifacts
       uses: actions/download-artifact@v4
       with:
-        name: m2-keycloak.tzts
+        name: m2-keycloak-client.tzts
 
     - id: extract-maven-artifacts
       name: Extract Keycloak Maven artifacts
@@ -24,4 +24,4 @@ runs:
         if [ "$RUNNER_OS" == "Windows" ]; then
           choco install zstandard
         fi
-        tar -C ~/ --use-compress-program="zstd -d" -xf m2-keycloak.tzts
+        tar -C ~/ --use-compress-program="zstd -d" -xf m2-keycloak-client.tzts

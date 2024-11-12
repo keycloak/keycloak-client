@@ -1,0 +1,58 @@
+name: Keycloak client sync nightly
+
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout keycloak main
+        uses: actions/checkout@v4
+        with:
+          repository: keycloak/keycloak
+
+      - name: Build Keycloak
+        uses: ./.github/actions/build-keycloak
+        with:
+          upload-m2-repo: false
+
+      - name: Checkout keycloak-client repository
+        uses: actions/checkout@v4
+
+      - id: build-keycloak-client
+        name: Build Keycloak Client libraries
+        shell: bash
+        run: mvn -B clean install dependency:resolve -Pnightly -DskipTests=true
+
+      - name: Execute sync
+        run: ./.github/scripts/sync-keycloak-sources.sh
+
+      - name: Build Keycloak Client Libs again
+        uses: ./.github/actions/build-keycloak-client
+
+  client-tests:
+    name: Client tests (Jakarta, JEE)
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        keycloak_server_version: [ "24.0", "25.0", "26.0", "nightly" ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: test-setup
+        name: Test setup
+        uses: ./.github/actions/test-setup
+
+      - name: Run client tests
+        run: |
+          mvn -B -f testsuite/providers/pom.xml package -DskipTests=true
+          mvn -B -f testsuite/admin-client-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
+          mvn -B -f testsuite/authz-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
+

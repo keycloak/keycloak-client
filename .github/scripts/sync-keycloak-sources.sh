@@ -29,7 +29,8 @@ function syncFiles() {
   mvn clean install -Psync
   mv target/unpacked/* src/main/java/
 
-  if [ -d target/unpacked-resources ]; then
+  if  [ -d target/unpacked-resources -a ! -z "$(ls -A target/unpacked-resources/* 2>/dev/null)" ]
+  then
     mv target/unpacked-resources/* src/main/resources/
   fi
   cd ..

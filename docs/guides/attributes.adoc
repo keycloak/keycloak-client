@@ -8,5 +8,7 @@
 :developerguide_name: Server Developer Guide
 :developerguide_name_short: Server Developer
 :developerguide_link: {project_doc_base_url}/server_development/
+:project_product: false
+:project_community: true
 :section: guide
 :sections: guides

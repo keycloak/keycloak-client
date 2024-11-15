@@ -28,7 +28,7 @@ are not "owned" by this repository and hence the Java files should ideally not b
 and hence are supposed to be updated there (whenever needed) and synced into this repository by the bash script [sync-keycloak-sources.sh](.github/scripts/sync-keycloak-sources.sh)
 
 The reason is, that for better interoperability and to avoid issues with the transitive dependencies, we want Keycloak-client libraries to not be
-dependent on the Keycloak server and at the same time not Keycloak server to be dependent on Keycloak-client libraries. But still have a way to
+dependent on the Keycloak server and, at the same time, Keycloak server not to be dependent on Keycloak-client libraries. But still have a way to
 re-use some of those classes between both Keycloak and Keycloak-client libraries.
 
 > [!NOTE] 

@@ -1,19 +1,16 @@
-# Active maintainers
+Maintainers
+===========
 
-* [Alexander Schwartz](https://github.com/ahus1)
-* [Bruno Oliveira da Silva](https://github.com/abstractj)
-* [Hynek Mlnařík](https://github.com/hmlnarik)
+These people will be able to comment on, review and (if successfully reviewed) merge pull requests for this repository.
+
+Everyone else from the community is welcome to comment on issues, answer questions and review pull requests.
+
+In alphabetical order:
+
+* [Douglas Palmer](https://github.com/douglaspalmer)
+* [Giuseppe Graziano](https://github.com/graziang)
+* [Jon Koops](https://github.com/jonkoops)
 * [Marek Posolda](https://github.com/mposolda)
-* [Michal Hajas](https://github.com/mhajas)
-* [Pedro Igor](https://github.com/pedroigor)
-* [Sebastian Schuster](https://github.com/sschu)
-* [Stan Silvert](https://github.com/ssilvert)
-* [Stian Thorgersen](https://github.com/stianst) (project lead)
-* [Takashi Norimatsu](https://github.com/tnorimat)
-* [Thomas Darimont](https://github.com/thomasdarimont)
-* [Václav Muzikář](https://github.com/vmuzikar)
-
-# Emeritus maintainers
-
-* [Pavel Drozd](https://github.com/pdrozd)
+* [Peter Skopek](https://github.com/pskopek)
+* [Ricardo Martin](https://github.com/rmartinc)
 

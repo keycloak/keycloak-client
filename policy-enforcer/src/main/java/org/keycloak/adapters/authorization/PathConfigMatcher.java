@@ -38,7 +38,7 @@ import org.keycloak.representations.idm.authorization.ResourceRepresentation;
  */
 public class PathConfigMatcher extends PathMatcher<PathConfig> {
 
-    private static Logger LOGGER = Logger.getLogger(PolicyEnforcer.class);
+    private static Logger LOGGER = Logger.getLogger(PathConfigMatcher.class);
 
     private final Map<String, PathConfig> paths;
     private final PathCache pathCache;

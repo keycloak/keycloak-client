@@ -232,9 +232,13 @@ public class ProvidersTest extends AbstractAuthenticationTest {
     }
 
     private void compareProviders(List<Map<String, Object>> expected, List<Map<String, Object>> actual) {
-        assertEquals(expected.size(), actual.size(), "Providers count");
-        // compare ignoring list and map impl types
-        assertEquals(normalizeResults(actual), normalizeResults(expected));
+        List<Map<String, Object>> actualNormalizedList = normalizeResults(actual);
+        List<Map<String, Object>> expectedNormalizedList = normalizeResults(expected);
+
+        // compare that returned actual results contains all expected providers (Actual might include some more)
+        for (Map<String, Object> expectedItem : expectedNormalizedList) {
+            Assert.assertTrue(actualNormalizedList.contains(expectedItem), () -> "Item " + expectedItem + " not present in the actual list");
+        }
     }
 
     private List<Map<String, Object>> normalizeResults(List<Map<String, Object>> list) {

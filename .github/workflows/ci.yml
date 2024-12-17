@@ -15,7 +15,7 @@ jobs:
         uses: ./.github/actions/build-keycloak-client
 
   client-tests:
-    name: Client tests (Jakarta, JEE)
+    name: Client tests (Jakarta)
     runs-on: ubuntu-latest
     needs: build
     timeout-minutes: 30

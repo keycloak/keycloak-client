@@ -24,7 +24,7 @@
         <quarkus.version>3.8.5</quarkus.version>
         <smallrye.config.version>3.5.4</smallrye.config.version>
         <undertow.version>2.3.2.Final</undertow.version>
-        <keycloak.server.version>26.0.5</keycloak.server.version><!-- Used just for testsuite "providers" -->
+        <keycloak.server.version>26.0.8</keycloak.server.version><!-- Used just for testsuite "providers" -->
     </properties>
 
     <build>

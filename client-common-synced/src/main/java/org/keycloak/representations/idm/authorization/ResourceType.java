@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Red Hat, Inc. and/or its affiliates
+ * Copyright 2024 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +16,26 @@
  */
 package org.keycloak.representations.idm.authorization;
 
-/**
- * @author <a href="mailto:psilva@redhat.com">Pedro Igor</a>
- */
-public class ScopePermissionRepresentation extends AbstractPolicyRepresentation {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collections;
+import java.util.Set;
 
-    @Override
+public class ResourceType {
+    private final String type;
+    private final Set<String> scopes;
+
+    @JsonCreator
+    public ResourceType(@JsonProperty("type") String type, @JsonProperty("scopes") Set<String> scopes) {
+        this.type = type;
+        this.scopes = Collections.unmodifiableSet(scopes);
+    }
+
     public String getType() {
-        return "scope";
+        return type;
+    }
+
+    public Set<String> getScopes() {
+        return Collections.unmodifiableSet(scopes);
     }
 }

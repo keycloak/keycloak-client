@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Red Hat, Inc. and/or its affiliates
+ * Copyright 2024 Red Hat, Inc. and/or its affiliates
  * and other contributors as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,24 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.keycloak.jose.jwk;
 
-package org.keycloak.common;
+import java.security.Key;
+import java.security.PublicKey;
+import org.keycloak.crypto.KeyUse;
 
 /**
- * Information about the client connection
+ * <p>Interface for the EdECUtils that will be implemented only for JDK 15+.</p>
  *
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
+ * @author rmartinc
  */
-public interface ClientConnection {
+interface EdECUtils {
 
-    /**
-     * @return the address as a string if it is available, otherwise null 
-     */
-    String getRemoteAddr();
-    String getRemoteHost();
-    int getRemotePort();
+    boolean isEdECSupported();
 
-    String getLocalAddr();
-    int getLocalPort();
+    JWK okp(String kid, String algorithm, Key key, KeyUse keyUse);
+
+    PublicKey createOKPPublicKey(JWK jwk);
 }

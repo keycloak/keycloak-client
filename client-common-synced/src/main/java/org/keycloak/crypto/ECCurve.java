@@ -14,19 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.keycloak.representations.idm;
 
-public enum MembershipType {
+package org.keycloak.crypto;
+
+public enum ECCurve {
+    P256,
+    P384,
+    P521;
 
     /**
-     * Indicates that member can exist without group/organization.
+     * Convert standard EC curve names (and aliases) into this enum.
      */
-    UNMANAGED,
-
-    /**
-     * Indicates that member cannot exist without group/organization.
-     */
-    MANAGED;
-
-    public static final String NAME = "membershipType";
+    public static ECCurve fromStdCrv(String crv) {
+        switch (crv) {
+            case "P-256":
+            case "secp256r1":
+                return P256;
+            case "P-384":
+            case "secp384r1":
+                return P384;
+            case "P-521":
+            case "secp521r1":
+                return P521;
+            default:
+                throw new IllegalArgumentException("Unexpected EC curve: " + crv);
+        }
+    }
 }

@@ -44,11 +44,11 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Check for changes in client-common-synced
+      - name: Check for changes
         id: changes_check
         run: |
-          if [ -z "$(git status --porcelain client-common-synced)" ]; then
-            echo "No changes detected in client-common-synced, stopping the workflow."
+          if [ -z "$(git status --porcelain client-common-synced admin-client authz-client)" ]; then
+            echo "No changes detected in client-common-synced, admin-client, or authz-client. Stopping the workflow."
             echo "CHANGES_CHECK=false" >> $GITHUB_ENV
           else
             echo "CHANGES_CHECK=true" >> $GITHUB_ENV
@@ -63,6 +63,8 @@ jobs:
           BRANCH_NAME="sync-with-keycloak-server-${{ env.KEYCLOAK_RELEASE_BRANCH_NAME }}-${TIMESTAMP}"
           git checkout -b $BRANCH_NAME
           git add client-common-synced
+          git add admin-client
+          git add authz-client
           git commit -s -m "Sync with Keycloak server release branch ${{ env.KEYCLOAK_RELEASE_BRANCH_NAME }}" --author="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
           git log -1 --pretty=%B
           git push --set-upstream origin $BRANCH_NAME

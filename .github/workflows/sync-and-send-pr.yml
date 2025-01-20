@@ -74,4 +74,4 @@ jobs:
         run: |
           PR_TITLE="Sync with Keycloak server ${{ env.KEYCLOAK_RELEASE_BRANCH_NAME }} branch"
           PR_BODY="This PR syncs keycloak-client with the latest Keycloak release branch ${{ env.KEYCLOAK_RELEASE_BRANCH_NAME }}"
-          gh pr create --base main --head "$BRANCH_NAME" --title "$PR_TITLE" --body "$PR_BODY"
+          gh pr create --draft --base main --head "$BRANCH_NAME" --title "$PR_TITLE" --body "$PR_BODY"

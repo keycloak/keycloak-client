@@ -7,7 +7,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     env:
-      REPO_HEAD: "keycloak"
+      REPO_HEAD: "graziang"
       KEYCLOAK_CLIENT_BRANCH: "main"
 
     steps:

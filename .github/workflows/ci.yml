@@ -2,7 +2,6 @@ name: Keycloak Client CI
 on:
   push:
   pull_request:
-    types: [ready_for_review]
   workflow_dispatch:
 jobs:
   build:

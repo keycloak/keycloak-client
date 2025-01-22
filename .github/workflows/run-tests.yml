@@ -1,0 +1,76 @@
+name: Keycloak Client Tests
+
+on:
+  workflow_call:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  client-tests:
+    name: Client tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        keycloak_server_version: [ "24.0", "26.0", "26.1", "nightly" ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: test-setup
+        name: Test setup
+        uses: ./.github/actions/test-setup
+
+      - name: Run client tests
+        run: |
+          mvn -B -f testsuite/providers/pom.xml package -DskipTests=true
+          mvn -B -f testsuite/admin-client-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
+          mvn -B -f testsuite/authz-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
+
+  client-tests-java-11:
+    name: Client tests (Java 11)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        keycloak_server_version: [ "nightly" ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: test-setup
+        name: Test setup
+        uses: ./.github/actions/test-setup
+        with:
+          java-version: |
+            11
+            21
+
+      - name: Run client tests
+        run: |
+          mvn -B -f testsuite/providers/pom.xml package -DskipTests=true
+
+          podman run --detach --rm --name keycloak --net host -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+            -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin -e KC_HOSTNAME=localhost \
+            -e KC_HTTPS_KEY_STORE_FILE=/opt/keycloak/providers/server.keystore -e KC_HEALTH_ENABLED=true \
+            -v ./testsuite/providers/target/providers:/opt/keycloak/providers:ro \
+            "quay.io/keycloak/keycloak:${{ matrix.keycloak_server_version }}" start
+
+          podman logs -f keycloak &
+
+          retries=0
+          while [[ $(curl -sk https://localhost:9000/health | jq -r ".status") != "UP" ]]; do
+            sleep 10;
+            retries=$((retries+1))
+            if [ $retries -gt 10 ]; then
+              exit 1
+            fi
+          done
+
+          JAVA_HOME="${JAVA_HOME_11_X64}" mvn -B -f testsuite/admin-client-tests/pom.xml test \
+            -Dkeycloak.lifecycle=remote -Dkeycloak.remote.url=https://localhost:8443 \
+            "-Dkeycloak.remote.trustStore=${PWD}/testsuite/providers/target/classes/client.truststore"
+          JAVA_HOME="${JAVA_HOME_11_X64}" mvn -B -f testsuite/authz-tests/pom.xml test test \
+            -Dkeycloak.lifecycle=remote -Dkeycloak.remote.url=https://localhost:8443 \
+            "-Dkeycloak.remote.trustStore=${PWD}/testsuite/providers/target/classes/client.truststore"
+

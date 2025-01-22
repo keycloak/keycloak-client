@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmsResource;
 import org.keycloak.authorization.client.AuthzClient;
@@ -16,6 +17,7 @@ import org.keycloak.client.testsuite.common.OAuthClient;
 import org.keycloak.client.testsuite.framework.Inject;
 import org.keycloak.client.testsuite.common.RealmImporter;
 import org.keycloak.client.testsuite.common.RealmRepsSupplier;
+import org.keycloak.client.testsuite.framework.KeycloakClientTestExtension;
 import org.keycloak.jose.jws.JWSInput;
 import org.keycloak.jose.jws.JWSInputException;
 import org.keycloak.representations.AccessToken;
@@ -28,6 +30,7 @@ import org.keycloak.util.JsonSerialization;
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
+@ExtendWith(KeycloakClientTestExtension.class)
 public abstract class AbstractAuthzTest implements RealmRepsSupplier {
 
     @Inject

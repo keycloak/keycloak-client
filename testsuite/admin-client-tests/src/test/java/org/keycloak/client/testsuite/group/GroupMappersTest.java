@@ -17,7 +17,6 @@
 
 package org.keycloak.client.testsuite.group;
 
-import io.smallrye.common.constraint.Assert;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -35,17 +34,14 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.testsuite.util.ApiUtil;
 import org.keycloak.testsuite.util.KeycloakModelUtils;
 
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
-
-import static io.smallrye.common.constraint.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testcontainers.shaded.org.hamcrest.MatcherAssert.assertThat;
 import static org.testcontainers.shaded.org.hamcrest.Matchers.containsInAnyOrder;

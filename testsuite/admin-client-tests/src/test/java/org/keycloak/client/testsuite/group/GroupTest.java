@@ -17,7 +17,6 @@
 
 package org.keycloak.client.testsuite.group;
 
-import com.google.common.collect.Comparators;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
@@ -37,7 +36,6 @@ import org.keycloak.client.testsuite.models.Constants;
 
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.ErrorRepresentation;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.MappingsRepresentation;
@@ -53,7 +51,6 @@ import org.keycloak.testsuite.util.GroupBuilder;
 import org.keycloak.testsuite.util.KeycloakModelUtils;
 import org.keycloak.testsuite.util.RoleBuilder;
 import org.keycloak.testsuite.util.UserBuilder;
-import org.keycloak.util.JsonSerialization;
 
 import java.io.IOException;
 import java.net.URI;
@@ -68,14 +65,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.smallrye.common.constraint.Assert.assertFalse;
-import static io.smallrye.common.constraint.Assert.assertTrue;
-import static org.keycloak.client.testsuite.Assert.assertNames;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.keycloak.client.testsuite.Assert.assertNames;
 import static org.testcontainers.shaded.org.hamcrest.MatcherAssert.assertThat;
 import static org.testcontainers.shaded.org.hamcrest.Matchers.is;
 import static org.testcontainers.shaded.org.hamcrest.Matchers.containsInAnyOrder;
@@ -87,6 +84,7 @@ import static org.testcontainers.shaded.org.hamcrest.Matchers.notNullValue;
 import static org.testcontainers.shaded.org.hamcrest.Matchers.anEmptyMap;
 import static org.testcontainers.shaded.org.hamcrest.Matchers.hasSize;
 import static org.testcontainers.shaded.org.hamcrest.Matchers.equalTo;
+import static org.testcontainers.shaded.org.hamcrest.Matchers.greaterThan;
 
 
 
@@ -1117,6 +1115,16 @@ public class GroupTest extends AbstractGroupTest {
         return counter;
     }
 
+    private <T> void isInStrictOrder(List<T> list, Comparator<T> comparator) {
+        T previous = null;
+        for (T current : list) {
+            if (previous != null) {
+                assertThat("Incorrect order: " + previous + " - " + current, comparator.compare(previous, current), greaterThan(0));
+                previous = current;
+            }
+        }
+    }
+
     @Test
     public void orderGroupsByName() throws Exception {
         RealmResource realm = this.adminClient.realms().realm("test");
@@ -1147,16 +1155,16 @@ public class GroupTest extends AbstractGroupTest {
         // Assert that all groups are returned in order
         List<GroupRepresentation> allGroups = realm.groups().groups(0, 100);
         assertEquals(40, allGroups.size());
-        assertTrue(Comparators.isInStrictOrder(allGroups, compareByName));
+        isInStrictOrder(allGroups, compareByName);
 
         // Assert that pagination results are returned in order
         List<GroupRepresentation> firstPage = realm.groups().groups(0, 20);
         assertEquals(20, firstPage.size());
-        assertTrue(Comparators.isInStrictOrder(firstPage, compareByName));
+        isInStrictOrder(firstPage, compareByName);
 
         List<GroupRepresentation> secondPage = realm.groups().groups(20, 20);
         assertEquals(20, secondPage.size());
-        assertTrue(Comparators.isInStrictOrder(secondPage, compareByName));
+        isInStrictOrder(secondPage, compareByName);
 
         // Check that the ordering of groups across multiple pages is correct
         // Since the individual pages are ordered it is sufficient to compare

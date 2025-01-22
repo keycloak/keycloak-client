@@ -4,10 +4,12 @@ import java.io.File;
 import java.util.Collections;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
+import javax.net.ssl.SSLContext;
 import org.jboss.logging.Logger;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.client.testsuite.TestConstants;
 import org.keycloak.client.testsuite.common.TestEnvironment;
+import org.keycloak.testsuite.util.AdminClientUtil;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 
 /**
@@ -75,5 +77,10 @@ public class KeycloakContainersServerProvider implements KeycloakServerProvider 
     @Override
     public Keycloak createAdminClient() {
         return keycloakContainer.getKeycloakAdminClient();
+    }
+
+    @Override
+    public SSLContext createSSLContext() {
+        return AdminClientUtil.buildSslContextForTestContainers();
     }
 }

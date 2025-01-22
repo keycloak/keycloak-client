@@ -22,8 +22,7 @@ public class KeycloakServerProviderFactory implements TestProviderFactory<Keyclo
 
     @Override
     public KeycloakServerProvider createProvider(TestRegistry registry) {
-        String keycloakLifecycle = System.getProperty(TestConstants.PROPERTY_KEYCLOAK_LIFECYCLE);
-        KeycloakServerProvider kcServer = "remote".equalsIgnoreCase(keycloakLifecycle) ? new RemoteKeycloakServerProvider() : new KeycloakContainersServerProvider();
+        KeycloakServerProvider kcServer = TestConstants.IS_LIFECYCLE_REMOTE ? new RemoteKeycloakServerProvider() : new KeycloakContainersServerProvider();
         kcServer.startKeycloakServer();
         return kcServer;
     }

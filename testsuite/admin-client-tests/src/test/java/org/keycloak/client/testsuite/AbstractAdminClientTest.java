@@ -14,14 +14,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package org.keycloak.client.testsuite;
 
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RealmsResource;
@@ -29,6 +27,7 @@ import org.keycloak.client.testsuite.common.OAuthClient;
 import org.keycloak.client.testsuite.common.RealmImporter;
 import org.keycloak.client.testsuite.common.RealmRepsSupplier;
 import org.keycloak.client.testsuite.framework.Inject;
+import org.keycloak.client.testsuite.framework.KeycloakClientTestExtension;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -41,7 +40,7 @@ import org.keycloak.util.JsonSerialization;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,6 +51,7 @@ import java.util.function.Consumer;
 
 import static org.keycloak.testsuite.util.Users.setPasswordFor;
 
+@ExtendWith(KeycloakClientTestExtension.class)
 public abstract class AbstractAdminClientTest implements RealmRepsSupplier {
 
     protected static final String REALM_NAME = "admin-client-test";
@@ -61,10 +61,10 @@ public abstract class AbstractAdminClientTest implements RealmRepsSupplier {
 
     protected Map<String, TestCleanup> testCleanup = new HashMap<>();
 
-    @org.keycloak.client.testsuite.framework.Inject
+    @Inject
     protected Keycloak adminClient;
 
-    @org.keycloak.client.testsuite.framework.Inject
+    @Inject
     protected RealmImporter realmImporter;
 
     @Inject
@@ -100,7 +100,7 @@ public abstract class AbstractAdminClientTest implements RealmRepsSupplier {
 
     @AfterEach
     public void cleanup() {
-        this.testCleanup.keySet().forEach(key-> getCleanup(key).executeCleanup());
+        this.testCleanup.keySet().forEach(key -> getCleanup(key).executeCleanup());
     }
 
     @Override
@@ -211,5 +211,13 @@ public abstract class AbstractAdminClientTest implements RealmRepsSupplier {
 
     public RealmResource testRealmResource() {
         return adminClient.realm("test");
+    }
+
+    protected String randomAlphanumericString(int count) {
+        return new SecureRandom().ints('0', 'z' + 1)
+                .filter(i -> (i <= '9' || i >= 'A') && (i <= 'Z' || i >= 'a'))
+                .limit(count)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
     }
 }

@@ -21,7 +21,8 @@
 
     <properties>
         <testcontainers.keycloak.version>3.4.0</testcontainers.keycloak.version>
-        <quarkus.version>3.8.5</quarkus.version>
+        <org.junit.jupiter.junit-jupiter.version>5.11.4</org.junit.jupiter.junit-jupiter.version>
+        <log4j.slf4j2.version>2.24.3</log4j.slf4j2.version>
         <smallrye.config.version>3.5.4</smallrye.config.version>
         <undertow.version>2.3.2.Final</undertow.version>
         <keycloak.server.version>26.0.8</keycloak.server.version><!-- Used just for testsuite "providers" -->
@@ -29,15 +30,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemPropertyVariables>
-                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                        <java.util.concurrent.ForkJoinPool.common.threadFactory>io.quarkus.bootstrap.forkjoin.QuarkusForkJoinWorkerThreadFactory</java.util.concurrent.ForkJoinPool.common.threadFactory>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>

@@ -17,8 +17,6 @@
 
 package org.keycloak.testsuite.util;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.HttpClientConnectionManager;
@@ -32,18 +30,20 @@ import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.JacksonProvider;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.client.testsuite.framework.TestRegistry;
 import org.keycloak.client.testsuite.models.Constants;
+import org.keycloak.client.testsuite.server.KeycloakServerProvider;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import static org.keycloak.testsuite.util.ServerURLs.getAuthServerContextRoot;
-
 
 public class AdminClientUtil {
 
@@ -55,12 +55,11 @@ public class AdminClientUtil {
     public static Keycloak createAdminClient(boolean ignoreUnknownProperties, String authServerContextRoot) throws Exception {
         return createAdminClient(ignoreUnknownProperties, authServerContextRoot, "master", "admin", "admin",
             Constants.ADMIN_CLI_CLIENT_ID, null, null);
-
     }
 
     public static Keycloak createAdminClient(boolean ignoreUnknownProperties, String realmName, String username,
         String password, String clientId, String clientSecret) {
-        return createAdminClient(ignoreUnknownProperties, getAuthServerContextRoot(), realmName, username, password,
+        return createAdminClient(ignoreUnknownProperties, ServerURLs.getAuthServerContextRoot(), realmName, username, password,
             clientId, clientSecret, null);
     }
 
@@ -71,11 +70,10 @@ public class AdminClientUtil {
 
     public static Keycloak createAdminClientWithClientCredentials(String realmName, String clientId, String clientSecret, String scope) {
 
-        boolean ignoreUnknownProperties = true;
         ResteasyClient resteasyClient = createResteasyClient(null);
 
         return KeycloakBuilder.builder()
-                .serverUrl(getAuthServerContextRoot())
+                .serverUrl(ServerURLs.getAuthServerContextRoot())
                 .realm(realmName)
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
                 .clientId(clientId)
@@ -85,11 +83,11 @@ public class AdminClientUtil {
     }
 
     public static Keycloak createAdminClient() throws Exception {
-        return createAdminClient(false, getAuthServerContextRoot());
+        return createAdminClient(false, ServerURLs.getAuthServerContextRoot());
     }
 
     public static Keycloak createAdminClient(boolean ignoreUnknownProperties) throws Exception {
-        return createAdminClient(ignoreUnknownProperties, getAuthServerContextRoot());
+        return createAdminClient(ignoreUnknownProperties, ServerURLs.getAuthServerContextRoot());
     }
 
     public static ResteasyClient createResteasyClient(Boolean followRedirects) {
@@ -109,11 +107,19 @@ public class AdminClientUtil {
         return resteasyClientBuilder.build();
     }
 
-    private static SSLContext buildSslContext() {
+    public static SSLContext buildSslContext() {
+        return TestRegistry.INSTANCE.getOrCreateProvider(KeycloakServerProvider.class).createSSLContext();
+    }
+
+    public static SSLContext buildSslContextForTestContainers() {
+        return buildSslContext(TLS_KEYSTORE_FILENAME, TLS_KEYSTORE_PASSWORD);
+    }
+
+    public static SSLContext buildSslContext(String truststore, String password) {
         SSLContext sslContext;
-        try {
+        try (InputStream is = loadResourceAsStream(truststore)) {
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyStore.load(loadResourceAsStream(TLS_KEYSTORE_FILENAME), TLS_KEYSTORE_PASSWORD.toCharArray());
+            keyStore.load(is, password.toCharArray());
 
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(keyStore);
@@ -125,7 +131,11 @@ public class AdminClientUtil {
         return sslContext;
     }
 
-    private static InputStream loadResourceAsStream(String filename) {
+    private static InputStream loadResourceAsStream(String filename) throws IOException {
+        // check first if it is a external file, if not from classpath
+        if (Files.isReadable(Paths.get(filename))) {
+            return Files.newInputStream(Paths.get(filename));
+        }
         return AdminClientUtil.class.getClassLoader().getResourceAsStream(filename);
     }
 

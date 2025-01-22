@@ -1,5 +1,6 @@
 package org.keycloak.client.testsuite.server;
 
+import javax.net.ssl.SSLContext;
 import org.keycloak.admin.client.Keycloak;
 
 /**
@@ -17,5 +18,11 @@ public interface KeycloakServerProvider {
      * @return admin-client
      */
     Keycloak createAdminClient();
+
+    /**
+     * Create a SSLContext for the started server.
+     * @return
+     */
+    SSLContext createSSLContext();
 
 }

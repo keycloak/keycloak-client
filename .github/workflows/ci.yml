@@ -15,23 +15,6 @@ jobs:
         uses: ./.github/actions/build-keycloak-client
 
   client-tests:
-    name: Client tests (Jakarta)
-    runs-on: ubuntu-latest
+    name: Client tests
     needs: build
-    timeout-minutes: 30
-    strategy:
-      matrix:
-        keycloak_server_version: [ "24.0", "26.0", "26.1", "nightly" ]
-    steps:
-      - uses: actions/checkout@v4
-
-      - id: test-setup
-        name: Test setup
-        uses: ./.github/actions/test-setup
-
-      - name: Run client tests
-        run: |
-          mvn -B -f testsuite/providers/pom.xml package -DskipTests=true
-          mvn -B -f testsuite/admin-client-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
-          mvn -B -f testsuite/authz-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
-
+    uses: ./.github/workflows/run-tests.yml

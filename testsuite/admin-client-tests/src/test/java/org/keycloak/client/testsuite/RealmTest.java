@@ -17,8 +17,6 @@
 
 package org.keycloak.client.testsuite;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import org.apache.commons.io.IOUtils;
@@ -58,11 +56,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.smallrye.common.constraint.Assert.assertFalse;
-import static io.smallrye.common.constraint.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.testcontainers.shaded.org.hamcrest.Matchers.hasItems;
 import static org.testcontainers.shaded.org.hamcrest.MatcherAssert.assertThat;
@@ -189,7 +187,7 @@ public class RealmTest extends AbstractAdminClientTest {
 
         Assert.assertNames(adminClient.realms().findAll(), "master", REALM_NAME, "test" , realmNameWithSpaces);
 
-        final Set<String> urlPlaceHolders = ImmutableSet.of("${authBaseUrl}", "${authAdminUrl}");
+        final Set<String> urlPlaceHolders = new HashSet<>(Arrays.asList(new String[]{"${authBaseUrl}", "${authAdminUrl}"}));
 
         RealmResource newRealm = adminClient.realms().realm(realmNameWithSpaces);
         List<String> clientUris = newRealm.clients()
@@ -251,11 +249,11 @@ public class RealmTest extends AbstractAdminClientTest {
         Set<String> attributesKeys = rep2.getAttributes().keySet();
 
         int expectedAttributesCount = 3;
-        final Set<String> expectedAttributes = Sets.newHashSet(
+        final Set<String> expectedAttributes = new HashSet<>(Arrays.asList(new String[]{
                 OAuth2DeviceConfig.OAUTH2_DEVICE_CODE_LIFESPAN,
                 OAuth2DeviceConfig.OAUTH2_DEVICE_POLLING_INTERVAL,
                 ParConfig.PAR_REQUEST_URI_LIFESPAN
-        );
+        }));
 
         // This attribute is represented in Legacy store as attribute and for Map store as a field
         expectedAttributes.add("realmReusableOtpCode");

@@ -3,7 +3,6 @@ package org.keycloak.client.testsuite.framework;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import io.quarkus.runtime.util.StringUtil;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.extension.AfterAllCallback;

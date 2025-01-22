@@ -6,8 +6,10 @@ title="{project_name} admin client"
 priority=500
 summary="Using the {project_name} admin client to access the {project_name} Admin REST API">
 
-The {project_name} admin client is a Java library that facilitates the access and usage of the {project_name} Admin REST API. To use it from your application add a dependency on the
-`keycloak-admin-client` library. For example using Maven:
+The {project_name} admin client is a Java library that facilitates the access and usage of the {project_name} Admin REST API.
+The library requires Java 11 or higher at runtime (RESTEasy dependency enforces this requirement).
+To use it from your application add a dependency on the `keycloak-admin-client` library.
+For example using Maven:
 
 [source,xml,subs="attributes+"]
 ----

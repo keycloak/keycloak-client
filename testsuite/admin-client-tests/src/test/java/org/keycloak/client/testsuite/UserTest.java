@@ -22,13 +22,12 @@ import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.lang3.RandomStringUtils;
 
-import static io.smallrye.common.constraint.Assert.assertFalse;
-import static io.smallrye.common.constraint.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.keycloak.client.testsuite.Assert.assertNames;
@@ -97,7 +96,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -759,7 +757,7 @@ public class UserTest extends AbstractAdminClientTest {
 
     @Test
     public void storeAndReadUserWithLongAttributeValue() {
-        String longValue = RandomStringUtils.random(Integer.parseInt(DEFAULT_MAX_LENGTH_ATTRIBUTES), true, true);
+        String longValue = randomAlphanumericString(Integer.parseInt(DEFAULT_MAX_LENGTH_ATTRIBUTES));
 
         getCleanup().addUserId(createUser(REALM_NAME, "user1", "password", "user1FirstName", "user1LastName", "user1@example.com",
                 user -> {
@@ -787,8 +785,8 @@ public class UserTest extends AbstractAdminClientTest {
     @Test
     public void searchByLongAttributes() {
         // random string with suffix that makes it case-sensitive and distinct
-        String longValue = RandomStringUtils.random(Integer.parseInt(DEFAULT_MAX_LENGTH_ATTRIBUTES) - 1, true, true) + "u";
-        String longValue2 = RandomStringUtils.random(Integer.parseInt(DEFAULT_MAX_LENGTH_ATTRIBUTES) - 1, true, true) + "v";
+        String longValue = randomAlphanumericString(Integer.parseInt(DEFAULT_MAX_LENGTH_ATTRIBUTES) - 1) + "u";
+        String longValue2 = randomAlphanumericString(Integer.parseInt(DEFAULT_MAX_LENGTH_ATTRIBUTES) - 1) + "v";
 
         getCleanup().addUserId(createUser(REALM_NAME, "user1", "password", "user1FirstName", "user1LastName", "user1@example.com",
                 user -> {

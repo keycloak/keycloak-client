@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.keycloak.client.testsuite.TestConstants;
 import org.testcontainers.Testcontainers;
 
 /**
@@ -41,7 +42,9 @@ public class PairwiseHttpServerExtension implements AfterAllCallback, BeforeAllC
 
     public static final int HTTP_PORT = 8280;
     public static final String PAIRWISE_RESPONSE = "[\"http://localhost/resource-server-test\",\"http://localhost/test-client\"]";
-    public static final String HTTP_URL = "http://host.testcontainers.internal:" + HTTP_PORT;
+    public static final String HTTP_URL = TestConstants.IS_LIFECYCLE_REMOTE
+            ? "http://localhost:" + HTTP_PORT
+            : "http://host.testcontainers.internal:" + HTTP_PORT;
 
     private HttpServer server;
 
@@ -74,7 +77,9 @@ public class PairwiseHttpServerExtension implements AfterAllCallback, BeforeAllC
         server.createContext("/", new MyHandler());
         server.setExecutor(null); // creates a default executor
         server.start();
-        Testcontainers.exposeHostPorts(HTTP_PORT);
+        if (!TestConstants.IS_LIFECYCLE_REMOTE) {
+            Testcontainers.exposeHostPorts(HTTP_PORT);
+        }
     }
 
 }

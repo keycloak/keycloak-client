@@ -17,14 +17,16 @@
 
 package org.keycloak.testsuite.util;
 
-import com.google.common.collect.Streams;
 import jakarta.ws.rs.NotFoundException;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.common.util.ConcurrentMultivaluedHashMap;
 
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.stream.StreamSupport;
 
 /**
  * Enlist resources to be cleaned after test method
@@ -46,7 +48,7 @@ public class TestCleanup {
     private static final String LOCALIZATION_LANGUAGES = "LOCALIZATION_LANGUAGES";
 
     private final String realmName;
-    private Keycloak adminClient;
+    private final Keycloak adminClient;
     private final ConcurrentLinkedDeque<Runnable> genericCleanups = new ConcurrentLinkedDeque<>();
 
     // Key is kind of entity (eg. "client", "role", "user" etc), Values are all IDs of entities of given type to cleanup
@@ -123,7 +125,9 @@ public class TestCleanup {
     public void executeCleanup() {
         RealmResource realm = getAdminClient().realm(realmName);
 
-        Streams.stream(this.genericCleanups.descendingIterator()).forEach(Runnable::run);
+        StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(this.genericCleanups.descendingIterator(),
+                        Spliterator.ORDERED), false).forEach(Runnable::run);
 
         List<String> userIds = entities.get(USER_IDS);
         if (userIds != null) {

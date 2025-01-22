@@ -32,5 +32,37 @@
 
     <build>
         <finalName>keycloak-client-testsuite-providers</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/providers</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/target</directory>
+                                    <includes>
+                                        <include>keycloak-client-testsuite-providers.jar</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>${basedir}/target/classes</directory>
+                                    <includes>
+                                        <include>server.keystore</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
+
 </project>

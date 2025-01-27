@@ -95,8 +95,8 @@
 
     <scm>
         <connection>scm:git:git://github.com/keycloak/keycloak-client.git</connection>
-        <developerConnection>scm:git:git@github.com:keycloak/keycloak-client-libs.git</developerConnection>
-        <url>https://github.com/keycloak/keycloak-client-libs/tree/master/</url>
+        <developerConnection>scm:git:git@github.com:keycloak/keycloak-client.git</developerConnection>
+        <url>https://github.com/keycloak/keycloak-client/tree/master/</url>
     </scm>
 
     <distributionManagement>

@@ -18,6 +18,8 @@
 package org.keycloak.client.testsuite.authz;
 
 import java.util.List;
+import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -42,6 +44,7 @@ public class UmaRepresentationTest extends AbstractResourceServerTest {
         ticket.setScopeName("ScopeA");
         ticket.setGranted(true);
         permission.create(ticket);
+        // a
     }
 
     @Test
@@ -101,11 +104,11 @@ public class UmaRepresentationTest extends AbstractResourceServerTest {
         Assertions.assertFalse(evaluations.isEmpty());
         Assertions.assertEquals(1, evaluations.size());
 
-        List<PolicyEvaluationResponse.PolicyResultRepresentation> policies = evaluations.get(0).getPolicies();
+        Set<PolicyEvaluationResponse.PolicyResultRepresentation> policies = evaluations.get(0).getPolicies();
         Assertions.assertFalse(evaluations.isEmpty());
         Assertions.assertEquals(1, evaluations.size());
 
-        String description = policies.get(0).getPolicy().getDescription();
+        String description = policies.iterator().next().getPolicy().getDescription();
         Assertions.assertTrue(description.startsWith("Resource owner (marta) grants access"));
     }
 
@@ -130,11 +133,11 @@ public class UmaRepresentationTest extends AbstractResourceServerTest {
         Assertions.assertFalse(evaluations.isEmpty());
         Assertions.assertEquals(1, evaluations.size());
 
-        List<PolicyEvaluationResponse.PolicyResultRepresentation> policies = evaluations.get(0).getPolicies();
+        Set<PolicyEvaluationResponse.PolicyResultRepresentation> policies = evaluations.get(0).getPolicies();
         Assertions.assertFalse(evaluations.isEmpty());
         Assertions.assertEquals(1, evaluations.size());
 
-        String description = policies.get(0).getPolicy().getDescription();
+        String description = policies.iterator().next().getPolicy().getDescription();
         Assertions.assertTrue(description.startsWith("Resource owner (resource-server-test) grants access"));
     }
 }

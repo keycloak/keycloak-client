@@ -44,7 +44,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-          server-id: kc-rel-repository
+          server-id: keycloak-publish
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
@@ -63,14 +63,12 @@ jobs:
 
       - name: Deploy to Maven
         env:
-          MAVEN_ID: kc-rel-repository
-          MAVEN_URL: https://s01.oss.sonatype.org/service/local/repositories/releases/content/
           MAVEN_USERNAME: ${{ secrets.MVN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MVN_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           MVN_HTTP_CONFIG="-Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.class=standard -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=120"
-          mvn -s ./.github/mvn-rel-settings.xml -nsu -B -Pgpg,jboss-release -Djboss.releases.repo.id=$MAVEN_ID -Dmaven.deploy.skip=${{ inputs.deploy-skip }} -Djboss.releases.repo.url=$MAVEN_URL -Djboss.snapshots.repo.id=$MAVEN_ID -Djboss.snapshots.repo.url=$MAVEN_URL -DskipTests -DskipTestsuite -DretryFailedDeploymentCount=10 -DautoReleaseAfterClose=true $MVN_HTTP_CONFIG clean deploy | tee deploy.log
+          mvn -nsu -B -Pgpg,jboss-release -Pcentral-staging -DskipTests -DskipTestsuite $MVN_HTTP_CONFIG clean deploy | tee deploy.log
 
       - name: Show Maven artifacts
         run: |

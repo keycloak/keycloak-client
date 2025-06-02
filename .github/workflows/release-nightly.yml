@@ -15,7 +15,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-          server-id: ossrh
+          server-id: keycloak-publish
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
@@ -27,4 +27,4 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MVN_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          mvn -nsu -B -Pgpg,jboss-release -DskipTests -DretryFailedDeploymentCount=10 -DautoReleaseAfterClose=true deploy
+          mvn -nsu -B -Pgpg,jboss-release -DskipTests -Pcentral-staging deploy

@@ -365,6 +365,7 @@ public class RealmTest extends AbstractAdminClientTest {
     public void smtpPasswordSecret() {
         RealmRepresentation rep = RealmBuilder.create().testMail().build();
         rep.setRealm("realm-with-smtp");
+        rep.getSmtpServer().put("auth", "true");
         rep.getSmtpServer().put("user", "user");
         rep.getSmtpServer().put("password", "secret");
 

@@ -2104,16 +2104,24 @@ public class UserTest extends AbstractAdminClientTest {
         UserProfileResource upResource = adminClient.realm("test").users().userProfile();
         UPConfig upConfig = upResource.getConfiguration();
         upConfig.addOrReplaceAttribute(createAttributeMetadata("aName"));
+        Set<String> view = new HashSet<>();
+        view.add("user");
+        view.add("admin");
+        Set<String> edit = new HashSet<>();
+        edit.add("user");
+        edit.add("admin");
+        upConfig.getAttribute("aName").setPermissions(new UPAttributePermissions(view, edit));
+        upConfig.getAttribute("aName").setPermissions(new UPAttributePermissions(view, edit));
         upResource.update(upConfig);
 
         try {
             UsersResource users = adminClient.realms().realm("test").users();
 
             for (int i = 0; i < 110; i++) {
-                users.create(UserBuilder.create().username("test-" + i).addAttribute("aName", "aValue").build()).close();
+                users.create(UserBuilder.create().username("test2-" + i).addAttribute("aName", "aValue").build()).close();
             }
 
-            List<UserRepresentation> result = users.search("test", null, null);
+            List<UserRepresentation> result = users.search("test2", null, null);
             assertEquals(100, result.size());
             for (UserRepresentation user : result) {
                 assertThat(user.getAttributes(), notNullValue());
@@ -2121,8 +2129,8 @@ public class UserTest extends AbstractAdminClientTest {
                 assertThat(user.getAttributes(), hasEntry(is("aName"), contains("aValue")));
             }
 
-            assertEquals(105, users.search("test", 0, 105).size());
-            assertEquals(111, users.search("test", 0, 1000).size());
+            assertEquals(105, users.search("test2", 0, 105).size());
+            assertEquals(110, users.search("test2", 0, 1000).size());
         } finally {
             upConfig.removeAttribute("aName");
             upResource.update(upConfig);
@@ -2134,6 +2142,7 @@ public class UserTest extends AbstractAdminClientTest {
         UserProfileResource upResource = adminClient.realm("test").users().userProfile();
         UPConfig upConfig = upResource.getConfiguration();
         upConfig.addOrReplaceAttribute(createAttributeMetadata("aName"));
+        upConfig.getAttribute("aName").setPermissions(new UPAttributePermissions());
         upResource.update(upConfig);
 
         try {

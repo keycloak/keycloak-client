@@ -17,19 +17,14 @@
 
 package org.keycloak.client.testsuite.authentication;
 
-import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.NotFoundException;
-
 import org.junit.jupiter.api.Test;
-import org.keycloak.representations.idm.RequiredActionConfigInfoRepresentation;
-import org.keycloak.representations.idm.RequiredActionConfigRepresentation;
+import org.keycloak.client.testsuite.framework.KeycloakVersion;
 import org.keycloak.representations.idm.RequiredActionProviderRepresentation;
-import org.keycloak.representations.idm.RequiredActionProviderSimpleRepresentation;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +38,50 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 public class RequiredActionsTest extends AbstractAuthenticationTest {
 
+    @KeycloakVersion(min = "26.2")
     @Test
-    public void testRequiredActions() {
+    public void testRequiredActionsMin262() {
+        List<RequiredActionProviderRepresentation> result = authMgmtResource.getRequiredActions();
+
+        List<RequiredActionProviderRepresentation> expected = new ArrayList<>();
+        addRequiredAction(expected, "CONFIGURE_RECOVERY_AUTHN_CODES", "Recovery Authentication Codes", true, false, null);
+        addRequiredAction(expected, "CONFIGURE_TOTP", "Configure OTP", true, false, null);
+        addRequiredAction(expected, "TERMS_AND_CONDITIONS", "Terms and Conditions", false, false, null);
+        addRequiredAction(expected, "UPDATE_PASSWORD", "Update Password", true, false, null);
+        addRequiredAction(expected, "UPDATE_PROFILE", "Update Profile", true, false, null);
+        addRequiredAction(expected, "VERIFY_EMAIL", "Verify Email", true, false, null);
+        addRequiredAction(expected, "VERIFY_PROFILE", "Verify Profile", false, false, null);
+        addRequiredAction(expected, "delete_account", "Delete Account", false, false, null);
+        addRequiredAction(expected, "delete_credential", "Delete Credential", true, false, null);
+        addRequiredAction(expected, "idp_link", "Linking Identity Provider", true, false, null);
+        addRequiredAction(expected, "update_user_locale", "Update User Locale", true, false, null);
+        addRequiredAction(expected, "webauthn-register", "Webauthn Register", true, false, null);
+        addRequiredAction(expected, "webauthn-register-passwordless", "Webauthn Register Passwordless", true, false, null);
+
+        compareRequiredActions(expected, sort(result));
+
+        RequiredActionProviderRepresentation forUpdate = newRequiredAction("VERIFY_EMAIL", "Verify Email", false, false, null);
+        authMgmtResource.updateRequiredAction(forUpdate.getAlias(), forUpdate);
+
+        result = authMgmtResource.getRequiredActions();
+        RequiredActionProviderRepresentation updated = findRequiredActionByAlias(forUpdate.getAlias(), result);
+
+        assertNotNull(updated, "Required Action still there");
+        compareRequiredAction(forUpdate, updated);
+
+        forUpdate.setConfig(Collections.<String, String>emptyMap());
+        authMgmtResource.updateRequiredAction(forUpdate.getAlias(), forUpdate);
+
+        result = authMgmtResource.getRequiredActions();
+        updated = findRequiredActionByAlias(forUpdate.getAlias(), result);
+
+        assertNotNull(updated, "Required Action still there");
+        compareRequiredAction(forUpdate, updated);
+    }
+
+    @KeycloakVersion(max = "26.1")
+    @Test
+    public void testRequiredActionsMax261() {
         List<RequiredActionProviderRepresentation> result = authMgmtResource.getRequiredActions();
 
         List<RequiredActionProviderRepresentation> expected = new ArrayList<>();

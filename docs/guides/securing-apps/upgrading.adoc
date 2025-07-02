@@ -25,6 +25,6 @@ endif::[]
 It is possible that client libraries may work even with the older releases of the {project_name} server, but it is not guaranteed and officially supported.
 
 It may be needed to consult the javadoc of the client libraries like Java admin-client to see what endpoints and parameters are supported with which {project_name} server version.
-In case of admin client, please see the the <<_admin_client_compatibility,Compatibility section>> for some additional notes regarding the compatibility with the {project_name} server.
+For the admin client, see the <<_admin_client_compatibility,Compatibility section>> for some additional notes regarding the compatibility with the {project_name} server.
 
 </@tmpl.guide>

@@ -43,23 +43,23 @@ Complete Javadoc for the admin client is available at {apidocs_link}[{apidocs_na
 [[_admin_client_compatibility]]
 == Compatibility with {project_name} server
 
-{project_name} admin client aims to work with multiple versions of {project_name} server. Admin client may be supported with the newer versions of {project_name} server
-released later than the client itself as well as with the older versions of the {project_name} server, which were released earlier.
-This means that the Java fields of the underlying "representation" classes, which are representing JSON properties of the request/response body (like for example `RealmRepresentation` class
+The {project_name} admin client aims to work with multiple versions of the {project_name} server. The admin client may be supported with a newer version of the {project_name} server that is 
+released later than the client and older versions of the {project_name} server that were released earlier.
+As a result of this change, the Java fields of the underlying "representation" classes, which are representing JSON properties of the request/response body (such as the `RealmRepresentation` class
 shown in the previous section) might not be exactly same for the client and the server.
 
-To avoid compatibility issues, it is important that the class `com.fasterxml.jackson.databind.ObjectMapper`, which is used by the admin client under the covers, is initialized with these two properties:
+To avoid compatibility issues, ensure that the `com.fasterxml.jackson.databind.ObjectMapper` class, which is used by the admin client under the covers, is initialized with these two properties:
 
 ```
 objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 ```
 
-If you are using the basic ways of admin client creation as described above, then these properties are added by default as admin client uses by default class `org.keycloak.admin.client.JacksonProvider` for creating `ObjectMapper`,
-which adds these properties automatically. However if you are injecting your own `customJacksonProvider` when creating `Keycloak` object, then please make sure that object mapper is initialized with
+If you are using the basic ways of admin client creation as described above, then these properties are added by default as admin client uses by default the `org.keycloak.admin.client.JacksonProvider` class for creating `ObjectMapper`,
+which adds these properties automatically. However if you are injecting your own `customJacksonProvider` when creating `Keycloak` object, make sure that object mapper is initialized with
 the properties above if you want to avoid compatibility issues.
 
-For example, let's assume that the admin client is instantiated in a way as described below with your own `MyCustomJacksonProvider` class:
+For example, consider the situation that the admin client is instantiated in a way as described below with your own `MyCustomJacksonProvider` class:
 
 [source,java,subs="attributes+"]
 ----

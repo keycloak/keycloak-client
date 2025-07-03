@@ -38,9 +38,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 public class RequiredActionsTest extends AbstractAuthenticationTest {
 
-    @KeycloakVersion(min = "26.2")
+    @KeycloakVersion(min = "26.3")
     @Test
-    public void testRequiredActionsMin262() {
+    public void testRequiredActionsMin263() {
         List<RequiredActionProviderRepresentation> result = authMgmtResource.getRequiredActions();
 
         List<RequiredActionProviderRepresentation> expected = new ArrayList<>();
@@ -79,9 +79,9 @@ public class RequiredActionsTest extends AbstractAuthenticationTest {
         compareRequiredAction(forUpdate, updated);
     }
 
-    @KeycloakVersion(max = "26.1")
+    @KeycloakVersion(max = "26.2")
     @Test
-    public void testRequiredActionsMax261() {
+    public void testRequiredActionsMax262() {
         List<RequiredActionProviderRepresentation> result = authMgmtResource.getRequiredActions();
 
         List<RequiredActionProviderRepresentation> expected = new ArrayList<>();

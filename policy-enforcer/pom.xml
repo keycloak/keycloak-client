@@ -28,6 +28,7 @@
 
     <artifactId>keycloak-policy-enforcer</artifactId>
     <name>Keycloak Authz: Policy Enforcer</name>
+    <description>Keycloak Authz: Policy Enforcer</description>
     <packaging>jar</packaging>
 
     <dependencies>

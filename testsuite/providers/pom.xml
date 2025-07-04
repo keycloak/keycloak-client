@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>keycloak-client-testsuite-providers</artifactId>
+    <name>Keycloak Client Tests Providers</name>
+    <description>Keycloak Client Tests Providers</description>
 
     <dependencies>
         <dependency>

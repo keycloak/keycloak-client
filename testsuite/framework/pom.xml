@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>keycloak-client-testsuite-framework</artifactId>
+    <name>Keycloak Client Tests Framework</name>
+    <description>Keycloak Client Tests Framework</description>
 
     <!-- No dependencies on Keycloak artifacts here -->
     <dependencies>

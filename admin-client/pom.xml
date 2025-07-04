@@ -29,7 +29,7 @@
 
     <artifactId>keycloak-admin-client</artifactId>
     <name>Keycloak Admin REST Client</name>
-    <description/>
+    <description>Keycloak Admin REST Client</description>
 
     <dependencies>
         <dependency>

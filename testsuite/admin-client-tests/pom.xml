@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>keycloak-admin-client-testsuite</artifactId>
+    <name>Keycloak Admin Client Tests</name>
+    <description>Keycloak Admin Client Tests</description>
 
     <dependencies>
         <dependency>

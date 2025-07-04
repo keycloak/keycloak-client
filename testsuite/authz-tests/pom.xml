@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>keycloak-autz-client-testsuite</artifactId>
+    <name>Keycloak Authz Client Tests</name>
+    <description>Keycloak Authz Client Tests</description>
 
     <dependencies>
         <dependency>

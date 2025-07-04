@@ -11,7 +11,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>keycloak-client-testsuite-parent</artifactId>
+    <name>Keycloak Client Testsuite Parent</name>
+    <description>Keycloak Client Testsuite Parent</description>
     <packaging>pom</packaging>
+
     <modules>
         <module>providers</module>
         <module>framework</module>

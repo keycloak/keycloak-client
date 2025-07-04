@@ -36,6 +36,8 @@ re-use some of those classes between both Keycloak and Keycloak-client libraries
 
 ### Syncing the files from Keycloak repository
 
+Syncing can be done by triggering the [Sync workflow](.github/workflows/sync-and-send-pr.yml) (permissions required). If it needs to be done by manually, then those steps might be needed: 
+
 * Fetch [main Keycloak server repository](https://github.com/keycloak/keycloak) and checkout the last `release/X.Y` branch (For example `git checkout release/26.0`). Note that we usually cannot
 sync from the server `main` branch as it is under development and there is still a chance that some things being developed here would be later updated/removed. Which could be an issue as for client, we
 want to preserve backwards compatibility.

@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -38,15 +39,57 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 public class RequiredActionsTest extends AbstractAuthenticationTest {
 
-    @KeycloakVersion(min = "26.3")
+    @KeycloakVersion(min = "26.3", max = "26.3")
     @Test
-    public void testRequiredActionsMin263() {
+    public void testRequiredActions263() {
         List<RequiredActionProviderRepresentation> result = authMgmtResource.getRequiredActions();
 
         List<RequiredActionProviderRepresentation> expected = new ArrayList<>();
         addRequiredAction(expected, "CONFIGURE_RECOVERY_AUTHN_CODES", "Recovery Authentication Codes", true, false, null);
         addRequiredAction(expected, "CONFIGURE_TOTP", "Configure OTP", true, false, null);
         addRequiredAction(expected, "TERMS_AND_CONDITIONS", "Terms and Conditions", false, false, null);
+        addRequiredAction(expected, "UPDATE_PASSWORD", "Update Password", true, false, null);
+        addRequiredAction(expected, "UPDATE_PROFILE", "Update Profile", true, false, null);
+        addRequiredAction(expected, "VERIFY_EMAIL", "Verify Email", true, false, null);
+        addRequiredAction(expected, "VERIFY_PROFILE", "Verify Profile", false, false, null);
+        addRequiredAction(expected, "delete_account", "Delete Account", false, false, null);
+        addRequiredAction(expected, "delete_credential", "Delete Credential", true, false, null);
+        addRequiredAction(expected, "idp_link", "Linking Identity Provider", true, false, null);
+        addRequiredAction(expected, "update_user_locale", "Update User Locale", true, false, null);
+        addRequiredAction(expected, "webauthn-register", "Webauthn Register", true, false, null);
+        addRequiredAction(expected, "webauthn-register-passwordless", "Webauthn Register Passwordless", true, false, null);
+
+        compareRequiredActions(expected, sort(result));
+
+        RequiredActionProviderRepresentation forUpdate = newRequiredAction("VERIFY_EMAIL", "Verify Email", false, false, null);
+        authMgmtResource.updateRequiredAction(forUpdate.getAlias(), forUpdate);
+
+        result = authMgmtResource.getRequiredActions();
+        RequiredActionProviderRepresentation updated = findRequiredActionByAlias(forUpdate.getAlias(), result);
+
+        assertNotNull(updated, "Required Action still there");
+        compareRequiredAction(forUpdate, updated);
+
+        forUpdate.setConfig(Collections.<String, String>emptyMap());
+        authMgmtResource.updateRequiredAction(forUpdate.getAlias(), forUpdate);
+
+        result = authMgmtResource.getRequiredActions();
+        updated = findRequiredActionByAlias(forUpdate.getAlias(), result);
+
+        assertNotNull(updated, "Required Action still there");
+        compareRequiredAction(forUpdate, updated);
+    }
+
+    @KeycloakVersion(min = "26.4")
+    @Test
+    public void testRequiredActionsMin264() {
+        List<RequiredActionProviderRepresentation> result = authMgmtResource.getRequiredActions();
+
+        List<RequiredActionProviderRepresentation> expected = new ArrayList<>();
+        addRequiredAction(expected, "CONFIGURE_RECOVERY_AUTHN_CODES", "Recovery Authentication Codes", true, false, null);
+        addRequiredAction(expected, "CONFIGURE_TOTP", "Configure OTP", true, false, null);
+        addRequiredAction(expected, "TERMS_AND_CONDITIONS", "Terms and Conditions", false, false, null);
+        addRequiredAction(expected, "UPDATE_EMAIL", "Update Email", true, false, null);
         addRequiredAction(expected, "UPDATE_PASSWORD", "Update Password", true, false, null);
         addRequiredAction(expected, "UPDATE_PROFILE", "Update Profile", true, false, null);
         addRequiredAction(expected, "VERIFY_EMAIL", "Verify Email", true, false, null);
@@ -135,7 +178,10 @@ public class RequiredActionsTest extends AbstractAuthenticationTest {
 
     private void compareRequiredActions(List<RequiredActionProviderRepresentation> expected, List<RequiredActionProviderRepresentation> actual) {
         assertNotNull(actual, "Actual null");
-        assertEquals(expected.size(), actual.size(), "Required actions count");
+        assertEquals(
+                expected.stream().map(RequiredActionProviderRepresentation::getAlias).collect(Collectors.toList()),
+                actual.stream().map(RequiredActionProviderRepresentation::getAlias).collect(Collectors.toList()),
+                "Required actions mismatch");
 
         Iterator<RequiredActionProviderRepresentation> ite = expected.iterator();
         Iterator<RequiredActionProviderRepresentation> ita = actual.iterator();

@@ -16,6 +16,7 @@
  */
 package org.keycloak.client.testsuite.authz;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.keycloak.admin.client.resource.AuthorizationResource;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.ClientsResource;
@@ -30,8 +33,14 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.authorization.client.resource.ProtectionResource;
 import org.keycloak.authorization.client.util.HttpResponseException;
+import org.keycloak.common.util.KeyUtils;
 import org.keycloak.common.util.Time;
+import org.keycloak.crypto.Algorithm;
+import org.keycloak.jose.jwk.JSONWebKeySet;
+import org.keycloak.jose.jwk.JWK;
+import org.keycloak.jose.jwk.JWKBuilder;
 import org.keycloak.jose.jws.JWSInput;
+import org.keycloak.protocol.oidc.client.authentication.JWTClientCredentialsProvider;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
@@ -48,6 +57,9 @@ import org.keycloak.testsuite.util.ClientBuilder;
 import org.keycloak.testsuite.util.RealmBuilder;
 import org.keycloak.testsuite.util.RolesBuilder;
 import org.keycloak.testsuite.util.UserBuilder;
+import org.keycloak.util.JsonSerialization;
+import org.testcontainers.shaded.org.hamcrest.MatcherAssert;
+import org.testcontainers.shaded.org.hamcrest.Matchers;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -75,6 +87,11 @@ public class AuthzClientCredentialsTest extends AbstractAuthzTest {
                 .secret("weird-secret-for-test-hs512")
                 .attribute("token.endpoint.auth.signing.alg", "HS512")
                 .authenticatorType("client-secret-jwt"))
+                .build());
+        testRealms.add(configureRealm(RealmBuilder.create().name("authz-client-jwt-test-Ed25519"), ClientBuilder.create()
+                // attribute for JWS will be set later using JWKParser to test it
+                .attribute("use.jwks.string", Boolean.TRUE.toString())
+                .authenticatorType("client-jwt"))
                 .build());
         testRealms.add(configureRealm(RealmBuilder.create().name("authz-test"), ClientBuilder.create().secret("secret")).build());
         testRealms.add(configureRealm(RealmBuilder.create().name("authz-test-session").accessTokenLifespan(1), ClientBuilder.create().secret("secret")).build());
@@ -119,6 +136,10 @@ public class AuthzClientCredentialsTest extends AbstractAuthzTest {
 
     private void testSuccessfulAuthorizationRequest(String config) throws Exception {
         AuthzClient authzClient = getAuthzClient(config);
+        testSuccessfulAuthorizationRequest(authzClient);
+    }
+
+    private void testSuccessfulAuthorizationRequest(AuthzClient authzClient) throws Exception {
         ProtectionResource protection = authzClient.protection();
         PermissionRequest request = new PermissionRequest("Default Resource");
         PermissionResponse ticketResponse = protection.permission().create(request);
@@ -162,6 +183,23 @@ public class AuthzClientCredentialsTest extends AbstractAuthzTest {
     }
 
     @Test
+    @EnabledForJreRange(min = JRE.JAVA_15)
+    public void testSuccessfulAuthorizationEd25519Request() throws Exception {
+        // read the key for authorization and create the JWK string using JWKBuilder
+        AuthzClient authzClient = getAuthzClient("/authorization-test/keycloak-with-jwt-Ed25519-authentication.json");
+        MatcherAssert.assertThat(authzClient.getConfiguration().getClientCredentialsProvider(), Matchers.instanceOf(JWTClientCredentialsProvider.class));
+        PublicKey pubKey = ((JWTClientCredentialsProvider) authzClient.getConfiguration().getClientCredentialsProvider()).getPublicKey();
+        JSONWebKeySet keySet = new JSONWebKeySet();
+        keySet.setKeys(new JWK[]{JWKBuilder.create().kid(KeyUtils.createKeyId(pubKey)).algorithm(Algorithm.EdDSA).okp(pubKey)});
+        ClientResource clientRes = getClient(adminClient.realm("authz-client-jwt-test-Ed25519"), "resource-server-test");
+        ClientRepresentation clientRep = clientRes.toRepresentation();
+        clientRep.getAttributes().put("jwks.string", JsonSerialization.writeValueAsString(keySet));
+        clientRes.update(clientRep);
+
+        testSuccessfulAuthorizationRequest(authzClient);
+    }
+
+    @Test
     public void failJWTAuthentication() {
         try {
             getAuthzClient("/authorization-test/keycloak-with-invalid-keys-jwt-authentication.json").protection().resource().findAll();
@@ -198,6 +236,12 @@ public class AuthzClientCredentialsTest extends AbstractAuthzTest {
         // Rollback configuration
         clientRepresentation.getAttributes().put("client_credentials.use_refresh_token", "false");
         client.update(clientRepresentation);
+    }
+
+    private ClientResource getClient(RealmResource realm, String clientId) {
+        ClientsResource clients = realm.clients();
+        return clients.findByClientId(clientId).stream().map(representation -> clients.get(representation.getId())).findFirst()
+                .orElseThrow(() -> new RuntimeException("Expected client " + clientId));
     }
 
     private void testReusingAccessAndRefreshTokens(int expectedUserSessionsCount) throws Exception {

@@ -96,9 +96,11 @@
                                                 org/keycloak/json/*.java,
 
                                                 org/keycloak/representations/adapters/action/GlobalRequestResult.java,
+                                                org/keycloak/representations/dpop/**/*.java,
                                                 org/keycloak/representations/idm/**/*.java,
                                                 org/keycloak/representations/info/*.java,
                                                 org/keycloak/representations/userprofile/config/*.java,
+                                                org/keycloak/representations/workflows/*.java,
                                                 org/keycloak/representations/AccessToken.java,
                                                 org/keycloak/representations/AccessTokenResponse.java,
                                                 org/keycloak/representations/AddressClaimSet.java,
@@ -109,8 +111,10 @@
                                                 org/keycloak/representations/RefreshToken.java,
 
                                                 org/keycloak/util/BasicAuthHelper.java,
+                                                org/keycloak/util/DPoPGenerator.java,
                                                 org/keycloak/util/EnumWithStableIndex.java,
                                                 org/keycloak/util/JsonSerialization.java,
+                                                org/keycloak/util/JWKSUtils.java,
                                                 org/keycloak/util/SystemPropertiesJsonParserFactory.java,
                                                 org/keycloak/util/TokenUtil.java,
 

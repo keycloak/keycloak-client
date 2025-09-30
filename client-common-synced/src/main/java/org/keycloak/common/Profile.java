@@ -61,9 +61,9 @@ public class Profile {
 
         ADMIN_V2("New Admin Console", Type.DEFAULT, 2, Feature.ADMIN_API),
 
-        LOGIN_V2("New Login Theme", Type.DEFAULT, 2),
+        LOGIN_V2("New Login Theme", Type.DEFAULT, 2, FeatureUpdatePolicy.ROLLING_NO_UPGRADE),
 
-        LOGIN_V1("Legacy Login Theme", Type.DEPRECATED, 1),
+        LOGIN_V1("Legacy Login Theme", Type.DEPRECATED, 1, FeatureUpdatePolicy.ROLLING_NO_UPGRADE),
 
         QUICK_THEME("WYSIWYG theme configuration tool", Type.EXPERIMENTAL, 1),
 
@@ -91,30 +91,36 @@ public class Profile {
 
         STEP_UP_AUTHENTICATION("Step-up Authentication", Type.DEFAULT),
 
+        CLIENT_AUTH_FEDERATED("Authenticates client based on assertions issued by identity provider", Type.PREVIEW),
+
+        SPIFFE("SPIFFE trust relationship provider", Type.PREVIEW),
+
+        KUBERNETES_SERVICE_ACCOUNTS("Kubernetes service accounts trust relationship provider", Type.EXPERIMENTAL),
+
         // Check if kerberos is available in underlying JVM and auto-detect if feature should be enabled or disabled by default based on that
         KERBEROS("Kerberos", Type.DEFAULT, 1, () -> KerberosJdkProvider.getProvider().isKerberosAvailable()),
 
         RECOVERY_CODES("Recovery codes", Type.DEFAULT),
 
-        UPDATE_EMAIL("Update Email Action", Type.PREVIEW),
+        UPDATE_EMAIL("Update Email Action", Type.DEFAULT),
 
         FIPS("FIPS 140-2 mode", Type.DISABLED_BY_DEFAULT),
 
-        DPOP("OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer", Type.PREVIEW),
+        DPOP("OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer", Type.DEFAULT),
 
         DEVICE_FLOW("OAuth 2.0 Device Authorization Grant", Type.DEFAULT),
 
         TRANSIENT_USERS("Transient users for brokering", Type.EXPERIMENTAL),
 
-        MULTI_SITE("Multi-site support", Type.DISABLED_BY_DEFAULT),
+        MULTI_SITE("Multi-site support", Type.DISABLED_BY_DEFAULT, FeatureUpdatePolicy.SHUTDOWN),
 
-        CLUSTERLESS("Store all session data, work cache and login failure data in an external Infinispan cluster.", Type.EXPERIMENTAL),
+        CLUSTERLESS("Store all session data, work cache and login failure data in an external Infinispan cluster.", Type.EXPERIMENTAL, FeatureUpdatePolicy.SHUTDOWN),
 
         CLIENT_TYPES("Client Types", Type.EXPERIMENTAL),
 
         HOSTNAME_V2("Hostname Options V2", Type.DEFAULT, 2),
 
-        PERSISTENT_USER_SESSIONS("Persistent online user sessions across restarts and upgrades", Type.DEFAULT),
+        PERSISTENT_USER_SESSIONS("Persistent online user sessions across restarts and upgrades", Type.DEFAULT, FeatureUpdatePolicy.SHUTDOWN),
 
         OID4VC_VCI("Support for the OID4VCI protocol as part of OID4VC.", Type.EXPERIMENTAL),
 
@@ -124,7 +130,8 @@ public class Profile {
 
         ORGANIZATION("Organization support within realms", Type.DEFAULT),
 
-        PASSKEYS("Passkeys", Type.PREVIEW),
+        PASSKEYS("Passkeys", Type.DEFAULT, Feature.WEB_AUTHN),
+        PASSKEYS_CONDITIONAL_UI_AUTHENTICATOR("Passkeys conditional UI authenticator", Type.DEPRECATED, FeatureUpdatePolicy.ROLLING_NO_UPGRADE, Feature.PASSKEYS),
 
         USER_EVENT_METRICS("Collect metrics based on user events", Type.DEFAULT),
 
@@ -134,6 +141,12 @@ public class Profile {
 
         ROLLING_UPDATES_V1("Rolling Updates", Type.DEFAULT, 1),
         ROLLING_UPDATES_V2("Rolling Updates for patch releases", Type.PREVIEW, 2),
+
+        WORKFLOWS("Workflows", Type.EXPERIMENTAL),
+
+        LOG_MDC("Mapped Diagnostic Context (MDC) information in logs", Type.PREVIEW),
+
+        DB_TIDB("TiDB database type", Type.EXPERIMENTAL),
 
         /**
          * @see <a href="https://github.com/keycloak/keycloak/issues/37967">Deprecate for removal the Instagram social broker</a>.
@@ -146,23 +159,36 @@ public class Profile {
         private final String unversionedKey;
         private final String key;
         private final BooleanSupplier isAvailable;
-
-        private Set<Feature> dependencies;
-        private int version;
+        private final FeatureUpdatePolicy updatePolicy;
+        private final Set<Feature> dependencies;
+        private final int version;
 
         Feature(String label, Type type, Feature... dependencies) {
-            this(label, type, 1, null, dependencies);
+            this(label, type, 1, null, null, dependencies);
+        }
+
+        Feature(String label, Type type, FeatureUpdatePolicy updatePolicy, Feature... dependencies) {
+            this(label, type, 1, null, updatePolicy, dependencies);
+        }
+
+        Feature(String label, Type type, int version, FeatureUpdatePolicy updatePolicy, Feature... dependencies) {
+            this(label, type, version, null, updatePolicy, dependencies);
         }
 
         Feature(String label, Type type, int version, Feature... dependencies) {
-            this(label, type, version, null, dependencies);
+            this(label, type, version, null, null, dependencies);
         }
 
         Feature(String label, Type type, int version, BooleanSupplier isAvailable, Feature... dependencies) {
+            this(label, type, version, isAvailable, null, dependencies);
+        }
+
+        Feature(String label, Type type, int version, BooleanSupplier isAvailable, FeatureUpdatePolicy updatePolicy, Feature... dependencies) {
             this.label = label;
             this.type = type;
             this.version = version;
             this.isAvailable = isAvailable;
+            this.updatePolicy = updatePolicy == null ? FeatureUpdatePolicy.ROLLING : updatePolicy;
             this.key = name().toLowerCase().replaceAll("_", "-");
             if (this.name().endsWith("_V" + version)) {
                 unversionedKey = key.substring(0, key.length() - (String.valueOf(version).length() + 2));
@@ -217,6 +243,10 @@ public class Profile {
 
         public boolean isAvailable() {
             return isAvailable == null || isAvailable.getAsBoolean();
+        }
+
+        public FeatureUpdatePolicy getUpdatePolicy() {
+            return updatePolicy;
         }
 
         public enum Type {
@@ -314,8 +344,7 @@ public class Profile {
 
         verifyConfig(features);
 
-        CURRENT = new Profile(profile, features);
-        return CURRENT;
+        return init(profile, features);
     }
 
     private static boolean isEnabledByDefault(ProfileName profile, Feature f) {
@@ -398,8 +427,6 @@ public class Profile {
     private Profile(ProfileName profileName, Map<Feature, Boolean> features) {
         this.profileName = profileName;
         this.features = Collections.unmodifiableMap(features);
-
-        logUnsupportedFeatures();
     }
 
     public static Profile getInstance() {
@@ -467,8 +494,9 @@ public class Profile {
     }
 
     private static void verifyConfig(Map<Feature, Boolean> features) {
-        for (Feature f : features.keySet()) {
-            if (features.get(f) && f.getDependencies() != null) {
+        for (Map.Entry<Feature, Boolean> entry : features.entrySet()) {
+            Feature f = entry.getKey();
+            if (entry.getValue() && f.getDependencies() != null) {
                 for (Feature d : f.getDependencies()) {
                     if (!features.get(d)) {
                         throw new ProfileException("Feature " + f.getKey() + " depends on disabled feature " + d.getKey());
@@ -478,7 +506,7 @@ public class Profile {
         }
     }
 
-    private void logUnsupportedFeatures() {
+    public void logUnsupportedFeatures() {
         logUnsupportedFeatures(Feature.Type.PREVIEW, getPreviewFeatures(), Logger.Level.INFO);
         logUnsupportedFeatures(Feature.Type.EXPERIMENTAL, getExperimentalFeatures(), Logger.Level.WARN);
         logUnsupportedFeatures(Feature.Type.DEPRECATED, getDeprecatedFeatures(), Logger.Level.WARN);
@@ -498,4 +526,12 @@ public class Profile {
         }
     }
 
+    public enum FeatureUpdatePolicy {
+        // Always allow a rolling update when the Feature is enabled/disabled
+        ROLLING,
+        // Allow rolling update, but not when going from V1 to V2 or V2 to V1
+        ROLLING_NO_UPGRADE,
+        // Always require a cluster shutdown when the Feature is enabled/disabled
+        SHUTDOWN;
+    }
 }

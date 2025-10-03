@@ -163,6 +163,11 @@ public class PathConfigMatcher extends PathMatcher<PathConfig> {
                 search = resource.findByUri(buildUriFromTemplate(originalConfig.getPath(), path, true));
             }
 
+            if (search.isEmpty()) {
+                // as a fallback try delegating to the server resolving the matching resource
+                search = resource.findByMatchingUri(path);
+            }
+
             if (!search.isEmpty()) {
                 ResourceRepresentation targetResource = search.get(0);
                 PathConfig config = PathConfig.createPathConfigs(targetResource).iterator().next();

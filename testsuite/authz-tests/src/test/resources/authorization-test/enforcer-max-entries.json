@@ -1,0 +1,28 @@
+{
+  "realm": "authz-test",
+  "auth-server-url": "http://localhost:8180",
+  "resource": "resource-server-test",
+  "credentials": {
+    "secret": "secret"
+  },
+  "lazy-load-paths": true,
+  "http-method-as-scope": false,
+  "path-cache": {
+    "lifespan": 1000,
+    "max-entries": 1000
+  },
+  "paths": [
+    {
+      "name": "tenant-resource",
+      "path": "/{ver}/tenants/{id}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "admin"
+          ]
+        }
+      ]
+    }
+  ]
+}

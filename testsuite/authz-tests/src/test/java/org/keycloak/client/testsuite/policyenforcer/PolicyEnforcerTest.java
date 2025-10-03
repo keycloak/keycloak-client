@@ -36,6 +36,7 @@ import org.keycloak.admin.client.resource.ResourcesResource;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.client.testsuite.authz.AbstractAuthzTest;
 import org.keycloak.client.testsuite.common.OAuthClient;
+import org.keycloak.client.testsuite.common.OAuthClient.AccessTokenResponse;
 import org.keycloak.representations.adapters.config.PolicyEnforcerConfig;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
@@ -262,7 +263,7 @@ public class PolicyEnforcerTest extends AbstractAuthzTest {
         permission.addResource("Static Test Resource");
         permission.addPolicy("Always Grant Policy");
 
-        clientResource.authorization().permissions().resource().create(permission);
+        clientResource.authorization().permissions().resource().create(permission).close();
 
         PolicyEnforcer policyEnforcer = AuthzTestUtils.createPolicyEnforcer("enforcer-disabled-path-nocache.json", true);
 
@@ -281,6 +282,44 @@ public class PolicyEnforcerTest extends AbstractAuthzTest {
 
         context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/api/any-resource/test", token), new AuthzTestUtils.TestResponse());
         assertFalse(context.isGranted());
+    }
+
+    @Test
+    public void testResolvingPathPlaceholderOnPathBeginning() {
+        ClientResource clientResource = getClientResource(RESOURCE_SERVER_CLIENT_ID);
+        createResource(clientResource, "tenant:1", "/{ver}/tenants/1", "admin");
+        ScopePermissionRepresentation permission = new ScopePermissionRepresentation();
+        permission.setName("Tenant 1 Permission");
+        permission.addResource("tenant:1");
+        permission.addScope("admin");
+        permission.addPolicy("Always Grant Policy");
+        clientResource.authorization().permissions().scope().create(permission).close();
+        createResource(clientResource, "tenant:2", "/{ver}/tenants/2", "admin");
+        permission = new ScopePermissionRepresentation();
+        permission.setName("Tenant 2 Permission");
+        permission.addResource("tenant:2");
+        permission.addScope("admin");
+        permission.addPolicy("Always Deny Policy");
+        clientResource.authorization().permissions().scope().create(permission).close();
+
+        PolicyEnforcer policyEnforcer = AuthzTestUtils.createPolicyEnforcer("enforcer-max-entries.json", true);
+        String token = doLoginAndGetAccessToken();
+        AuthorizationContext context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/v1/tenants/1", token), new AuthzTestUtils.TestResponse());
+
+        context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/v1/tenants/1", token), new AuthzTestUtils.TestResponse());
+        assertTrue(context.isGranted());
+
+        context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/v1/tenants/1", token), new AuthzTestUtils.TestResponse());
+        assertTrue(context.isGranted());
+
+        context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/v1/tenants/2", token), new AuthzTestUtils.TestResponse());
+        assertFalse(context.isGranted());
+
+        permission = clientResource.authorization().permissions().scope().findByName(permission.getName());
+        permission.setPolicies(Collections.singleton("Always Grant Policy"));
+        clientResource.authorization().permissions().scope().findById(permission.getId()).update(permission);
+        context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/v1/tenants/2", token), new AuthzTestUtils.TestResponse());
+        assertTrue(context.isGranted());
     }
 
     @Test
@@ -329,7 +368,7 @@ public class PolicyEnforcerTest extends AbstractAuthzTest {
 
         // create a PATCH scope without associated it with the resource so that a PATCH request is denied accordingly even though
         // the scope exists on the server
-        clientResource.authorization().scopes().create(new ScopeRepresentation("PATCH"));
+        clientResource.authorization().scopes().create(new ScopeRepresentation("PATCH")).close();
         context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/api/resource-with-scope", token, "PATCH"), testResponse.clear());
         assertFalse(context.isGranted());
 
@@ -489,7 +528,7 @@ public class PolicyEnforcerTest extends AbstractAuthzTest {
 
         PolicyEnforcer policyEnforcer = AuthzTestUtils.createPolicyEnforcer("enforcer-no-lazyload.json", true);
 
-        assertEquals(205, policyEnforcer.getPaths().size());
+        assertEquals(207, policyEnforcer.getPaths().size());
 
         policyEnforcer = AuthzTestUtils.createPolicyEnforcer("enforcer-lazyload.json", true);
         assertEquals(0, policyEnforcer.getPathMatcher().getPathCache().size());

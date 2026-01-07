@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.client.testsuite.framework.KeycloakVersion;
 import org.keycloak.common.constants.ServiceAccountConstants;
 import org.keycloak.representations.adapters.config.PolicyEnforcerConfig;
 import org.keycloak.representations.idm.ClientRepresentation;
@@ -41,7 +42,8 @@ import org.keycloak.representations.idm.authorization.RolePolicyRepresentation;
 public class AuthorizationTest extends AbstractAuthorizationTest {
 
     @Test
-    public void testEnableAuthorizationServices() {
+    @KeycloakVersion(max = "26.4")
+    public void testEnableAuthorizationServices264() {
         ClientResource clientResource = getClientResource();
         ClientRepresentation resourceServer = getResourceServer();
         RealmResource realm = testRealmResource();
@@ -96,8 +98,57 @@ public class AuthorizationTest extends AbstractAuthorizationTest {
         Assertions.assertTrue(serviceAccountRoles.stream().anyMatch(roleRepresentation -> "uma_protection".equals(roleRepresentation.getName())));
     }
 
+    @Test
+    @KeycloakVersion(min = "26.5")
+    public void testEnableAuthorizationServices() {
+        ClientResource clientResource = getClientResource();
+        ClientRepresentation resourceServer = getResourceServer();
+        RealmResource realm = testRealmResource();
+
+        UserRepresentation serviceAccount = realm.users().search(ServiceAccountConstants.SERVICE_ACCOUNT_USER_PREFIX + resourceServer.getClientId()).get(0);
+        Assertions.assertNotNull(serviceAccount);
+        List<RoleRepresentation> serviceAccountRoles = realm.users().get(serviceAccount.getId()).roles().clientLevel(resourceServer.getId()).listEffective();
+        Assertions.assertTrue(serviceAccountRoles.stream().anyMatch(roleRepresentation -> "uma_protection".equals(roleRepresentation.getName())));
+
+        enableAuthorizationServices(false);
+        enableAuthorizationServices(true);
+
+        serviceAccount = clientResource.getServiceAccountUser();
+        Assertions.assertNotNull(serviceAccount);
+        serviceAccountRoles = realm.users().get(serviceAccount.getId()).roles().clientLevel(resourceServer.getId()).listEffective();
+        Assertions.assertTrue(serviceAccountRoles.stream().anyMatch(roleRepresentation -> "uma_protection".equals(roleRepresentation.getName())));
+
+        RolePolicyRepresentation policy = new RolePolicyRepresentation();
+
+        policy.setName("should be removed");
+        policy.addRole("uma_authorization");
+
+        clientResource.authorization().policies().role().create(policy);
+
+        List<PolicyRepresentation> policies = clientResource.authorization().policies().policies();
+        Assertions.assertEquals(1, policies.size());
+
+        enableAuthorizationServices(false);
+        enableAuthorizationServices(true);
+
+        ResourceServerRepresentation settings = clientResource.authorization().getSettings();
+
+        Assertions.assertEquals(PolicyEnforcerConfig.EnforcementMode.ENFORCING.name(), settings.getPolicyEnforcementMode().name());
+        Assertions.assertTrue(settings.isAllowRemoteResourceManagement());
+        Assertions.assertEquals(resourceServer.getId(), settings.getClientId());
+
+        policies = clientResource.authorization().policies().policies();
+        Assertions.assertTrue(policies.isEmpty());
+
+        serviceAccount = clientResource.getServiceAccountUser();
+        Assertions.assertNotNull(serviceAccount);
+        serviceAccountRoles = realm.users().get(serviceAccount.getId()).roles().clientLevel(resourceServer.getId()).listEffective();
+        Assertions.assertTrue(serviceAccountRoles.stream().anyMatch(roleRepresentation -> "uma_protection".equals(roleRepresentation.getName())));
+    }
+
     // KEYCLOAK-6321
     @Test
+    @KeycloakVersion(max = "26.4")
     public void testRemoveDefaultResourceWithAdminEventsEnabled() {
         RealmResource realmResource = testRealmResource();
         RealmRepresentation realmRepresentation = realmResource.toRepresentation();

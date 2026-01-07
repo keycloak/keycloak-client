@@ -75,7 +75,7 @@ public class KeycloakClientTestExtension implements BeforeEachCallback, AfterEac
         TestRegistry.INSTANCE.afterTestClass(context.getTestClass());
     }
 
-    private int compareVersions(String currentVersion, String requiredVersion) {
+    public static int compareVersions(String currentVersion, String requiredVersion) {
 
         currentVersion = removeSuffix(currentVersion);
         requiredVersion = removeSuffix(requiredVersion);

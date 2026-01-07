@@ -173,7 +173,10 @@ public class ResourceManagementWithAuthzClientTest extends ResourceManagementTes
     public void testUpdateUri() {
         getAuthzClient();
 
-        doRemoveResource(authzClient.protection().resource().findByName("Default Resource"));
+        ResourceRepresentation resourceRep = authzClient.protection().resource().findByName("Default Resource");
+        if (resourceRep != null) {
+            doRemoveResource(resourceRep);
+        }
 
         doCreateResource(new ResourceRepresentation("/api/v1/*", Collections.emptySet(), "/api/v1/*", null));
 

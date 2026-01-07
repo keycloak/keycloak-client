@@ -40,10 +40,10 @@
         <freemarker.version>2.3.32</freemarker.version>
 
         <!-- Quarkus aligned versions -->
-        <resteasy.version>6.2.9.Final</resteasy.version>
-        <com.fasterxml.jackson.version>2.17.2</com.fasterxml.jackson.version>
-        <microprofile-openapi-api.version>3.1.1</microprofile-openapi-api.version>
-        <jboss-logging.version>3.6.0.Final</jboss-logging.version>
+        <resteasy.version>6.2.12.Final</resteasy.version>
+        <com.fasterxml.jackson.version>2.19.2</com.fasterxml.jackson.version>
+        <microprofile-openapi-api.version>4.0.2</microprofile-openapi-api.version>
+        <jboss-logging.version>3.6.1.Final</jboss-logging.version>
         <commons-logging-jboss-logging.version>1.0.0.Final</commons-logging-jboss-logging.version>
         <httpclient.version>4.5.14</httpclient.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
@@ -51,10 +51,10 @@
         <project.build-time>${timestamp}</project.build-time>
 
         <log4j.version>1.2.17</log4j.version>
-        <wildfly-elytron.version>2.2.3.Final</wildfly-elytron.version>
+        <wildfly-elytron.version>2.6.5.Final</wildfly-elytron.version>
 
         <!-- Needs to be aligned with Quarkus, see e.g. https://github.com/quarkusio/quarkus-quickstarts/blob/2.13.5.Final/getting-started-async/pom.xml#L14 -->
-        <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+        <surefire-plugin.version>3.5.3</surefire-plugin.version>
 
         <!-- Maven Plugins -->
         <maven.version>3.9.8</maven.version>
@@ -167,6 +167,11 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>${com.fasterxml.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+                <artifactId>jackson-jakarta-rs-yaml-provider</artifactId>
                 <version>${com.fasterxml.jackson.version}</version>
             </dependency>
             <dependency>

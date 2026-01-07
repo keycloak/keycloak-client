@@ -14,7 +14,8 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        keycloak_server_version: [ "26.0", "26.2", "26.4", "nightly" ]
+        keycloak_server_version: [ "26.2", "26.4", "26.5", "nightly" ]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v4
 

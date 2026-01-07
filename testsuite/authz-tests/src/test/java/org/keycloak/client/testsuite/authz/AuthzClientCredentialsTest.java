@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,8 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.authorization.client.resource.ProtectionResource;
 import org.keycloak.authorization.client.util.HttpResponseException;
+import org.keycloak.client.testsuite.TestConstants;
+import org.keycloak.client.testsuite.framework.KeycloakClientTestExtension;
 import org.keycloak.common.util.KeyUtils;
 import org.keycloak.common.util.Time;
 import org.keycloak.crypto.Algorithm;
@@ -46,13 +50,7 @@ import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserSessionRepresentation;
-import org.keycloak.representations.idm.authorization.AuthorizationRequest;
-import org.keycloak.representations.idm.authorization.AuthorizationResponse;
-import org.keycloak.representations.idm.authorization.Permission;
-import org.keycloak.representations.idm.authorization.PermissionRequest;
-import org.keycloak.representations.idm.authorization.PermissionResponse;
-import org.keycloak.representations.idm.authorization.ResourceRepresentation;
-import org.keycloak.representations.idm.authorization.ResourceServerRepresentation;
+import org.keycloak.representations.idm.authorization.*;
 import org.keycloak.testsuite.util.ClientBuilder;
 import org.keycloak.testsuite.util.RealmBuilder;
 import org.keycloak.testsuite.util.RolesBuilder;
@@ -121,6 +119,44 @@ public class AuthzClientCredentialsTest extends AbstractAuthzTest {
             settings.setAllowRemoteResourceManagement(true);
 
             authorization.update(settings);
+
+            // Need to create some test resources in the newer version as default resources were removed in 26.5 (See https://github.com/keycloak/keycloak/issues/43867)
+            String currentVersion = System.getProperty(TestConstants.PROPERTY_KEYCLOAK_VERSION, TestConstants.KEYCLOAK_VERSION_DEFAULT);
+            if (KeycloakClientTestExtension.compareVersions(currentVersion, "26.5") >= 0) {
+
+                // create authorization model
+                // create resource
+                ResourceRepresentation testResource = new ResourceRepresentation("Default Resource");
+
+                String resourceId;
+                try (Response response = authorization.resources().create(testResource)) {
+                    Assertions.assertEquals(201, response.getStatus());
+                    testResource = response.readEntity(ResourceRepresentation.class);
+                    resourceId = testResource.getId();
+                }
+
+                // create client policy
+                ClientPolicyRepresentation clientPolicy = new ClientPolicyRepresentation();
+                clientPolicy.setName("Policy for " + client.getClientId());
+                clientPolicy.addClient(client.getClientId());
+                clientPolicy.setDecisionStrategy(DecisionStrategy.AFFIRMATIVE);
+
+                String policyId;
+                try (Response response = authorization.policies().client().create(clientPolicy)) {
+                    Assertions.assertEquals(201, response.getStatus());
+                    policyId = response.readEntity(ClientPolicyRepresentation.class).getId();
+                }
+
+                // create permission
+                ResourcePermissionRepresentation permission = new ResourcePermissionRepresentation();
+                permission.setName("Permission for Default Resource");
+                permission.addResource(resourceId);
+                permission.addPolicy(policyId);
+
+                try (Response response = authorization.permissions().resource().create(permission)) {
+                    Assertions.assertEquals(201, response.getStatus());
+                }
+            }
 
             List<UserSessionRepresentation> userSessions = clients.get(client.getId()).getUserSessions(-1, -1);
             for (UserSessionRepresentation s : userSessions) {

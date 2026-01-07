@@ -115,6 +115,7 @@
                                                 org/keycloak/util/EnumWithStableIndex.java,
                                                 org/keycloak/util/JsonSerialization.java,
                                                 org/keycloak/util/JWKSUtils.java,
+                                                org/keycloak/util/KeyWrapperUtil.java,
                                                 org/keycloak/util/SystemPropertiesJsonParserFactory.java,
                                                 org/keycloak/util/TokenUtil.java,
 

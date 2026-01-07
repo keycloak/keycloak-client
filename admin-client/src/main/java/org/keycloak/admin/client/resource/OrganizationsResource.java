@@ -18,7 +18,6 @@
 package org.keycloak.admin.client.resource;
 
 import java.util.List;
-import java.util.Map;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -29,6 +28,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
 import org.keycloak.representations.idm.OrganizationRepresentation;
 
 /**

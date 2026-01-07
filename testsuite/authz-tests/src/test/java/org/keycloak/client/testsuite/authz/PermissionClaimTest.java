@@ -34,6 +34,8 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.ResourcesResource;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.authorization.client.util.HttpResponseException;
+import org.keycloak.client.testsuite.TestConstants;
+import org.keycloak.client.testsuite.framework.KeycloakClientTestExtension;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessToken.Authorization;
 import org.keycloak.representations.idm.ClientRepresentation;
@@ -134,10 +136,13 @@ public class PermissionClaimTest extends AbstractAuthzTest {
 
         client.update(representation);
 
-        ResourcesResource resources = client.authorization().resources();
-        List<ResourceRepresentation> defaultResource = resources.findByName("Default Resource");
+        String currentVersion = System.getProperty(TestConstants.PROPERTY_KEYCLOAK_VERSION, TestConstants.KEYCLOAK_VERSION_DEFAULT);
+        if (KeycloakClientTestExtension.compareVersions(currentVersion, "26.5") < 0) {
+            ResourcesResource resources = client.authorization().resources();
+            List<ResourceRepresentation> defaultResource = resources.findByName("Default Resource");
 
-        resources.resource(defaultResource.get(0).getId()).remove();
+            resources.resource(defaultResource.get(0).getId()).remove();
+        }
     }
 
     @Test

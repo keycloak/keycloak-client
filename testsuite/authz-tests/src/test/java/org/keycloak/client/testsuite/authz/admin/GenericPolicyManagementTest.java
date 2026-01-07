@@ -33,6 +33,8 @@ import org.keycloak.admin.client.resource.ResourceResource;
 import org.keycloak.admin.client.resource.ResourceScopeResource;
 import org.keycloak.admin.client.resource.ResourceScopesResource;
 import org.keycloak.admin.client.resource.ResourcesResource;
+import org.keycloak.client.testsuite.TestConstants;
+import org.keycloak.client.testsuite.framework.KeycloakClientTestExtension;
 import org.keycloak.representations.idm.authorization.DecisionStrategy;
 import org.keycloak.representations.idm.authorization.Logic;
 import org.keycloak.representations.idm.authorization.PolicyProviderRepresentation;
@@ -64,7 +66,9 @@ public class GenericPolicyManagementTest extends AbstractAuthorizationTest {
 
         List<PolicyRepresentation> policies = getClientResource().authorization().policies().policies();
 
-        Assertions.assertEquals(6, policies.size());
+        String currentVersion = System.getProperty(TestConstants.PROPERTY_KEYCLOAK_VERSION, TestConstants.KEYCLOAK_VERSION_DEFAULT);
+        int expectedPoliciesCount = KeycloakClientTestExtension.compareVersions(currentVersion, "26.5") < 0 ? 6 : 4;
+        Assertions.assertEquals(expectedPoliciesCount, policies.size());
 
         assertAssociatedPolicy("Test Associated A", newPolicy);
         assertAssociatedPolicy("Test Associated B", newPolicy);

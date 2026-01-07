@@ -21,7 +21,6 @@ import jakarta.ws.rs.NotFoundException;
 import org.junit.jupiter.api.Test;
 import org.keycloak.client.testsuite.Assert;
 import org.keycloak.client.testsuite.framework.KeycloakVersion;
-import org.keycloak.common.Profile;
 import org.keycloak.representations.idm.AuthenticatorConfigInfoRepresentation;
 import org.keycloak.representations.idm.ConfigPropertyRepresentation;
 
@@ -56,7 +55,7 @@ public class ProvidersTest extends AbstractAuthenticationTest {
         assertEquals("This is the controller for the registration page", item.get("description"));
     }
 
-    @KeycloakVersion(min = "25.0.0")
+    @KeycloakVersion(min = "25.0")
     @Test
     public void testFormActionProviders() {
         List<Map<String, Object>> result = authMgmtResource.getFormActionProviders();
@@ -75,21 +74,37 @@ public class ProvidersTest extends AbstractAuthenticationTest {
         compareProviders(expected, result);
     }
 
+    @KeycloakVersion(max = "26.4")
     @Test
-    public void testClientAuthenticatorProviders() {
+    public void testClientAuthenticatorProviders264() {
         List<Map<String, Object>> result = authMgmtResource.getClientAuthenticatorProviders();
 
+        List<Map<String, Object>> expected = expectedClientAuthenticationProviders("Signed Jwt", "Signed Jwt with Client Secret");
+
+        compareProviders(expected, result);
+    }
+
+    @KeycloakVersion(min = "26.5")
+    @Test
+    public void testClientAuthenticatorProviders265() {
+        List<Map<String, Object>> result = authMgmtResource.getClientAuthenticatorProviders();
+
+        List<Map<String, Object>> expected = expectedClientAuthenticationProviders("Signed JWT", "Signed JWT with Client Secret");
+
+        compareProviders(expected, result);
+    }
+
+    private List<Map<String, Object>> expectedClientAuthenticationProviders(String signedJwtDisplayName, String signedJwtWithClientSecretDisplayName) {
         List<Map<String, Object>> expected = new LinkedList<>();
-        addClientAuthenticatorProviderInfo(expected, "client-jwt", "Signed Jwt",
+        addClientAuthenticatorProviderInfo(expected, "client-jwt", signedJwtDisplayName,
                 "Validates client based on signed JWT issued by client and signed with the Client private key", false);
         addClientAuthenticatorProviderInfo(expected, "client-secret", "Client Id and Secret", "Validates client based on 'client_id' and " +
                 "'client_secret' sent either in request parameters or in 'Authorization: Basic' header", true);
         addClientAuthenticatorProviderInfo(expected, "client-x509", "X509 Certificate",
                 "Validates client based on a X509 Certificate", false);
-        addClientAuthenticatorProviderInfo(expected, "client-secret-jwt", "Signed Jwt with Client Secret",
+        addClientAuthenticatorProviderInfo(expected, "client-secret-jwt", signedJwtWithClientSecretDisplayName,
                 "Validates client based on signed JWT issued by client and signed with the Client Secret", true);
-
-        compareProviders(expected, result);
+        return expected;
     }
 
     @Test
@@ -123,24 +138,10 @@ public class ProvidersTest extends AbstractAuthenticationTest {
 
 
     @Test
-    @KeycloakVersion(min = "26.0.0")
+    @KeycloakVersion(min = "26.0")
     public void testInitialAuthenticationProvidersOrg() {
         List<Map<String, Object>> providers = authMgmtResource.getAuthenticatorProviders();
         compareProviders(expectedAuthProvidersOrg(), providers);
-    }
-
-    @Test
-    @KeycloakVersion(min = "25.0.0", max = "25.1")
-    public void testInitialAuthenticationProviders() {
-        List<Map<String, Object>> providers = authMgmtResource.getAuthenticatorProviders();
-        compareProviders(expectedAuthProviders25(), providers);
-    }
-
-    @Test
-    @KeycloakVersion(min = "24.0.0", max = "24.1")
-    public void testInitialAuthenticationProviders24() {
-        List<Map<String, Object>> providers = authMgmtResource.getAuthenticatorProviders();
-        compareProviders(expectedAuthProviders(), providers);
     }
 
     private List<Map<String, Object>> expectedAuthProviders() {

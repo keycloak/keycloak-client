@@ -97,6 +97,12 @@ public class ClientTest extends AbstractAdminClientTest {
     }
 
     @Test
+    public void getClientsV2() {
+        List<org.keycloak.representations.admin.v2.ClientRepresentation> clients = adminClient.clients("test").v2().getClients().collect(Collectors.toList());
+        Assert.assertNames(clients, "account", "account-console", "realm-management", "security-admin-console", "broker", Constants.ADMIN_CLI_CLIENT_ID);
+    }
+
+    @Test
     @KeycloakVersion(min = "26.0.0")
     public void getRealmClients() {
         assertTrue(realm.clients().findAll().stream().filter(client-> client.getAttributes().get(Constants.REALM_CLIENT).equals("true"))

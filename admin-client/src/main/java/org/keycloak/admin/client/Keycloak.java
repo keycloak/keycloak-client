@@ -240,4 +240,13 @@ public class Keycloak implements AutoCloseable {
     public boolean isClosed() {
         return closed;
     }
+
+    public Clients clients(String realmName) {
+        return new Clients(this, CLIENT_PROVIDER, target, realmName);
+    }
+
+    private void test() {
+        this.realm("test").clients().findByClientId("test");
+        this.clients("test").v2().client("test");
+    }
 }

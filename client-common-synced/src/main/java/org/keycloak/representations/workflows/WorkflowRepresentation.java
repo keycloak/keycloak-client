@@ -25,11 +25,12 @@ import static org.keycloak.representations.workflows.WorkflowConstants.CONFIG_SC
 import static org.keycloak.representations.workflows.WorkflowConstants.CONFIG_SCHEDULE_BATCH_SIZE;
 import static org.keycloak.representations.workflows.WorkflowConstants.CONFIG_STATE;
 import static org.keycloak.representations.workflows.WorkflowConstants.CONFIG_STEPS;
+import static org.keycloak.representations.workflows.WorkflowConstants.CONFIG_SUPPORTS;
 import static org.keycloak.representations.workflows.WorkflowConstants.CONFIG_USES;
 import static org.keycloak.representations.workflows.WorkflowConstants.CONFIG_WITH;
 
 @JsonPropertyOrder({"id", CONFIG_NAME, CONFIG_USES, CONFIG_ENABLED, CONFIG_ON_EVENT, CONFIG_SCHEDULE, CONFIG_CONCURRENCY, CONFIG_IF, CONFIG_STEPS, CONFIG_STATE})
-@JsonIgnoreProperties(CONFIG_WITH)
+@JsonIgnoreProperties({CONFIG_WITH, CONFIG_SUPPORTS})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class WorkflowRepresentation extends AbstractWorkflowComponentRepresentation {
 
@@ -168,6 +169,14 @@ public final class WorkflowRepresentation extends AbstractWorkflowComponentRepre
         return concurrency != null ? concurrency.getRestartInProgress() : null;
     }
 
+    public String getSupports() {
+        return getConfigValue(CONFIG_SUPPORTS, String.class);
+    }
+
+    public void setSupports(String supports) {
+        setConfigValue(CONFIG_SUPPORTS, supports);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -194,7 +203,7 @@ public final class WorkflowRepresentation extends AbstractWorkflowComponentRepre
         }
 
         public Builder onEvent(String... operation) {
-            return onEvent(String.join(" or ", operation).toUpperCase());
+            return onEvent(String.join(" or ", operation));
         }
 
         public Builder onCondition(String condition) {

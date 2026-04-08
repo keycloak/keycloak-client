@@ -9,6 +9,7 @@ import org.jboss.logging.Logger;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.client.testsuite.TestConstants;
 import org.keycloak.client.testsuite.common.TestEnvironment;
+import org.keycloak.common.Profile;
 import org.keycloak.testsuite.util.AdminClientUtil;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 
@@ -49,6 +50,7 @@ public class KeycloakContainersServerProvider implements KeycloakServerProvider 
                         throw new IllegalStateException("Providers file " + testProvidersFile + " does not exists");
                     }
                     keycloakContainer.withProviderLibsFrom(Collections.singletonList(providersFile));
+                    keycloakContainer.withFeaturesEnabled(Profile.Feature.SCRIPTS.getKey());
 
                     keycloakContainer.start();
                     logger.infof("Started Keycloak server on URL %s", keycloakContainer.getAuthServerUrl());

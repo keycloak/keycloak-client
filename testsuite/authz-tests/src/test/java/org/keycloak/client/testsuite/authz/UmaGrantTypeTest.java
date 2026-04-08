@@ -419,7 +419,8 @@ public class UmaGrantTypeTest extends AbstractResourceServerTest {
         post.setEntity(formEntity);
 
         CloseableHttpResponse response = httpClient.execute(post);
-        Assertions.assertEquals(401, response.getStatusLine().getStatusCode());
+        // Status 400 since Keycloak 26.6
+        Assertions.assertTrue(response.getStatusLine().getStatusCode() == 400 || response.getStatusLine().getStatusCode() == 401);
         Assertions.assertEquals("http://localhost", response.getFirstHeader("Access-Control-Allow-Origin").getValue());
     }
 
@@ -600,11 +601,8 @@ public class UmaGrantTypeTest extends AbstractResourceServerTest {
 
     private String getIdToken(String username, String password) throws IOException {
         oauth.realm(REALM_NAME);
-        oauth.clientId("test-app");
-        oauth.scope("openid");
-        oauth.redirectUri("https://localhost:8543/auth/realms/master/app/auth");
-        OAuthClient.AuthorizationEndpointResponse res = oauth.doLogin(username, password);
-        OAuthClient.AccessTokenResponse response = oauth.doAccessTokenRequest(res.getCode(), null);
-        return response.getIdToken();
+        String clientSecret = getAuthzClient().getConfiguration().getCredentials().get("secret").toString();
+        return oauth.clientId(getAuthzClient().getConfiguration().getResource())
+                .doGrantAccessTokenRequest(clientSecret, username, password).getIdToken();
     }
 }

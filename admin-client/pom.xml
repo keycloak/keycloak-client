@@ -111,6 +111,9 @@
                                                 org/**/*,
                                                 META-INF/services/*
                                             </includes>  <!-- unpack just source code and potential services -->
+                                            <excludes>
+                                                org/keycloak/admin/client/wrapper/*.java
+                                            </excludes>
                                         </artifactItem>
                                     </artifactItems>
                                     <overWriteReleases>false</overWriteReleases>

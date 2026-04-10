@@ -40,11 +40,12 @@
         <freemarker.version>2.3.32</freemarker.version>
 
         <!-- Quarkus aligned versions -->
-        <resteasy.version>6.2.12.Final</resteasy.version>
-        <com.fasterxml.jackson.version>2.19.2</com.fasterxml.jackson.version>
-        <microprofile-openapi-api.version>4.0.2</microprofile-openapi-api.version>
-        <jboss-logging.version>3.6.1.Final</jboss-logging.version>
-        <commons-logging-jboss-logging.version>1.0.0.Final</commons-logging-jboss-logging.version>
+        <resteasy.version>6.2.15.Final</resteasy.version>
+        <com.fasterxml.jackson.version>2.21.2</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.annotation.version>2.21</com.fasterxml.jackson.annotation.version>
+        <microprofile-openapi-api.version>4.1.1</microprofile-openapi-api.version>
+        <jboss-logging.version>3.6.2.Final</jboss-logging.version>
+        <commons-logging-jboss-logging.version>2.0.0.Final</commons-logging-jboss-logging.version>
         <httpclient.version>4.5.14</httpclient.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
 
@@ -152,7 +153,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${com.fasterxml.jackson.annotation.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>

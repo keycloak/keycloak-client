@@ -23,12 +23,13 @@
     </modules>
 
     <properties>
-        <testcontainers.keycloak.version>3.4.0</testcontainers.keycloak.version>
-        <org.junit.jupiter.junit-jupiter.version>5.11.4</org.junit.jupiter.junit-jupiter.version>
+        <testcontainers.keycloak.version>4.2.0</testcontainers.keycloak.version>
+        <org.junit.jupiter.junit-jupiter.version>5.14.3</org.junit.jupiter.junit-jupiter.version>
         <log4j.slf4j2.version>2.24.3</log4j.slf4j2.version>
+        <commons.io.version>2.21.0</commons.io.version>
         <smallrye.config.version>3.5.4</smallrye.config.version>
         <undertow.version>2.3.2.Final</undertow.version>
-        <keycloak.server.version>26.0.8</keycloak.server.version><!-- Used just for testsuite "providers" -->
+        <keycloak.server.version>26.6.0</keycloak.server.version><!-- Used just for testsuite "providers" -->
     </properties>
 
     <build>

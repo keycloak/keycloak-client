@@ -15,10 +15,10 @@ The client libraries are those artifacts:
 * Java common classes used by other client libraries above - Maven artifact `org.keycloak:keycloak-client-common-synced`
 
 ifeval::[{project_community}==true]
-The client libraries are supported with the last supported {project_name} server version.
+The last released client libraries are supported with the last supported {project_name} server version.
 endif::[]
 ifeval::[{project_product}==true]
-The client libraries are supported with all the supported {project_name} server versions. The fact that client libraries are supported with more server versions makes the update easier,
+The last released client libraries are supported with all the supported {project_name} server versions. The fact that client libraries are supported with more server versions makes the update easier,
 so you may not need to update the server at the same time when you update client libraries of your application.
 endif::[]
 

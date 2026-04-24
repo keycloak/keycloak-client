@@ -43,9 +43,9 @@ Complete Javadoc for the admin client is available at {apidocs_link}[{apidocs_na
 [[_admin_client_compatibility]]
 == Compatibility with {project_name} server
 
-The {project_name} admin client aims to work with multiple versions of the {project_name} server. The admin client may be supported with a newer version of the {project_name} server that is 
-released later than the client and older versions of the {project_name} server that were released earlier.
-As a result of this change, the Java fields of the underlying "representation" classes, which are representing JSON properties of the request/response body (such as the `RealmRepresentation` class
+The {project_name} admin client aims to work with multiple versions of the {project_name} server. For the details about supported {project_name} server versions, see the <<upgrading,Upgrading section>>.
+
+Due the fact that multiple {project_name} server versions might be supported with the {project_name} admin client, the Java fields of the underlying "representation" classes, which are representing JSON properties of the request/response body (such as the `RealmRepresentation` class
 shown in the previous section) might not be exactly same for the client and the server.
 
 To avoid compatibility issues, ensure that the `com.fasterxml.jackson.databind.ObjectMapper` class, which is used by the admin client under the covers, is initialized with these two properties:

@@ -1,7 +1,6 @@
 <#import "/templates/guide.adoc" as tmpl>
 <#import "/templates/links.adoc" as links>
 
-[[_upgrade_client_libraries]]
 <@tmpl.guide
 title="Upgrading the {project_name} Client Libraries"
 priority=540

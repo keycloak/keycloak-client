@@ -43,7 +43,7 @@ Complete Javadoc for the admin client is available at {apidocs_link}[{apidocs_na
 [[_admin_client_compatibility]]
 == Compatibility with {project_name} server
 
-The {project_name} admin client aims to work with multiple versions of the {project_name} server. For the details about supported {project_name} server versions, see the <<upgrading,Upgrading section>>.
+The {project_name} admin client aims to work with multiple versions of the {project_name} server. For the details about supported {project_name} server versions, see the <@links.securingapps id="upgrading" />.
 
 Due the fact that multiple {project_name} server versions might be supported with the {project_name} admin client, the Java fields of the underlying "representation" classes, which are representing JSON properties of the request/response body (such as the `RealmRepresentation` class
 shown in the previous section) might not be exactly same for the client and the server.

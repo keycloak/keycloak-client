@@ -20,6 +20,7 @@ package org.keycloak.adapters.authorization;
 import static org.keycloak.adapters.authorization.util.JsonUtils.asAccessToken;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -389,7 +390,24 @@ public class PolicyEnforcer {
 
     private boolean isDefaultAccessDeniedUri(HttpRequest request) {
         String accessDeniedPath = enforcerConfig.getOnDenyRedirectTo();
-        return accessDeniedPath != null && request.getURI().contains(accessDeniedPath);
+
+        if (accessDeniedPath == null) {
+            return false;
+        }
+
+        String relativePath = getPath(request);
+
+        if (relativePath == null) {
+            LOGGER.warn("relative path is null, can not match access denied path");
+            return false;
+        }
+
+        try {
+            return URI.create(relativePath).normalize().getPath().equals(accessDeniedPath);
+        } catch (IllegalArgumentException e) {
+            LOGGER.debugf(e, "failed to parse relative path [%s]", relativePath);
+            return false;
+        }
     }
 
     private boolean hasResourceScopePermission(MethodConfig methodConfig, Permission permission) {

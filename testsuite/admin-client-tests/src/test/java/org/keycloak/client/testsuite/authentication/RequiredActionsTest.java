@@ -122,45 +122,6 @@ public class RequiredActionsTest extends AbstractAuthenticationTest {
         compareRequiredAction(forUpdate, updated);
     }
 
-    @KeycloakVersion(max = "26.2")
-    @Test
-    public void testRequiredActionsMax262() {
-        List<RequiredActionProviderRepresentation> result = authMgmtResource.getRequiredActions();
-
-        List<RequiredActionProviderRepresentation> expected = new ArrayList<>();
-        addRequiredAction(expected, "CONFIGURE_TOTP", "Configure OTP", true, false, null);
-        addRequiredAction(expected, "TERMS_AND_CONDITIONS", "Terms and Conditions", false, false, null);
-        addRequiredAction(expected, "UPDATE_PASSWORD", "Update Password", true, false, null);
-        addRequiredAction(expected, "UPDATE_PROFILE", "Update Profile", true, false, null);
-        addRequiredAction(expected, "VERIFY_EMAIL", "Verify Email", true, false, null);
-        addRequiredAction(expected, "VERIFY_PROFILE", "Verify Profile", false, false, null);
-        addRequiredAction(expected, "delete_account", "Delete Account", false, false, null);
-        addRequiredAction(expected, "delete_credential", "Delete Credential", true, false, null);
-        addRequiredAction(expected, "update_user_locale", "Update User Locale", true, false, null);
-        addRequiredAction(expected, "webauthn-register", "Webauthn Register", true, false, null);
-        addRequiredAction(expected, "webauthn-register-passwordless", "Webauthn Register Passwordless", true, false, null);
-
-        compareRequiredActions(expected, sort(result));
-
-        RequiredActionProviderRepresentation forUpdate = newRequiredAction("VERIFY_EMAIL", "Verify Email", false, false, null);
-        authMgmtResource.updateRequiredAction(forUpdate.getAlias(), forUpdate);
-
-        result = authMgmtResource.getRequiredActions();
-        RequiredActionProviderRepresentation updated = findRequiredActionByAlias(forUpdate.getAlias(), result);
-
-        assertNotNull(updated, "Required Action still there");
-        compareRequiredAction(forUpdate, updated);
-
-        forUpdate.setConfig(Collections.<String, String>emptyMap());
-        authMgmtResource.updateRequiredAction(forUpdate.getAlias(), forUpdate);
-
-        result = authMgmtResource.getRequiredActions();
-        updated = findRequiredActionByAlias(forUpdate.getAlias(), result);
-
-        assertNotNull(updated, "Required Action still there");
-        compareRequiredAction(forUpdate, updated);
-    }
-
     private RequiredActionProviderRepresentation findRequiredActionByAlias(String alias, List<RequiredActionProviderRepresentation> list) {
         for (RequiredActionProviderRepresentation a: list) {
             if (alias.equals(a.getAlias())) {

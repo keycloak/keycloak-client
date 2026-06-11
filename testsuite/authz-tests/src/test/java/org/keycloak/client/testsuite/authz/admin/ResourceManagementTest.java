@@ -168,7 +168,7 @@ public class ResourceManagementTest extends AbstractAuthorizationTest {
         permission.addResource(r1.getName());
         permission.addScope("GET");
 
-        getClientResource().authorization().permissions().scope().create(permission);
+        getClientResource().authorization().permissions().scope().create(permission).close();
 
         ResourceRepresentation r2 = new ResourceRepresentation();
 
@@ -184,7 +184,7 @@ public class ResourceManagementTest extends AbstractAuthorizationTest {
         permission.addResource(r2.getName());
         permission.addScope("GET");
 
-        getClientResource().authorization().permissions().scope().create(permission);
+        getClientResource().authorization().permissions().scope().create(permission).close();
 
         ResourceRepresentation rInstance = new ResourceRepresentation();
 
@@ -215,7 +215,11 @@ public class ResourceManagementTest extends AbstractAuthorizationTest {
     public void failCreateWithSameName() {
         final ResourceRepresentation newResource1 = createResource();
 
-        RuntimeException re = Assertions.assertThrows(RuntimeException.class, () -> doCreateResource(newResource1));
+        RuntimeException re = Assertions.assertThrows(RuntimeException.class, () -> {
+            newResource1.setId(null);
+            newResource1.setOwner((ResourceOwnerRepresentation) null);
+            doCreateResource(newResource1);
+        });
         MatcherAssert.assertThat(re.getCause(), Matchers.instanceOf(HttpResponseException.class));
         Assertions.assertEquals(409, HttpResponseException.class.cast(re.getCause()).getStatusCode());
 

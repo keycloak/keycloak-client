@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.keycloak.authorization.client.AuthzClient;
+import org.keycloak.authorization.client.resource.ProtectionResource;
+import org.keycloak.representations.idm.authorization.ResourceOwnerRepresentation;
 import org.keycloak.representations.idm.authorization.ResourceRepresentation;
 import org.keycloak.representations.idm.authorization.ScopeRepresentation;
 import org.testcontainers.shaded.org.hamcrest.MatcherAssert;
@@ -237,8 +239,17 @@ public class ResourceManagementWithAuthzClientTest extends ResourceManagementTes
     protected ResourceRepresentation doCreateResource(ResourceRepresentation newResource) {
         ResourceRepresentation resource = toResourceRepresentation(newResource);
 
-        getAuthzClient();
-        ResourceRepresentation response = authzClient.protection().resource().create(resource);
+        AuthzClient authzClient = getAuthzClient();
+        ResourceOwnerRepresentation owner = newResource.getOwner();
+        ProtectionResource protection;
+
+        if  (owner == null) {
+            protection = authzClient.protection();
+        } else {
+            protection = authzClient.protection(owner.getId(), "password");
+        }
+
+        ResourceRepresentation response = protection.resource().create(resource);
 
         return toResourceRepresentation(authzClient, response.getId());
     }

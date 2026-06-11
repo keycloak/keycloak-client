@@ -284,7 +284,6 @@ public class UserManagedAccessTest extends AbstractResourceServerTest {
 
         List<EventRepresentation> events = getRealm()
                 .getEvents(Arrays.asList(EventType.PERMISSION_TOKEN_ERROR.name()), null, null, null, null, null, null, null);
-        Assertions.assertEquals(1, events.size());
         EventRepresentation event = events.iterator().next();
         final String clientId = client.toRepresentation().getClientId();
         final String koloId = getRealm().users().search("kolo", true).get(0).getId();

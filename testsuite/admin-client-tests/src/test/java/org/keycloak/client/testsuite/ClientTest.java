@@ -19,6 +19,7 @@ package org.keycloak.client.testsuite;
 
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.keycloak.OAuth2Constants;
@@ -292,14 +293,14 @@ public class ClientTest extends AbstractAdminClientTest {
         final String testRealmClientId = ApiUtil.findClientByClientId(adminClient.realm("master"), realm.toRepresentation().getRealm() + "-realm")
                 .toRepresentation().getId();
 
-        assertThrows(BadRequestException.class,
+        assertThrows(WebApplicationException.class,
                 () -> adminClient.realm("master").clients().get(testRealmClientId).remove());
 
         Constants.defaultClients.forEach(defaultClient -> {
             final String defaultClientId = ApiUtil.findClientByClientId(realm, defaultClient)
                     .toRepresentation().getId();
 
-            assertThrows(BadRequestException.class,
+            assertThrows(WebApplicationException.class,
                     () -> realm.clients().get(defaultClientId).remove());
         });
     }

@@ -41,6 +41,7 @@ import org.keycloak.authorization.client.AuthorizationDeniedException;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.authorization.client.ClientAuthorizationContext;
 import org.keycloak.authorization.client.Configuration;
+import org.keycloak.authorization.client.ResourceNotFoundException;
 import org.keycloak.authorization.client.resource.PermissionResource;
 import org.keycloak.authorization.client.resource.ProtectionResource;
 import org.keycloak.common.util.Base64;
@@ -260,7 +261,16 @@ public class PolicyEnforcer {
                 LOGGER.debugf("Sending challenge to the client. Path [%s]", pathConfig);
             }
 
-            if (!challenge(pathConfig, methodConfig, request, response)) {
+            boolean challenged;
+            try {
+                challenged = challenge(pathConfig, methodConfig, request, response);
+            } catch (ResourceNotFoundException exception) {
+                LOGGER.debugf("Resource id no existing anymore on server, removing path [%s] from cache and challeging again", pathConfig);
+                pathMatcher.getPathCache().remove(pathConfig.getPath());
+
+                challenged = challenge(getPathConfig(request), methodConfig, request, response);
+            }
+            if (!challenged) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debugf("Challenge not sent, sending default forbidden response. Path [%s]", pathConfig);
                 }

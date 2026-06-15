@@ -193,6 +193,24 @@ public class PolicyEnforcerTest extends AbstractAuthzTest {
     }
 
     @Test
+    public void testOnDenyRedirectToBypassViaDenyPathSubstring() {
+        PolicyEnforcer policyEnforcer = AuthzTestUtils.createPolicyEnforcer("enforcer-on-deny-redirect.json", false);
+        String token = doLoginAndGetAccessToken();
+
+        AuthzTestUtils.TestResponse response = new AuthzTestUtils.TestResponse();
+        AuthorizationContext context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/api/resourceb", token), response);
+        assertFalse(context.isGranted());
+        assertEquals(302, response.getStatus());
+        assertEquals("/accessDenied", response.getHeaders().getOrDefault("Location", Collections.emptyList()).get(0));
+
+        context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/api/resourceb/accessDenied", token), response.clear());
+        assertFalse(context.isGranted());
+
+        context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/api/resourceb?x=/accessDenied", token), response.clear());
+        assertFalse(context.isGranted());
+    }
+
+    @Test
     public void testNotAuthenticatedDenyUnmapedPath() {
         PolicyEnforcer policyEnforcer = AuthzTestUtils.createPolicyEnforcer("enforcer-bearer-only.json", true);
 

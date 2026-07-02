@@ -76,12 +76,16 @@ The name of a resource on the server that is to be associated with a given path.
 (required) A URI relative to the application's context path. If this option is specified, the policy enforcer queries the server for a resource with a *URI* with the same value.
 Currently a very basic logic for path matching is supported. Examples of valid paths are:
 +
-*** Wildcards: `/*`
-*** Suffix: `/*.html`
-*** Sub-paths: `/path/*`
-*** Path parameters: /resource/{id}
-*** Exact match: /resource
-*** Patterns: /\{version}/resource, /api/\{version}/resource, /api/\{version}/resource/*
+*** Wildcards: `+/*+`
+*** Suffix: `+/*.html+`
+*** Sub-paths: `+/path/*+`
+*** Path parameters: `+/resource/{id}+`
+*** Exact match: `/resource`
+*** Patterns: `+/{version}/resource+`, `+/api/{version}/resource+`, `+/api/{version}/resource/*+`
++
+NOTE:
+An `+*+` wildcard matcher is only supported at the end of the pattern or as part of a file pattern. A placeholder must not contain a `/`, and must not be empty.
+*
 +
 ** *methods*
 +

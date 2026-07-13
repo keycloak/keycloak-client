@@ -54,6 +54,21 @@
             <groupId>org.eclipse.microprofile.openapi</groupId>
             <artifactId>microprofile-openapi-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -168,6 +183,18 @@
                                                 org/keycloak/common/Version.java,
                                                 org/keycloak/common/util/MimeTypeUtil.java
                                             </excludes>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.keycloak</groupId>
+                                            <artifactId>keycloak-admin-v2-api</artifactId>
+                                            <version>${keycloak.version}</version>
+                                            <type>jar</type>
+                                            <classifier>sources</classifier>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
+                                            <includes>
+                                                org/keycloak/**/*.java
+                                            </includes>
                                         </artifactItem>
                                     </artifactItems>
                                     <overWriteReleases>false</overWriteReleases>

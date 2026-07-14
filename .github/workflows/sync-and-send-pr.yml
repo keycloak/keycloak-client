@@ -7,7 +7,6 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     env:
-      REPO_HEAD: "keycloak"
       KEYCLOAK_CLIENT_BRANCH: "main"
 
     steps:
@@ -17,20 +16,27 @@ jobs:
           LATEST_RELEASE=$(git ls-remote --heads https://github.com/keycloak/keycloak.git 'release/*' | awk -F'/' '{print $NF}' | sort -V | tail -n1)
           echo "KEYCLOAK_RELEASE_BRANCH_NAME=release/$LATEST_RELEASE" >> $GITHUB_ENV
 
+      - name: Checkout Keycloak Client
+        uses: actions/checkout@v7
+
       - name: Checkout Keycloak latest release
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: keycloak/keycloak
           ref: ${{ env.KEYCLOAK_RELEASE_BRANCH_NAME }}
+          path: keycloak
 
-      - name: Build Keycloak
-        uses: ./.github/actions/build-keycloak
-
-      - name: Checkout Keycloak Client
-        uses: actions/checkout@v4
+      - name: Checkout Keycloak Client Build Branch
+        uses: actions/checkout@v7
         with:
-          repository: ${{ env.REPO_HEAD }}/keycloak-client
+          repository: keycloak/keycloak-client
           ref: ${{ env.KEYCLOAK_CLIENT_BRANCH }}
+          path: keycloak-client
+
+      - name: Build Keycloak with sources
+        uses: ./.github/actions/build-keycloak-with-src
+        with:
+          keycloak-home: ${{ env.GITHUB_WORKSPACE }}/keycloak-client/keycloak-client/keycloak
 
       - name: Build Keycloak Client
         uses: ./.github/actions/build-keycloak-client

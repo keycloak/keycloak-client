@@ -1,11 +1,15 @@
-name: Build Keycloak
-description: Builds Keycloak providing Maven repository with all artifacts
+name: Build Keycloak with sources
+description: Builds Keycloak providing Maven repository with all artifacts and sources
 
 inputs:
   upload-m2-repo:
     description: Upload Maven repository for org.keycloak artifacts
     required: false
     default: "true"
+  keycloak-home:
+    description: Home directory for Keycloak
+    required: true
+    default: "."
 
 runs:
   using: composite
@@ -27,6 +31,7 @@ runs:
     - id: build-keycloak
       name: Build Keycloak
       shell: bash
+      working-directory: ${{ inputs.keycloak-home }}
       run: |
         # Ensure this plugin is built first to avoid warnings in the build
         ./mvnw -ntp install -Pdistribution -am -pl distribution/maven-plugins/licenses-processor
@@ -36,6 +41,7 @@ runs:
     - id: compress-keycloak-maven-repository
       name: Compress Keycloak Maven artifacts
       if: inputs.upload-m2-repo == 'true'
+      working-directory: ${{ inputs.keycloak-home }}
       shell: bash
       run: |
         tar -C ~/ --use-compress-program zstd -cf m2-keycloak.tzts \
@@ -48,5 +54,5 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: m2-keycloak.tzts
-        path: m2-keycloak.tzts
+        path: ${{ inputs.keycloak-home }}/m2-keycloak.tzts
         retention-days: 1

@@ -67,6 +67,12 @@ public class PathConfigMatcher extends PathMatcher<PathConfig> {
 
     @Override
     public PathConfig matches(String targetUri) {
+        // normalize once here — the no-op override below prevents super.matches() from normalizing again
+        targetUri = super.normalizeUri(targetUri);
+        if (targetUri == null) {
+            return null;
+        }
+
         PathConfig pathConfig = pathCache.get(targetUri);
 
         if (pathCache.containsKey(targetUri) || pathConfig != null) {
@@ -131,6 +137,13 @@ public class PathConfigMatcher extends PathMatcher<PathConfig> {
         pathCache.put(targetUri, pathConfig);
 
         return pathConfig;
+    }
+
+    @Override
+    protected String normalizeUri(String uri) {
+        // no-op: normalization is done once at the top of matches() via super.normalizeUri(),
+        // so PathMatcher.matches() must not normalize again (would mangle already-normalized URIs)
+        return uri;
     }
 
     @Override

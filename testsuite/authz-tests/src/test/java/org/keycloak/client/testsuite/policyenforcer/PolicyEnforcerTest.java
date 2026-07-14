@@ -122,6 +122,25 @@ public class PolicyEnforcerTest extends AbstractAuthzTest {
         context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/api/resourcea", token), testResponse.clear());
         assertTrue(context.isGranted());
 
+        // mutated URIs must resolve to the same resource, get the same authorization decision,
+        // and share the same normalized cache key
+        for (String mutatedUri : new String[] {
+                "/api/resourcea;x=1",       // matrix params
+                "/api/resourcea/",          // trailing slash
+                "//api///resourcea",        // double slashes
+                "/api/foo/../resourcea",    // dot segments
+                "/api/%72esourcea",         // percent-encoded char (%72 = 'r')
+                "/api/resourcea;x=1/",      // combined: matrix params + trailing slash
+        }) {
+            context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest(mutatedUri, token), testResponse.clear());
+            assertTrue(context.isGranted(), "Should be granted for mutated URI: " + mutatedUri);
+            // all mutated URIs should be cached under the normalized key, not the raw URI
+            assertNotNull(policyEnforcer.getPathMatcher().getPathCache().get("/api/resourcea"),
+                    "Cache should contain normalized key after enforcing: " + mutatedUri);
+            assertFalse(policyEnforcer.getPathMatcher().getPathCache().containsKey(mutatedUri),
+                    "Cache should not contain raw mutated URI: " + mutatedUri);
+        }
+
         testResponse = new AuthzTestUtils.TestResponse();
         context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/api/resourceb"), testResponse.clear());
         assertFalse(context.isGranted());

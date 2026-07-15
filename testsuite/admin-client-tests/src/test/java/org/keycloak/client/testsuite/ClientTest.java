@@ -189,12 +189,24 @@ public class ClientTest extends AbstractAdminClientTest {
     }
 
     // KEYCLOAK-3421
+    @KeycloakVersion(max = "26.5")
+    @Test
+    public void testFragmentProhibitedClientValidationLessThan26_6() {
+        testClientUriValidation("Root URL must not contain an URL fragment",
+                null,
+                null,
+                "Redirect URIs must not contain an URI fragment",
+                "http://redhat.com/abcd#someFragment"
+        );
+    }
+
+    @KeycloakVersion(min = "26.6")
     @Test
     public void testFragmentProhibitedClientValidation() {
         testClientUriValidation("Root URL must not contain an URL fragment",
                 null,
                 null,
-                "Redirect URIs must not contain an URI fragment",
+                "A redirect URI must not contain an URL fragment",
                 "http://redhat.com/abcd#someFragment"
         );
     }

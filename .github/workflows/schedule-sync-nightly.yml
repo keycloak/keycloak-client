@@ -12,17 +12,21 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout keycloak main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: keycloak/keycloak
 
-      - name: Build Keycloak
-        uses: ./.github/actions/build-keycloak
-        with:
-          upload-m2-repo: false
+      - name: Setup Java
+        id: setup-java
+        uses: ./.github/actions/java-setup
+
+      - name: Build Keycloak Locally
+        run: |
+          # just a simple build with sources
+          ./mvnw -ntp install  -V -e -DskipTests -DskipExamples -Pjboss-release
 
       - name: Checkout keycloak-client repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - id: build-keycloak-client
         name: Build Keycloak Client libraries

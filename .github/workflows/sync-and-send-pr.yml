@@ -18,16 +18,22 @@ jobs:
           echo "KEYCLOAK_RELEASE_BRANCH_NAME=release/$LATEST_RELEASE" >> $GITHUB_ENV
 
       - name: Checkout Keycloak latest release
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: keycloak/keycloak
           ref: ${{ env.KEYCLOAK_RELEASE_BRANCH_NAME }}
 
-      - name: Build Keycloak
-        uses: ./.github/actions/build-keycloak
+      - name: Setup Java
+        id: setup-java
+        uses: ./.github/actions/java-setup
+
+      - name: Build Keycloak Locally
+        run: |
+          # just a simple build with sources
+          ./mvnw -ntp install  -V -e -DskipTests -DskipExamples -Pjboss-release
 
       - name: Checkout Keycloak Client
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ env.REPO_HEAD }}/keycloak-client
           ref: ${{ env.KEYCLOAK_CLIENT_BRANCH }}

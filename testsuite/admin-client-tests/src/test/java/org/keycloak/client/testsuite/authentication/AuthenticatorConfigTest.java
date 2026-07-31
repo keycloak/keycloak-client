@@ -20,9 +20,11 @@ package org.keycloak.client.testsuite.authentication;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.client.testsuite.Assert;
+import org.keycloak.client.testsuite.framework.KeycloakVersion;
 import org.keycloak.representations.idm.AuthenticationExecutionInfoRepresentation;
 import org.keycloak.representations.idm.AuthenticationFlowRepresentation;
 import org.keycloak.representations.idm.AuthenticatorConfigInfoRepresentation;
@@ -105,6 +107,7 @@ public class AuthenticatorConfigTest extends AbstractAuthenticationTest {
     }
     
     @Test
+    @KeycloakVersion(max = "26.6")
     public void testUpdateConfig() {
         AuthenticatorConfigRepresentation cfg = newConfig("foo", "require.password.update.after.registration", "true");
         String cfgId = createConfig(executionId, cfg);
@@ -134,6 +137,32 @@ public class AuthenticatorConfigTest extends AbstractAuthenticationTest {
                 "configKey2", "configValue2");
     }
 
+    @Test
+    @KeycloakVersion(min = "26.7")
+    public void testUpdateConfigAfter26_7() {
+        AuthenticatorConfigRepresentation cfg = newConfig("foo", "require.password.update.after.registration", "true");
+        String cfgId = createConfig(executionId, cfg);
+        final AuthenticatorConfigRepresentation cfgRepNonExistent = authMgmtResource.getAuthenticatorConfig(cfgId);
+
+        // Try to update not existent config
+        NotFoundException nfe = Assertions.assertThrows(NotFoundException.class, () -> authMgmtResource.updateAuthenticatorConfig("not-existent", cfgRepNonExistent));
+        Assertions.assertEquals(404, nfe.getResponse().getStatus());
+
+        // Assert nothing changed
+        AuthenticatorConfigRepresentation cfgRep = authMgmtResource.getAuthenticatorConfig(cfgId);
+        assertConfig(cfgRep, cfgId, "foo", "require.password.update.after.registration", "true");
+
+        // Update success
+        cfgRep.setAlias("foo2");
+        cfgRep.getConfig().put("site.key", "mySiteKey");
+        authMgmtResource.updateAuthenticatorConfig(cfgRep.getId(), cfgRep);
+
+        // Assert updated
+        cfgRep = authMgmtResource.getAuthenticatorConfig(cfgRep.getId());
+        assertConfig(cfgRep, cfgId, "foo2",
+                "require.password.update.after.registration", "true",
+                "site.key", "mySiteKey");
+    }
 
     @Test
     public void testRemoveConfig() {
@@ -202,6 +231,7 @@ public class AuthenticatorConfigTest extends AbstractAuthenticationTest {
     private void assertConfig(AuthenticatorConfigRepresentation cfgRep, String id, String alias, String... fields) {
         assertEquals(id, cfgRep.getId());
         assertEquals(alias, cfgRep.getAlias());
+        Map<String, String> config = cfgRep.getConfig();
         Assert.assertMap(cfgRep.getConfig(), fields);
     }
 }

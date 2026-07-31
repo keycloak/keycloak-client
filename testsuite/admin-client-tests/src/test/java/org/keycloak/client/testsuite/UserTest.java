@@ -86,7 +86,7 @@ import org.keycloak.testsuite.util.GroupBuilder;
 import org.keycloak.testsuite.util.KeycloakModelUtils;
 import org.keycloak.testsuite.util.RoleBuilder;
 import org.keycloak.testsuite.util.UserBuilder;
-import org.keycloak.util.JsonSerialization;
+import org.keycloak.client.testsuite.common.JsonMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -145,7 +145,7 @@ public class UserTest extends AbstractAdminClientTest {
             upConfig.addOrReplaceAttribute(createAttributeMetadata(name));
         }
 
-        setUserProfileConfiguration(realm, JsonSerialization.writeValueAsString(upConfig));
+        setUserProfileConfiguration(realm, JsonMapper.writeValueAsString(upConfig));
     }
 
     @AfterEach
@@ -330,8 +330,8 @@ public class UserTest extends AbstractAdminClientTest {
         try {
             CredentialRepresentation hashedPassword = new CredentialRepresentation();
             hashedPassword.setType("password");
-            hashedPassword.setSecretData(JsonSerialization.writeValueAsString(secretData));
-            hashedPassword.setCredentialData(JsonSerialization.writeValueAsString(credentialData));
+            hashedPassword.setSecretData(JsonMapper.writeValueAsString(secretData));
+            hashedPassword.setCredentialData(JsonMapper.writeValueAsString(credentialData));
             hashedPassword.setCreatedDate(1001L);
             hashedPassword.setUserLabel("deviceX");
             hashedPassword.setType(CredentialRepresentation.PASSWORD);
@@ -363,7 +363,7 @@ public class UserTest extends AbstractAdminClientTest {
                 "      \"algorithm\" : \"" + credentialData.getAlgorithm() + "\"\n" +
                 "    }";
 
-        CredentialRepresentation deprecatedHashedPassword = JsonSerialization.readValue(deprecatedCredential, CredentialRepresentation.class);
+        CredentialRepresentation deprecatedHashedPassword = JsonMapper.readValue(deprecatedCredential, CredentialRepresentation.class);
         Assert.assertNotNull(deprecatedHashedPassword.getHashedSaltedValue());
         Assert.assertNull(deprecatedHashedPassword.getCredentialData());
 
@@ -2752,7 +2752,7 @@ public class UserTest extends AbstractAdminClientTest {
 
     public static UPConfig setUserProfileConfiguration(RealmResource testRealm, String configuration) {
         try {
-            UPConfig config = configuration == null ? null : JsonSerialization.readValue(configuration, UPConfig.class);
+            UPConfig config = configuration == null ? null : JsonMapper.readValue(configuration, UPConfig.class);
 
             if (config != null) {
                 UPAttribute username = config.getAttribute("username");

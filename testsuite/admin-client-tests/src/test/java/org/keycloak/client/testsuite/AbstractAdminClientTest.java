@@ -36,7 +36,7 @@ import org.keycloak.testsuite.util.ApiUtil;
 import org.keycloak.testsuite.util.RoleBuilder;
 import org.keycloak.testsuite.util.ServerURLs;
 import org.keycloak.testsuite.util.TestCleanup;
-import org.keycloak.util.JsonSerialization;
+import org.keycloak.client.testsuite.common.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -115,7 +115,7 @@ public abstract class AbstractAdminClientTest implements RealmRepsSupplier {
 
     public static <T> T loadJson(InputStream is, Class<T> type) {
         try {
-            return JsonSerialization.readValue(is, type);
+            return JsonMapper.readValue(is, type);
         } catch (IOException e) {
             throw new RuntimeException("Failed to parse json", e);
         }

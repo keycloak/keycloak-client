@@ -9,10 +9,12 @@ summary="How to upgrade the {project_name} Client Libraries">
 
 The client libraries are those artifacts:
 
-* Java admin client - Maven artifact `org.keycloak:keycloak-admin-client`
+* Java admin client (Jackson 2) - Maven artifact `org.keycloak:keycloak-admin-client`
+* Java admin client (Jackson 3) - Maven artifact `org.keycloak:keycloak-admin-client-jackson3`
 * Java authorization client - Maven artifact `org.keycloak:keycloak-authz-client`
 * Java policy enforcer - Maven artifact `org.keycloak:keycloak-policy-enforcer`
-* Java common classes used by other client libraries above - Maven artifact `org.keycloak:keycloak-client-common-synced`
+* Java common classes shared by the client libraries (Jackson 2) - Maven artifact `org.keycloak:keycloak-client-common-synced`
+* Java common classes shared by the client libraries (Jackson 3) - Maven artifact `org.keycloak:keycloak-client-common-synced-jackson3`
 
 ifeval::[{project_community}==true]
 The last released client libraries are supported with the last supported {project_name} server version.

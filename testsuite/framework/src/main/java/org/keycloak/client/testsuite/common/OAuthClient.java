@@ -40,7 +40,7 @@ import org.keycloak.jose.jwk.OKPPublicJWK;
 import org.keycloak.representations.JsonWebToken;
 import org.keycloak.testsuite.util.ServerURLs;
 import org.keycloak.util.BasicAuthHelper;
-import org.keycloak.util.JsonSerialization;
+import org.keycloak.client.testsuite.common.JsonMapper;
 import org.keycloak.util.TokenUtil;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -481,7 +481,7 @@ public class OAuthClient {
 
                 String s = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
                 @SuppressWarnings("unchecked")
-                Map<String, Object> responseJson = JsonSerialization.readValue(s, Map.class);
+                Map<String, Object> responseJson = JsonMapper.readValue(s, Map.class);
 
                 if (statusCode == 200) {
                     otherClaims = new HashMap<>();
@@ -639,7 +639,7 @@ public class OAuthClient {
 
         HttpGet get = new HttpGet(certUrl);
         try (CloseableHttpResponse response = httpClient.execute(get)) {
-            return JsonSerialization.readValue(response.getEntity().getContent(), JSONWebKeySet.class);
+            return JsonMapper.readValue(response.getEntity().getContent(), JSONWebKeySet.class);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }

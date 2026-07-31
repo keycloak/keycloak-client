@@ -7,18 +7,9 @@ priority=500
 summary="Using the {project_name} admin client to access the {project_name} Admin REST API">
 
 The {project_name} admin client is a Java library that facilitates the access and usage of the {project_name} Admin REST API.
-The library requires Java 11 or higher at runtime (RESTEasy dependency enforces this requirement).
-To use it from your application add a dependency on the `keycloak-admin-client` library.
-For example using Maven:
+It is available for either Jackson 2 or Jackson 3, both sharing the same API.
 
-[source,xml,subs="attributes+"]
-----
-<dependency>
-    <groupId>org.keycloak</groupId>
-    <artifactId>keycloak-admin-client</artifactId>
-    <version>${client_version}</version>
-</dependency>
-----
+== Usage
 
 The following example shows how to use the Java client library to get the details of the master realm:
 
@@ -40,8 +31,23 @@ RealmRepresentation realm = keycloak.realm("master").toRepresentation();
 
 Complete Javadoc for the admin client is available at {apidocs_link}[{apidocs_name}].
 
+== Admin client with Jackson 2
+
+The admin client with Jackson 2 requires Java 11 or higher.
+To use it from your application add a dependency on the `keycloak-admin-client` library.
+For example using Maven:
+
+[source,xml,subs="attributes+"]
+----
+<dependency>
+    <groupId>org.keycloak</groupId>
+    <artifactId>keycloak-admin-client</artifactId>
+    <version>${client_version}</version>
+</dependency>
+----
+
 [[_admin_client_compatibility]]
-== Compatibility with {project_name} server
+=== Compatibility with {project_name} server
 
 The {project_name} admin client aims to work with multiple versions of the {project_name} server. For the details about supported {project_name} server versions, see <@links.securingapps id="upgrading" />.
 
@@ -77,5 +83,37 @@ Keycloak.getInstance(
 
 In this case, please make sure that your class `MyCustomJacksonProvider` extends from the class `org.keycloak.admin.client.JacksonProvider` or make sure to configure the `ObjectMapper` manually in a way described above.
 The similar care should be taken when using `KeycloakBuilder` to create the admin client and the RestEasy client is manually injected and created.
+
+== Admin client with Jackson 3
+
+The admin client with Jackson 3 requires Java 17 or higher.
+It is a drop-in replacement for applications that already use Jackson 3.
+To use it from your application replace the `keycloak-admin-client` dependency with `keycloak-admin-client-jackson3`:
+
+[source,xml,subs="attributes+"]
+----
+<dependency>
+    <groupId>org.keycloak</groupId>
+    <artifactId>keycloak-admin-client-jackson3</artifactId>
+    <version>${client_version}</version>
+</dependency>
+----
+
+[[_admin_client_jackson3_compatibility]]
+=== Compatibility with {project_name} server
+
+The same <<_admin_client_compatibility,compatibility considerations>> apply here.
+With Jackson 3, the equivalent `tools.jackson.databind.json.JsonMapper` configuration is:
+
+[source,java]
+----
+JsonMapper mapper = JsonMapper.builder()
+        .changeDefaultPropertyInclusion(v -> JsonInclude.Value.construct(
+                JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL))
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .build();
+----
+
+If you are injecting a custom Jackson provider as described in the Jackson 2 section, extend `org.keycloak.admin.client.jackson3.JacksonProvider3` instead of `org.keycloak.admin.client.JacksonProvider`.
 
 </@tmpl.guide>

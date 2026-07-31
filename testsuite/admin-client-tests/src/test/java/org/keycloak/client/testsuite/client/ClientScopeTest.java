@@ -41,7 +41,7 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.testsuite.util.ApiUtil;
 import org.keycloak.testsuite.util.ClientBuilder;
 import org.keycloak.testsuite.util.RoleBuilder;
-import org.keycloak.util.JsonSerialization;
+import org.keycloak.client.testsuite.common.JsonMapper;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -695,7 +695,7 @@ public class ClientScopeTest extends AbstractClientTest {
             String respBody = resp.readEntity(String.class);
             Map<String, String> responseJson = null;
             try {
-                responseJson = JsonSerialization.readValue(respBody, Map.class);
+                responseJson = JsonMapper.readValue(respBody, Map.class);
                 assertEquals(expectedErrorMessage, responseJson.get("errorMessage"));
             } catch (IOException e) {
                 fail("Failed to extract the errorMessage from a CreateScope Response");

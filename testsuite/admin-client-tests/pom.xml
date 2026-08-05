@@ -23,6 +23,46 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>jackson3</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.keycloak</groupId>
+                    <artifactId>keycloak-client-testsuite-framework</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.keycloak</groupId>
+                            <artifactId>keycloak-admin-client</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>org.keycloak</groupId>
+                            <artifactId>keycloak-client-common-synced</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>org.keycloak</groupId>
+                            <artifactId>keycloak-policy-enforcer</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>org.keycloak</groupId>
+                    <artifactId>keycloak-admin-client-jackson3</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.keycloak</groupId>
+                    <artifactId>keycloak-client-common-synced-jackson3</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>

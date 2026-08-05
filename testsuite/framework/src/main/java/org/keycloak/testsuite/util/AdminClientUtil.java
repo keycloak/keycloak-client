@@ -25,9 +25,7 @@ import org.jboss.resteasy.client.jaxrs.ClientHttpEngine;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ClientHttpEngineBuilder43;
-import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.keycloak.OAuth2Constants;
-import org.keycloak.admin.client.JacksonProvider;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.client.testsuite.framework.TestRegistry;
@@ -94,9 +92,20 @@ public class AdminClientUtil {
         ResteasyClientBuilder resteasyClientBuilder = (ResteasyClientBuilder) ResteasyClientBuilder.newBuilder();
         resteasyClientBuilder.sslContext(buildSslContext());
 
-        // We need to use subclass (or anonymous class) to avoid the following error from RESTEasy:
-        // Provider class org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider is already registered.  2nd registration is being ignored.
-        ResteasyJackson2Provider jacksonProvider = new JacksonProvider();
+        // TODO: remove reflection once keycloak/keycloak#50848 merges and sync populates the providers
+        // try jackson 3 provider first, fall back to jackson 2
+        Object jacksonProvider;
+        try {
+            jacksonProvider = Class.forName("org.keycloak.admin.client.jackson3.JacksonProvider3")
+                    .getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            try {
+                jacksonProvider = Class.forName("org.keycloak.admin.client.JacksonProvider")
+                        .getDeclaredConstructor().newInstance();
+            } catch (Exception ex) {
+                throw new RuntimeException("No JacksonProvider found", ex);
+            }
+        }
         resteasyClientBuilder.register(jacksonProvider, 100);
 
         resteasyClientBuilder

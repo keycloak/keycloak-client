@@ -43,6 +43,8 @@
         <resteasy.version>6.2.15.Final</resteasy.version>
         <com.fasterxml.jackson.version>2.21.2</com.fasterxml.jackson.version>
         <com.fasterxml.jackson.annotation.version>2.21</com.fasterxml.jackson.annotation.version>
+        <version.tools.jackson>3.1.4</version.tools.jackson>
+        <version.resteasy.jackson3.provider>1.0.0.Alpha1</version.resteasy.jackson3.provider>
         <microprofile-openapi-api.version>4.1.1</microprofile-openapi-api.version>
         <jboss-logging.version>3.6.2.Final</jboss-logging.version>
         <commons-logging-jboss-logging.version>2.0.0.Final</commons-logging-jboss-logging.version>
@@ -67,6 +69,59 @@
         <central.publishing.plugin.version>0.11.0</central.publishing.plugin.version>
         <verifier.plugin.version>1.1</verifier.plugin.version>
         <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
+
+        <!-- Shared keycloak-core source includes for client-common-synced modules (Jackson 2 and Jackson 3).
+             Each module appends its own json-package and serialization-specific patterns. -->
+        <keycloak-core.sync.includes>
+            org/keycloak/OAuth2Constants.java,
+            org/keycloak/TokenCategory.java,
+            org/keycloak/Token.java,
+            org/keycloak/TokenIdGenerator.java,
+            org/keycloak/AuthorizationContext.java,
+
+            org/keycloak/representations/adapters/action/GlobalRequestResult.java,
+            org/keycloak/representations/dpop/**/*.java,
+            org/keycloak/representations/idm/**/*.java,
+            org/keycloak/representations/info/*.java,
+            org/keycloak/representations/userprofile/config/*.java,
+            org/keycloak/representations/workflows/*.java,
+            org/keycloak/representations/AccessToken.java,
+            org/keycloak/representations/AccessTokenResponse.java,
+            org/keycloak/representations/AddressClaimSet.java,
+            org/keycloak/representations/AuthorizationDetailsJSONRepresentation.java,
+            org/keycloak/representations/IDToken.java,
+            org/keycloak/representations/JsonWebToken.java,
+            org/keycloak/representations/KeyStoreConfig.java,
+            org/keycloak/representations/adapters/config/*.java,
+            org/keycloak/representations/RefreshToken.java,
+
+            org/keycloak/util/AuthorizationDetailsParser.java,
+            org/keycloak/util/BasicAuthHelper.java,
+            org/keycloak/util/DPoPGenerator.java,
+            org/keycloak/util/EnumWithStableIndex.java,
+            org/keycloak/util/JWKSUtils.java,
+            org/keycloak/util/KeyWrapperUtil.java,
+            org/keycloak/util/SystemPropertiesJsonParserFactory.java,
+            org/keycloak/util/TokenUtil.java,
+
+            org/keycloak/jose/JOSE.java,
+            org/keycloak/jose/JOSEHeader.java,
+            org/keycloak/jose/jwe/**/*.java,
+            org/keycloak/jose/jws/**/*.java,
+            org/keycloak/jose/jwk/**/*.java,
+
+            org/keycloak/crypto/**/*.java,
+
+            org/keycloak/protocol/oidc/client/authentication/*.java,
+
+            org/keycloak/protocol/oidc/representations/**/*.java,
+
+            org/keycloak/constants/ServiceUrlConstants.java,
+
+            org/keycloak/exceptions/*.java,
+
+            org/keycloak/TokenVerifier.java
+        </keycloak-core.sync.includes>
 
         <!-- Surefire Settings -->
         <surefire.memory.Xms>512m</surefire.memory.Xms>
@@ -121,7 +176,9 @@
 
     <modules>
         <module>client-common-synced</module>
+        <module>client-common-synced-jackson3</module>
         <module>admin-client</module>
+        <module>admin-client-jackson3</module>
         <module>authz-client</module>
         <module>policy-enforcer</module>
         <module>docs</module>
@@ -133,6 +190,11 @@
             <dependency>
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-client-common-synced</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-client-common-synced-jackson3</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -174,6 +236,16 @@
                 <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
                 <artifactId>jackson-jakarta-rs-yaml-provider</artifactId>
                 <version>${com.fasterxml.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${version.tools.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.resteasy.providers</groupId>
+                <artifactId>resteasy-jackson-provider</artifactId>
+                <version>${version.resteasy.jackson3.provider}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.logging</groupId>

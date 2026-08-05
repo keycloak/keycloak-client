@@ -39,7 +39,7 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.testsuite.util.AdminClientUtil;
 import org.keycloak.testsuite.util.RealmBuilder;
 import org.keycloak.testsuite.util.UserBuilder;
-import org.keycloak.util.JsonSerialization;
+import org.keycloak.client.testsuite.common.JsonMapper;
 import org.testcontainers.shaded.org.hamcrest.CoreMatchers;
 
 import java.io.IOException;
@@ -742,7 +742,7 @@ public class RealmTest extends AbstractAdminClientTest {
         description.setClientId("client-id");
         description.setRedirectUris(Collections.singletonList("http://localhost"));
 
-        ClientRepresentation converted = realm.convertClientDescription(JsonSerialization.writeValueAsString(description));
+        ClientRepresentation converted = realm.convertClientDescription(JsonMapper.writeValueAsString(description));
         assertEquals("client-id", converted.getClientId());
         assertEquals("http://localhost", converted.getRedirectUris().get(0));
     }

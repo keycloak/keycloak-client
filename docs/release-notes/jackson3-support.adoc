@@ -1,0 +1,14 @@
+// TODO: rename to match release version (e.g. 27_0_0.adoc) per keycloak-js convention
+= Jackson 3 admin client support
+
+== `keycloak-admin-client-jackson3`
+
+Drop-in replacement for `keycloak-admin-client` for apps using Jackson 3 (e.g. Spring Boot 4). Requires Java 17+. No Jackson 2 dependencies.
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.keycloak</groupId>
+    <artifactId>keycloak-admin-client-jackson3</artifactId>
+</dependency>
+----

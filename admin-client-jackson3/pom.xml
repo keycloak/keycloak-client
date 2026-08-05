@@ -1,21 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright 2016 Red Hat, Inc. and/or its affiliates
-  ~ and other contributors as indicated by the @author tags.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -27,34 +10,26 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>keycloak-admin-client</artifactId>
-    <name>Keycloak Admin REST Client</name>
-    <description>Keycloak Admin REST Client</description>
+    <artifactId>keycloak-admin-client-jackson3</artifactId>
+    <name>Keycloak Admin REST Client (Jackson 3)</name>
+    <description>Jackson 3 provider for the Keycloak Admin REST Client. Use this instead of keycloak-admin-client when your application uses Jackson 3.</description>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-client-common-synced</artifactId>
+            <artifactId>keycloak-client-common-synced-jackson3</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
-            <artifactId>jackson-jakarta-rs-yaml-provider</artifactId>
+            <groupId>dev.resteasy.providers</groupId>
+            <artifactId>resteasy-jackson-provider</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.openapi</groupId>
@@ -72,11 +47,6 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jackson2-provider</artifactId>
-            <version>${resteasy.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxb-provider</artifactId>
             <version>${resteasy.version}</version>
         </dependency>
@@ -86,6 +56,11 @@
         <profile>
             <id>sync</id>
             <build>
+                <resources>
+                    <resource>
+                        <directory>${project.build.directory}/unpacked-resources</directory>
+                    </resource>
+                </resources>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -108,25 +83,32 @@
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
                                             <includes>
-                                                org/**/*,
-                                                META-INF/services/*
+                                                org/**/*
                                             </includes>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.keycloak</groupId>
-                                            <artifactId>keycloak-admin-client-tests</artifactId>
+                                            <artifactId>keycloak-admin-client-jackson3</artifactId>
                                             <version>${keycloak.version}</version>
                                             <type>jar</type>
                                             <classifier>sources</classifier>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/unpacked</outputDirectory>
                                             <includes>
-                                                org/**/*,
-                                                META-INF/services/*
-                                            </includes>  <!-- unpack just source code and potential services -->
-                                            <excludes>
-                                                org/keycloak/admin/client/wrapper/*.java
-                                            </excludes>
+                                                org/**/*
+                                            </includes>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.keycloak</groupId>
+                                            <artifactId>keycloak-admin-client-jackson3</artifactId>
+                                            <version>${keycloak.version}</version>
+                                            <type>jar</type>
+                                            <classifier>sources</classifier>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/unpacked-resources</outputDirectory>
+                                            <includes>
+                                                META-INF/services/**/*
+                                            </includes>
                                         </artifactItem>
                                     </artifactItems>
                                     <overWriteReleases>false</overWriteReleases>

@@ -45,8 +45,10 @@ jobs:
 
       - name: Run admin client tests with Jackson 3
         run: |
-          if [ -z "$(find admin-client-jackson3/src/main/java -name '*.java' 2>/dev/null)" ]; then
-            echo "No Jackson 3 sources synced yet, skipping"
+          VERSION=$(mvn -B -q help:evaluate -Dexpression=project.version -DforceStdout -f admin-client-jackson3/pom.xml)
+          JAR=~/.m2/repository/org/keycloak/keycloak-admin-client-jackson3/${VERSION}/keycloak-admin-client-jackson3-${VERSION}.jar
+          if ! jar tf "$JAR" 2>/dev/null | grep -q '\.class$'; then
+            echo "No Jackson 3 classes available, skipping"
             exit 0
           fi
           mvn -B -f testsuite/providers/pom.xml package -DskipTests=true

@@ -53,8 +53,8 @@ jobs:
       - name: Check for changes
         id: changes_check
         run: |
-          if [ -z "$(git status --porcelain client-common-synced admin-client authz-client)" ]; then
-            echo "No changes detected in client-common-synced, admin-client, or authz-client. Stopping the workflow."
+          if [ -z "$(git status --porcelain client-common-synced client-common-synced-jackson3 admin-client admin-client-jackson3 authz-client)" ]; then
+            echo "No changes detected in synced modules. Stopping the workflow."
             echo "CHANGES_CHECK=false" >> $GITHUB_ENV
           else
             echo "CHANGES_CHECK=true" >> $GITHUB_ENV
@@ -93,7 +93,9 @@ jobs:
           BRANCH_NAME="sync-with-keycloak-server-${{ env.KEYCLOAK_RELEASE_BRANCH_NAME }}-${TIMESTAMP}"
           git checkout -b $BRANCH_NAME
           git add client-common-synced
+          git add client-common-synced-jackson3
           git add admin-client
+          git add admin-client-jackson3
           git add authz-client
           git commit -s -m "Sync with Keycloak server release branch ${{ env.KEYCLOAK_RELEASE_BRANCH_NAME }}" -m "Closes #${{ steps.create_issue.outputs.result }}" --author="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
           git log -1 --pretty=%B

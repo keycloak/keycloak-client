@@ -17,7 +17,6 @@
 
 package org.keycloak.client.testsuite.client;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.keycloak.admin.client.resource.ProtocolMappersResource;
 
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;

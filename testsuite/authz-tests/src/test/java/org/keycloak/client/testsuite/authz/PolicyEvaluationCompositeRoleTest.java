@@ -85,6 +85,7 @@ public class PolicyEvaluationCompositeRoleTest extends AbstractAuthzTest {
     private void createResource() {
         AuthorizationResource authorization = getClient().authorization();
         ResourceRepresentation resource = new ResourceRepresentation("myresource");
+        resource.addScope("myscope");
 
         authorization.resources().create(resource).close();
     }

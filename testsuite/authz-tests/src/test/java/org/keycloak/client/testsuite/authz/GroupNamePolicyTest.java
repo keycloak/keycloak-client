@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.AuthorizationResource;
@@ -65,6 +66,7 @@ public class GroupNamePolicyTest extends AbstractAuthzTest {
         config.put("claim.name", "groups");
         config.put("access.token.claim", "true");
         config.put("id.token.claim", "true");
+        config.put("full.path", "false");
         groupProtocolMapper.setConfig(config);
 
         testRealms.add(RealmBuilder.create().name("authz-test")
@@ -121,6 +123,11 @@ public class GroupNamePolicyTest extends AbstractAuthzTest {
         realm.users().get(user.getId()).joinGroup(group.getId());
     }
 
+    @AfterEach
+    public void resetFullPathMapper() {
+        setFullPathMapper(false);
+    }
+
     @Test
     public void testExactNameMatch() {
         AuthzClient authzClient = getAuthzClient();
@@ -150,28 +157,47 @@ public class GroupNamePolicyTest extends AbstractAuthzTest {
         } catch (AuthorizationDeniedException ignore) {
 
         }
+
+        RealmResource realm = getRealm();
+        UserRepresentation serviceAccount = getClient().getServiceAccountUser();
+        GroupRepresentation rootGroup = realm.groups().groups().stream()
+                .filter(group -> "Group A".equals(group.getName()))
+                .findFirst()
+                .get();
+        realm.users().get(serviceAccount.getId()).joinGroup(rootGroup.getId());
+        ticket = authzClient.protection().permission().create(request).getTicket();
+        response = authzClient.authorization(authzClient.obtainAccessToken().getToken()).authorize(new AuthorizationRequest(ticket));
+        Assertions.assertNotNull(response.getToken());
     }
 
     @Test
-    public void testOnlyChildrenPolicy() throws Exception {
+    public void testOnlyChildrenPolicy() {
+        setFullPathMapper(true);
+        assertGroupPolicyDecision("Resource B", "alice", true);
+        assertGroupPolicyDecision("Resource C", "kolo", true);
+    }
+
+    @Test
+    public void testOnlyChildrenPolicyWithFullGroupPath() {
+        setFullPathMapper(true);
+
         AuthzClient authzClient = getAuthzClient();
         PermissionRequest request = new PermissionRequest("Resource B");
         String ticket = authzClient.protection().permission().create(request).getTicket();
 
         try {
             authzClient.authorization("kolo", "password").authorize(new AuthorizationRequest(ticket));
-            Assertions.fail("Should fail because user is not granted with expected group");
+            Assertions.fail("Should fail because user is not a direct member of the expected group");
         } catch (AuthorizationDeniedException ignore) {
 
         }
 
         AuthorizationResponse response = authzClient.authorization("alice", "password").authorize(new AuthorizationRequest(ticket));
-
         Assertions.assertNotNull(response.getToken());
 
         try {
             authzClient.authorization("marta", "password").authorize(new AuthorizationRequest(ticket));
-            Assertions.fail("Should fail because user is not granted with expected role");
+            Assertions.fail("Should fail because user is not a member of the expected group");
         } catch (AuthorizationDeniedException ignore) {
 
         }
@@ -180,6 +206,44 @@ public class GroupNamePolicyTest extends AbstractAuthzTest {
         ticket = authzClient.protection().permission().create(request).getTicket();
         response = authzClient.authorization("kolo", "password").authorize(new AuthorizationRequest(ticket));
         Assertions.assertNotNull(response.getToken());
+    }
+
+    @Test
+    public void testExactNameMatchWithFullGroupPath() {
+        setFullPathMapper(true);
+        assertGroupPolicyDecision("Resource A", "marta", true);
+        assertGroupPolicyDecision("Resource A", "kolo", true);
+        assertGroupPolicyDecision("Resource A", "alice", true);
+    }
+
+    private void assertGroupPolicyDecision(String resource, String username, boolean granted) {
+        AuthzClient authzClient = getAuthzClient();
+        PermissionRequest request = new PermissionRequest(resource);
+        String ticket = authzClient.protection().permission().create(request).getTicket();
+
+        try {
+            AuthorizationResponse response = authzClient.authorization(username, "password").authorize(new AuthorizationRequest(ticket));
+
+            if (!granted) {
+                Assertions.fail("Should fail because user is not a member of the group configured by the policy");
+            }
+
+            Assertions.assertNotNull(response.getToken());
+        } catch (AuthorizationDeniedException cause) {
+            if (granted) {
+                Assertions.fail("Should grant access to a member of the group configured by the policy", cause);
+            }
+        }
+    }
+
+    private void setFullPathMapper(boolean fullPath) {
+        ClientResource client = getClient();
+        ProtocolMapperRepresentation mapper = client.getProtocolMappers().getMappers().stream()
+                .filter(m -> "groups".equals(m.getName()))
+                .findFirst()
+                .get();
+        mapper.getConfig().put("full.path", String.valueOf(fullPath));
+        client.getProtocolMappers().update(mapper.getId(), mapper);
     }
 
     private void createGroupPolicy(String name, String groupPath, boolean extendChildren) {

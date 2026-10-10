@@ -231,7 +231,9 @@ public class OAuthClient {
     private String locateLoginActionForm(String html) {
         Matcher m = ACTION_PATTERN.matcher(html);
         if (m.find()) {
-            return m.group(1);
+            // '&' separators are HTML-escaped as '&amp;' in the rendered form action; decode them so the POST
+            // carries the real query parameters instead of relying on ';' also being a query delimiter.
+            return m.group(1).replace("&amp;", "&");
         }
         return null;
     }

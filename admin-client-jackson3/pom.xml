@@ -30,6 +30,15 @@
         <dependency>
             <groupId>dev.resteasy.providers</groupId>
             <artifactId>resteasy-jackson-provider</artifactId>
+            <!-- The provider depends on RESTEasy 7.x, which must not end up next to the RESTEasy ${resteasy.version}
+                 artifacts declared below; consumers do not inherit our dependency management, so we exclude it here.
+                 TODO: drop the exclusion when ${resteasy.version} and ${version.resteasy.jackson3.provider} are aligned -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.resteasy</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile.openapi</groupId>

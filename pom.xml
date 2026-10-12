@@ -44,7 +44,7 @@
         <com.fasterxml.jackson.version>2.21.2</com.fasterxml.jackson.version>
         <com.fasterxml.jackson.annotation.version>2.21</com.fasterxml.jackson.annotation.version>
         <version.tools.jackson>3.1.4</version.tools.jackson>
-        <version.resteasy.jackson3.provider>1.0.0.Alpha1</version.resteasy.jackson3.provider>
+        <version.resteasy.jackson3.provider>1.0.0.Final</version.resteasy.jackson3.provider>
         <microprofile-openapi-api.version>4.1.1</microprofile-openapi-api.version>
         <jboss-logging.version>3.6.2.Final</jboss-logging.version>
         <commons-logging-jboss-logging.version>2.0.0.Final</commons-logging-jboss-logging.version>

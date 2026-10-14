@@ -111,7 +111,7 @@ syncFiles authz-client
 
 # Jackson 3 modules only exist from the Keycloak version that introduced them
 KEYCLOAK_VERSION=$(mvn -B -q help:evaluate -Dexpression=keycloak.version -DforceStdout -f admin-client-jackson3/pom.xml)
-JACKSON3_SOURCES=~/.m2/repository/org/keycloak/keycloak-admin-client-jackson3/${KEYCLOAK_VERSION}/keycloak-admin-client-jackson3-${KEYCLOAK_VERSION}-sources.jar
+JACKSON3_SOURCES=~/.m2/repository/org/keycloak/keycloak-admin-client-jackson3-internal/${KEYCLOAK_VERSION}/keycloak-admin-client-jackson3-internal-${KEYCLOAK_VERSION}-sources.jar
 if [ -f "$JACKSON3_SOURCES" ]; then
   syncAndTransform client-common-synced-jackson3 stripJackson2Annotations
   syncFiles admin-client-jackson3

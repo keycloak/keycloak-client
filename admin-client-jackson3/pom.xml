@@ -97,7 +97,7 @@
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.keycloak</groupId>
-                                            <artifactId>keycloak-admin-client-jackson3</artifactId>
+                                            <artifactId>keycloak-admin-client-jackson3-internal</artifactId>
                                             <version>${keycloak.version}</version>
                                             <type>jar</type>
                                             <classifier>sources</classifier>
@@ -109,7 +109,7 @@
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.keycloak</groupId>
-                                            <artifactId>keycloak-admin-client-jackson3</artifactId>
+                                            <artifactId>keycloak-admin-client-jackson3-internal</artifactId>
                                             <version>${keycloak.version}</version>
                                             <type>jar</type>
                                             <classifier>sources</classifier>

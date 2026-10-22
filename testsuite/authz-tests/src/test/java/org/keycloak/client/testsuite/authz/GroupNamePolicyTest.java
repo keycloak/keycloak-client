@@ -32,6 +32,7 @@ import org.keycloak.admin.client.resource.ClientsResource;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.authorization.client.AuthorizationDeniedException;
 import org.keycloak.authorization.client.AuthzClient;
+import org.keycloak.common.constants.ServiceAccountConstants;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
@@ -42,6 +43,7 @@ import org.keycloak.representations.idm.authorization.GroupPolicyRepresentation;
 import org.keycloak.representations.idm.authorization.PermissionRequest;
 import org.keycloak.representations.idm.authorization.ResourcePermissionRepresentation;
 import org.keycloak.representations.idm.authorization.ResourceRepresentation;
+import org.keycloak.testsuite.util.ApiUtil;
 import org.keycloak.testsuite.util.ClientBuilder;
 import org.keycloak.testsuite.util.GroupBuilder;
 import org.keycloak.testsuite.util.RealmBuilder;
@@ -159,7 +161,7 @@ public class GroupNamePolicyTest extends AbstractAuthzTest {
         }
 
         RealmResource realm = getRealm();
-        UserRepresentation serviceAccount = getClient().getServiceAccountUser();
+        UserRepresentation serviceAccount = ApiUtil.findUserByUsername(realm, ServiceAccountConstants.SERVICE_ACCOUNT_USER_PREFIX + "resource-server-test");
         GroupRepresentation rootGroup = realm.groups().groups().stream()
                 .filter(group -> "Group A".equals(group.getName()))
                 .findFirst()

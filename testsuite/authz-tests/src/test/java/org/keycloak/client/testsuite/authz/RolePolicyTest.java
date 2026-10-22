@@ -31,6 +31,7 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.authorization.client.AuthorizationDeniedException;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.client.testsuite.framework.KeycloakVersion;
+import org.keycloak.common.constants.ServiceAccountConstants;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ClientScopeRepresentation;
 import org.keycloak.representations.idm.GroupRepresentation;
@@ -198,7 +199,7 @@ public class RolePolicyTest extends AbstractAuthzTest {
         ClientScopeRepresentation rolesScope = rolesScopeRes.toRepresentation();
         ClientResource clientResource = clients.get(client.getId());
         clientResource.removeDefaultClientScope(rolesScope.getId());
-        UserRepresentation serviceAccountUser = clientResource.getServiceAccountUser();
+        UserRepresentation serviceAccountUser = ApiUtil.findUserByUsername(realm, ServiceAccountConstants.SERVICE_ACCOUNT_USER_PREFIX + client.getClientId());
         RoleRepresentation roleB = realm.roles().get("Role B").toRepresentation();
         realm.users().get(serviceAccountUser.getId()).roles().realmLevel().add(Collections.singletonList(roleB));
         RolePolicyRepresentation roleRep = clientResource.authorization().policies().role().findByName("Role B Policy");

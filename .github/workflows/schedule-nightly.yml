@@ -14,11 +14,16 @@ jobs:
 
     strategy:
       matrix:
-        workflow:
-          - ci.yml
-          - release-nightly.yml
+        base-branch:
+          - release/26.0
 
     steps:
-      - run: gh workflow run -R ${{ github.repository }} ${{ matrix.workflow }}
+      - name: Run ci.yml workflow
+        run: gh workflow run -R ${{ github.repository }} ci.yml -f base-branch=${{ matrix.base-branch }} -r ${{ github.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run release-nightly.yml workflow
+        run: gh workflow run -R ${{ github.repository }} release-nightly.yml -r ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2,19 +2,48 @@ name: Keycloak Client Tests
 
 on:
   workflow_call:
+    inputs:
+      base-branch:
+        type: string
+        description: branch to release from
+        required: true
+        default: main
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  client-tests:
-    name: Client tests
+  client-tests-srv-26:
+    name: Client tests using Keycloak Server 26.x
+    if: ${{ contains(inputs.base-branch, 'release/26.0') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       matrix:
-        keycloak_server_version: [ "26.4", "26.6", "26.7", "nightly" ]
+        keycloak_server_version: [ "26.4", "26.6", "26.7", "26.8" ]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: test-setup
+        name: Test setup
+        uses: ./.github/actions/test-setup
+
+      - name: Run client tests against Keycloak Server 26.x
+        run: |
+          mvn -B -f testsuite/providers/pom.xml package -DskipTests=true
+          mvn -B -f testsuite/admin-client-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
+          mvn -B -f testsuite/authz-tests/pom.xml test -Dkeycloak.version.docker.image=${{ matrix.keycloak_server_version }}
+
+  client-tests-srv-nightly:
+    name: Client tests using Keycloak Server Nightly
+    if: ${{ contains(inputs.base-branch, 'main') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        keycloak_server_version: [ "nightly" ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v7
@@ -31,6 +60,7 @@ jobs:
 
   client-tests-jackson3:
     name: Client tests (Jackson 3)
+    if: ${{ contains(inputs.base-branch, 'main') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -56,6 +86,7 @@ jobs:
 
   client-tests-java-11:
     name: Client tests (Java 11)
+    if: ${{ contains(inputs.base-branch, 'main') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:

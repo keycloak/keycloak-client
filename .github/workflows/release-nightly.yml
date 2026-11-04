@@ -26,5 +26,6 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.MVN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MVN_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          # TODO: remove maven.deploy.skip property
         run: |
-          mvn -nsu -B -Pgpg,jboss-release -DskipTests -Pcentral-staging deploy
+          mvn -nsu -B -Pgpg,jboss-release -DskipTests -Pcentral-staging -Dmaven.deploy.skip=true deploy

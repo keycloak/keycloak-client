@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.keycloak.util.JsonSerialization;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Client Profiles' (the set of all Client Profile) external representation class
@@ -62,8 +62,8 @@ public class ClientProfilesRepresentation {
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof ClientProfilesRepresentation)) return false;
-        JsonNode jsonNode = JsonSerialization.mapper.convertValue(this, JsonNode.class);
-        JsonNode jsonNodeThat = JsonSerialization.mapper.convertValue(obj, JsonNode.class);
-        return jsonNode.equals(jsonNodeThat);
+        JsonNode thisNode = JsonSerialization.mapper.convertValue(this, JsonNode.class);
+        JsonNode thatNode = JsonSerialization.mapper.convertValue(obj, JsonNode.class);
+        return thisNode.equals(thatNode);
     }
 }

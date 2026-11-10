@@ -117,4 +117,4 @@ jobs:
           PR_BODY="Closes #${{ steps.create_issue.outputs.result }}
           
           This PR syncs keycloak-client with the Keycloak branch ${{ env.KEYCLOAK_RELEASE_BRANCH_NAME }}"
-          gh pr create --draft --base main --head "$BRANCH_NAME" --title "$PR_TITLE" --body "$PR_BODY"
+          gh pr create --draft --base ${{envKEYCLOAK_CLIENT_BRANCH }} --head "$BRANCH_NAME" --title "$PR_TITLE" --body "$PR_BODY"

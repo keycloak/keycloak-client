@@ -8,6 +8,13 @@ on:
       - reopened
       - ready_for_review
   workflow_dispatch:
+    inputs:
+      base-branch:
+        type: string
+        description: Base branch to decide which Keycloak Server to use. It points to the branch of keycloak-client. For example, use branch `main` for latest keycloak-client compatible with latest Keycloak server or branch `release/26.0` for branch compatible with Keycloak server 26
+        required: true
+        default: none
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,7 +26,16 @@ jobs:
       - name: Build Keycloak Client Libs
         uses: ./.github/actions/build-keycloak-client
 
+      - name: Display refs
+        run: |
+          echo "github.event.pull_request.base.ref=${{ github.event.pull_request.base.ref }}"
+          echo "github.base_ref=${{ github.base_ref }}"
+          echo "github.ref=${{ github.ref }}"
+          echo "github.ref_name=${{ github.ref_name }}"
+
   client-tests:
     name: Client tests
     needs: build
     uses: ./.github/workflows/run-tests.yml
+    with:
+      base-branch: ${{ case(github.event.pull_request.base.ref != '', github.base_ref, inputs.base-branch) }}

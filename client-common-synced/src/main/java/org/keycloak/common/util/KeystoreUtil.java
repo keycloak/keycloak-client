@@ -64,6 +64,10 @@ public class KeystoreUtil {
         public String getPrimaryExtension() {
             return fileExtensions.get(0);
         }
+
+        public boolean isJavaTrustStore() {
+            return this != PEM;
+        }
     }
 
     public enum KeystoreFormat implements StoreFormat {
@@ -93,8 +97,14 @@ public class KeystoreUtil {
     }
 
     public static KeyStore loadKeyStore(String filename, String password, String preferedType) throws Exception {
+        return loadKeyStore(filename, password, preferedType, null);
+    }
+
+    public static KeyStore loadKeyStore(String filename, String password, String preferedType, String provider) throws Exception {
         String keystoreType = getKeystoreType(preferedType, filename, KeyStore.getDefaultType());
-        KeyStore trustStore = KeyStore.getInstance(keystoreType);
+        KeyStore trustStore = provider == null || provider.isEmpty()
+                ? KeyStore.getInstance(keystoreType)
+                : KeyStore.getInstance(keystoreType, provider);
         InputStream trustStream = null;
         if (filename.startsWith(GenericConstants.PROTOCOL_CLASSPATH)) {
             String resourcePath = filename.replace(GenericConstants.PROTOCOL_CLASSPATH, "");

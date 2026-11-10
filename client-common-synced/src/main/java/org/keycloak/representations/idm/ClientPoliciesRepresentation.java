@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.keycloak.util.JsonSerialization;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -57,9 +56,9 @@ public class ClientPoliciesRepresentation {
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof ClientPoliciesRepresentation)) return false;
-        JsonNode jsonNode = JsonSerialization.mapper.convertValue(this, JsonNode.class);
-        JsonNode jsonNodeThat = JsonSerialization.mapper.convertValue(obj, JsonNode.class);
-        return jsonNode.equals(jsonNodeThat);
+        JsonNode thisNode = JsonSerialization.mapper.convertValue(this, JsonNode.class);
+        JsonNode thatNode = JsonSerialization.mapper.convertValue(obj, JsonNode.class);
+        return thisNode.equals(thatNode);
     }
 
 }

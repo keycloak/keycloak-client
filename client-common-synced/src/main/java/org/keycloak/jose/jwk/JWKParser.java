@@ -29,7 +29,6 @@ import org.keycloak.common.crypto.CryptoIntegration;
 import org.keycloak.common.util.Base64Url;
 import org.keycloak.crypto.KeyType;
 import org.keycloak.util.JsonSerialization;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -75,15 +74,15 @@ public class JWKParser {
 
         // subtypes may store properties differently while representing the same JWK, serializing it to nodes
         // makes sure there is no difference when creating the keys
-        JsonNode normalizedJwkNode = JsonSerialization.writeValueAsNode(jwk);
+        JsonNode normalizedJwk = JsonSerialization.mapper.convertValue(jwk, JsonNode.class);
         if (KeyType.RSA.equals(keyType)) {
-            return createRSAPublicKey(normalizedJwkNode);
+            return createRSAPublicKey(normalizedJwk);
         } else if (KeyType.EC.equals(keyType)) {
-            return createECPublicKey(normalizedJwkNode);
+            return createECPublicKey(normalizedJwk);
         } else if (KeyType.OKP.equals(keyType)) {
             return JWKBuilder.EdEC_UTILS.createOKPPublicKey(jwk);
         } else if (KeyType.AKP.equals(keyType)) {
-            return createAPKPublicKey(normalizedJwkNode);
+            return createAPKPublicKey(normalizedJwk);
         } else {
             throw new RuntimeException("Unsupported keyType " + keyType);
         }

@@ -113,7 +113,7 @@ public class AuthorizationTest extends AbstractAuthorizationTest {
         enableAuthorizationServices(false);
         enableAuthorizationServices(true);
 
-        serviceAccount = clientResource.getServiceAccountUser();
+        serviceAccount = realm.users().search(ServiceAccountConstants.SERVICE_ACCOUNT_USER_PREFIX + resourceServer.getClientId()).get(0);
         Assertions.assertNotNull(serviceAccount);
         serviceAccountRoles = realm.users().get(serviceAccount.getId()).roles().clientLevel(resourceServer.getId()).listEffective();
         Assertions.assertTrue(serviceAccountRoles.stream().anyMatch(roleRepresentation -> "uma_protection".equals(roleRepresentation.getName())));
@@ -140,7 +140,7 @@ public class AuthorizationTest extends AbstractAuthorizationTest {
         policies = clientResource.authorization().policies().policies();
         Assertions.assertTrue(policies.isEmpty());
 
-        serviceAccount = clientResource.getServiceAccountUser();
+        serviceAccount = realm.users().search(ServiceAccountConstants.SERVICE_ACCOUNT_USER_PREFIX + resourceServer.getClientId()).get(0);
         Assertions.assertNotNull(serviceAccount);
         serviceAccountRoles = realm.users().get(serviceAccount.getId()).roles().clientLevel(resourceServer.getId()).listEffective();
         Assertions.assertTrue(serviceAccountRoles.stream().anyMatch(roleRepresentation -> "uma_protection".equals(roleRepresentation.getName())));

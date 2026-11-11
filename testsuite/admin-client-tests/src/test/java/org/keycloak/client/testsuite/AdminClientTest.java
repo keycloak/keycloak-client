@@ -42,6 +42,8 @@ import org.keycloak.testsuite.util.UserBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.keycloak.testsuite.util.ApiUtil.addAdminApiClientScope;
+
 /**
  * Test for the various "Advanced" scenarios of java admin-client
  *
@@ -95,6 +97,7 @@ public class AdminClientTest extends AbstractAdminClientTest {
     @BeforeEach
     public void before() {
         clientUUID = adminClient.realm(realmName).clients().findByClientId(clientId).get(0).getId();
+        addAdminApiClientScope(adminClient.realm(realmName), clientId);
     }
 
     @Test

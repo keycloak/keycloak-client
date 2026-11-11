@@ -51,6 +51,58 @@ import static org.keycloak.representations.idm.CredentialRepresentation.PASSWORD
 public class ApiUtil {
 
     private static final Logger log = Logger.getLogger(ApiUtil.class);
+    public static final String ADMIN_API_CLIENT_SCOPE = "kc-admin-api";
+
+    public static String getAdminApiClientScopeId(RealmResource realm) {
+        return realm.clientScopes().findAll().stream()
+                .filter(s -> ADMIN_API_CLIENT_SCOPE.equals(s.getName()))
+                .map(ClientScopeRepresentation::getId)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static void addAdminApiClientScope(RealmResource realm, String clientId) {
+        addAdminApiClientScope(realm, clientId, true);
+    }
+
+    public static void addAdminApiClientScope(RealmResource realm, String clientId, boolean asDefault) {
+        addAdminApiClientScope(realm, findClientByClientId(realm, clientId), asDefault);
+    }
+
+    public static void addAdminApiClientScope(RealmResource realm, ClientResource client, boolean asDefault) {
+        List<ClientScopeRepresentation> assigned = asDefault ? client.getDefaultClientScopes() : client.getOptionalClientScopes();
+        if (assigned.stream().anyMatch(s -> ADMIN_API_CLIENT_SCOPE.equals(s.getName()))) {
+            return;
+        }
+        String scopeId = getAdminApiClientScopeId(realm);
+        if (scopeId == null) return;
+        if (asDefault) {
+            client.addDefaultClientScope(scopeId);
+        } else {
+            client.addOptionalClientScope(scopeId);
+        }
+    }
+
+    public static void removeAdminApiClientScope(RealmResource realm, String clientId, boolean asDefault) {
+        removeAdminApiClientScope(realm, findClientByClientId(realm, clientId), asDefault);
+    }
+
+    public static void removeAdminApiClientScope(RealmResource realm, ClientResource client, boolean asDefault) {
+        List<ClientScopeRepresentation> assigned = asDefault ? client.getDefaultClientScopes() : client.getOptionalClientScopes();
+        String scopeId = assigned.stream()
+                .filter(s -> ADMIN_API_CLIENT_SCOPE.equals(s.getName()))
+                .map(ClientScopeRepresentation::getId)
+                .findFirst()
+                .orElse(null);
+        if (scopeId == null) {
+            return;
+        }
+        if (asDefault) {
+            client.removeDefaultClientScope(scopeId);
+        } else {
+            client.removeOptionalClientScope(scopeId);
+        }
+    }
 
     public static String getCreatedId(Response response) {
         URI location = response.getLocation();

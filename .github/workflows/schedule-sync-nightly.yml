@@ -1,4 +1,4 @@
-name: Keycloak client sync nightly
+name: Keycloak client sync nightly (release/26.0)
 
 on:
   schedule:
@@ -43,4 +43,5 @@ jobs:
     name: Client tests
     needs: build
     uses: ./.github/workflows/run-tests.yml
-
+    with:
+      base-branch: release/26.0

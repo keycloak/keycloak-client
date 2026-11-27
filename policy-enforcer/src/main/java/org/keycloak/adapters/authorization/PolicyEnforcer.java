@@ -403,7 +403,13 @@ public class PolicyEnforcer {
         }
 
         try {
-            return URI.create(relativePath).normalize().getPath().equals(accessDeniedPath);
+            URI normalizedRelativePath = URI.create(relativePath).normalize();
+
+            if (normalizedRelativePath.isAbsolute() || normalizedRelativePath.getRawAuthority() != null) {
+                return false;
+            }
+
+            return normalizedRelativePath.getPath().equals(accessDeniedPath);
         } catch (IllegalArgumentException e) {
             LOGGER.debugf(e, "failed to parse relative path [%s]", relativePath);
             return false;

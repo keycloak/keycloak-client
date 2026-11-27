@@ -17,6 +17,7 @@
 package org.keycloak.client.testsuite.policyenforcer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.AuthorizationContext;
@@ -37,6 +39,7 @@ import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.client.testsuite.authz.AbstractAuthzTest;
 import org.keycloak.client.testsuite.common.OAuthClient;
 import org.keycloak.client.testsuite.common.OAuthClient.AccessTokenResponse;
+import org.keycloak.client.testsuite.framework.TestRegistry;
 import org.keycloak.representations.adapters.config.PolicyEnforcerConfig;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
@@ -56,6 +59,7 @@ import org.keycloak.testsuite.util.RoleBuilder;
 import org.keycloak.testsuite.util.RolesBuilder;
 import org.keycloak.testsuite.util.UserBuilder;
 import org.keycloak.testsuite.util.WaitUtils;
+import org.keycloak.util.JsonSerialization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -227,6 +231,50 @@ public class PolicyEnforcerTest extends AbstractAuthzTest {
 
         context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/api/resourceb?x=/accessDenied", token), response.clear());
         assertFalse(context.isGranted());
+    }
+
+    @Test
+    public void testOnDenyRedirectToRejectsAuthorityAndAbsoluteRequestUris() throws IOException {
+        PolicyEnforcer policyEnforcer = createPolicyEnforcerWithRedirect("/accessDenied");
+        String token = doLoginAndGetAccessToken();
+
+        assertDeniedWithExactRedirect(policyEnforcer, "//api/accessDenied", token, "/accessDenied");
+        assertDeniedWithExactRedirect(policyEnforcer, "https://example.test/accessDenied", token, "/accessDenied");
+
+        AuthorizationContext context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/accessDenied", token),
+                new AuthzTestUtils.TestResponse());
+        assertTrue(context.isGranted());
+    }
+
+    @Test
+    public void testOnDenyRedirectToLeadingSlashBranches() throws IOException {
+        PolicyEnforcer policyEnforcer = createPolicyEnforcerWithRedirect("/");
+        String token = doLoginAndGetAccessToken();
+
+        for (String path : new String[] {"/api", "//api/", "///api/", "////api/"}) {
+            assertDeniedWithExactRedirect(policyEnforcer, path, token, "/");
+        }
+
+        AuthorizationContext context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest("/", token),
+                new AuthzTestUtils.TestResponse());
+        assertTrue(context.isGranted());
+    }
+
+    @Test
+    public void testOnDenyRedirectToFailsClosedOnInvalidUri() throws IOException {
+        PolicyEnforcer policyEnforcer = createPolicyEnforcerWithRedirect("/accessDenied");
+
+        assertDeniedWithExactRedirect(policyEnforcer, "/api/[", doLoginAndGetAccessToken(), "/accessDenied");
+    }
+
+    @Test
+    public void testOnDenyRedirectToAbsoluteRedirectIsNotTreatedAsLocalPath() throws IOException {
+        String redirect = "https://denied.example/accessDenied";
+        PolicyEnforcer policyEnforcer = createPolicyEnforcerWithRedirect(redirect);
+        String token = doLoginAndGetAccessToken();
+
+        assertDeniedWithExactRedirect(policyEnforcer, "/accessDenied", token, redirect);
+        assertDeniedWithExactRedirect(policyEnforcer, "//denied.example/accessDenied", token, redirect);
     }
 
     @Test
@@ -687,6 +735,28 @@ public class PolicyEnforcerTest extends AbstractAuthzTest {
         if (clientResource.authorization().resources().findByName("Root").isEmpty()) {
             createResource(clientResource, "Root", "/*");
         }
+    }
+
+    private PolicyEnforcer createPolicyEnforcerWithRedirect(String redirect) throws IOException {
+        try (InputStream configStream = AuthzTestUtils.getAdapterConfiguration("enforcer-on-deny-redirect.json")) {
+            PolicyEnforcerConfig config = JsonSerialization.readValue(configStream, PolicyEnforcerConfig.class);
+            config.setOnDenyRedirectTo(redirect);
+
+            return PolicyEnforcer.builder()
+                    .enforcerConfig(config)
+                    .bearerOnly(false)
+                    .httpClient(TestRegistry.INSTANCE.getOrCreateProvider(CloseableHttpClient.class))
+                    .build();
+        }
+    }
+
+    private void assertDeniedWithExactRedirect(PolicyEnforcer policyEnforcer, String path, String token, String redirect) {
+        AuthzTestUtils.TestResponse response = new AuthzTestUtils.TestResponse();
+        AuthorizationContext context = policyEnforcer.enforce(AuthzTestUtils.createHttpRequest(path, token), response);
+
+        assertFalse(context.isGranted(), "Should be denied for path: " + path);
+        assertEquals(302, response.getStatus());
+        assertEquals(Collections.singletonList(redirect), response.getHeaders().get("Location"));
     }
 
     private ResourceRepresentation createResource(ClientResource clientResource, String name, String uri, String... scopes) {
